@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 3 – Tuples</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* SLIDE SYSTEM */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 90px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);overflow-y:auto;}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* NAV */
+.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav .slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.nav .dots{display:flex;gap:5px;}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.nav .dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* TYPOGRAPHY */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(28px,4.5vw,56px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(20px,2.8vw,36px);font-weight:900;line-height:1.2;margin-bottom:14px;}
+h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.6vw,16px);line-height:1.6;color:var(--text);}
+
+/* UTILITIES */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:9px 20px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:16px 20px;font-size:clamp(12px,1.4vw,14px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.code-block .hl{background:rgba(255,217,61,.12);border-radius:4px;display:block;}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── S1 TITLE ── */
+#s1{background:linear-gradient(135deg,#E8FFF6 0%,#F0E8FF 60%,#FFE8F5 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--teal);top:-120px;right:-100px;}
+#s1 .b2{width:320px;height:320px;background:var(--purple);bottom:-80px;left:-80px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+
+/* ── S2 RECAP ── */
+#s2{background:#F8F4FF;}
+.recap-row{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+.recap-chip{flex:1;min-width:240px;background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:5px solid;}
+
+/* ── S3 WHAT IS A TUPLE ── */
+#s3{background:#FFF8F0;}
+#s3 .b1{width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;}
+
+/* ── S4 LOCKED CONCEPT ── */
+#s4{background:#F5F0FF;}
+#s4 .b1{width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;}
+
+/* ── S5 SYNTAX ── */
+#s5{background:#1A1333;color:white;}
+#s5 h2,#s5 .slide-label{color:rgba(255,255,255,0.9);}
+#s5 .slide-label{opacity:.5;}
+
+/* ── S6 REAL WORLD ── */
+#s6{background:#E8F4FF;}
+#s6 .b1{width:300px;height:300px;background:var(--blue);top:-70px;right:-70px;}
+
+/* ── S7 ACCESS / UNPACK INTERACTIVE ── */
+#s7{background:#1A1333;color:white;}
+#s7 h2{color:white;}#s7 .slide-label{opacity:.5;}
+.tup-layout{display:flex;gap:20px;flex:1;margin-top:8px;flex-wrap:wrap;}
+.tup-left{flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;}
+.tup-right{flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;}
+.tup-slots{display:flex;gap:8px;flex-wrap:wrap;}
+.tup-slot{flex:1;min-width:70px;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center;transition:background .3s,border-color .3s,transform .3s;cursor:pointer;}
+.tup-slot:hover{border-color:var(--yellow);transform:translateY(-3px);}
+.tup-slot.highlight{border-color:var(--teal);background:rgba(0,201,167,0.18);}
+.tup-slot .sv{font-size:15px;font-weight:800;color:white;}
+.tup-slot .si{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.tup-op-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.tup-output{background:#120f24;border-radius:12px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:13px;color:var(--teal);min-height:48px;line-height:1.8;flex:1;}
+
+/* ── S8 IMMUTABLE INTERACTIVE ── */
+#s8{background:#1A1333;color:white;}
+#s8 h2{color:white;}#s8 .slide-label{opacity:.5;}
+.imm-layout{display:flex;gap:20px;flex:1;margin-top:8px;flex-wrap:wrap;}
+.imm-col{flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;}
+.imm-box{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.imm-chip{padding:8px 12px;border-radius:8px;font-weight:800;font-size:14px;text-align:center;}
+.imm-log{background:#120f24;border-radius:12px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:13px;min-height:48px;line-height:1.8;}
+
+/* ── S9 COMPARISON ── */
+#s9{background:#FFF0F8;}
+#s9 .b1{width:300px;height:300px;background:var(--pink);top:-70px;right:-70px;}
+.comp-table{width:100%;border-collapse:separate;border-spacing:0 8px;}
+.comp-table th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px 2px;}
+.comp-table td{padding:11px 14px;background:white;font-size:13.5px;vertical-align:top;}
+.comp-table tr td:first-child{border-radius:10px 0 0 10px;font-weight:700;}
+.comp-table tr td:last-child{border-radius:0 10px 10px 0;}
+.comp-table tr:hover td{background:#FFF0F8;}
+
+/* ── S10 WHEN TO USE ── */
+#s10{background:#F0FFF8;}
+#s10 .b1{width:280px;height:280px;background:var(--teal);top:-60px;left:-60px;}
+
+/* ── S11 QUIZ ── */
+#s11{background:#F5F0FF;}
+#s11 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-q{font-size:clamp(15px,2.2vw,20px);font-weight:800;margin-bottom:16px;line-height:1.4;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-opt{padding:14px 18px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:44px;font-size:16px;font-weight:800;padding-top:12px;display:flex;align-items:center;gap:10px;}
+.quiz-nav{display:flex;align-items:center;gap:14px;margin-top:12px;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+
+/* ── S12 ASSIGNMENTS ── */
+#s12{background:#F0FFF8;}
+#s12 .b1{width:280px;height:280px;background:var(--teal);bottom:-70px;right:-70px;}
+.assign-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.assign-tab{padding:7px 16px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;}
+.assign-panel.show{display:flex;flex-direction:column;gap:12px;}
+.assign-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:#e2dcff;border:none;border-radius:var(--radius);padding:16px;resize:none;outline:none;line-height:1.9;}
+.assign-run-btn{align-self:flex-start;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;border-radius:12px;padding:14px;min-height:52px;white-space:pre-wrap;line-height:1.8;}
+.check-output{margin-top:4px;}
+.check-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;}
+.check-row{font-family:'Fira Code',monospace;font-size:12px;padding:5px 10px;border-radius:8px;margin-bottom:3px;line-height:1.5;}
+.check-row.pass{background:#d4edda;color:#155724;}
+.check-row.fail{background:#f8d7da;color:#721c24;}
+
+/* ── S13 FINAL ── */
+#s13{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s13 .b1{width:380px;height:380px;background:var(--teal);top:-100px;left:-100px;}
+#s13 .b2{width:320px;height:320px;background:var(--pink);bottom:-80px;right:-80px;}
+#s13 h2{color:white;font-size:clamp(24px,3.5vw,44px);}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;width:100%;max-width:820px;}
+.final-card{border-radius:var(--radius);padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.final-card h3{font-size:14px;color:white;}
+.final-card p{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <span class="tag tag-teal">Lesson 3</span>
+    <span class="tag tag-purple">6th Grade Python</span>
+    <span class="tag tag-blue">New Topic</span>
+  </div>
+  <h1>Meet the<br><em>Tuple!</em> 🔒</h1>
+  <p style="font-size:clamp(15px,2vw,20px);color:var(--muted);margin-top:14px;font-weight:600;">what is a tuple · why it's locked · real examples · lists vs tuples vs dictionaries · quiz · coding assignments</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;">
+    <span class="tag tag-orange">✦ What is a tuple</span>
+    <span class="tag tag-teal">✦ Can't be changed</span>
+    <span class="tag tag-lime">✦ Real-world uses</span>
+    <span class="tag tag-pink">✦ Quiz</span>
+    <span class="tag tag-purple">✦ Assignments</span>
+  </div>
+  <div style="margin-top:28px;background:white;border-radius:14px;padding:14px 20px;box-shadow:var(--shadow);display:inline-flex;gap:12px;align-items:center;max-width:600px;">
+    <span style="font-size:22px;">💡</span>
+    <p style="font-size:14px;"><strong>You already know:</strong> lists, dictionaries, and string operations. A tuple is the new sibling in the family — and it has one special superpower!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — RECAP
+══════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-label">Quick Recap — What You Know</div>
+  <h2>The collections you've already met 🧠</h2>
+  <div class="recap-row">
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <h3>📋 List</h3>
+      <p>An ordered box of items you <strong>can change</strong> any time — add, remove, swap.</p>
+      <div class="code-block" style="margin-top:8px;font-size:12px;padding:10px 14px;">
+        pets = [<span class="st">"dog"</span>, <span class="st">"cat"</span>, <span class="st">"fish"</span>]<br>
+        pets.<span class="fn">append</span>(<span class="st">"bird"</span>)&nbsp;<span class="cm"># ✏️ change it!</span>
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <h3>📖 Dictionary</h3>
+      <p>Pairs of <strong>key → value</strong>. Look things up by their label.</p>
+      <div class="code-block" style="margin-top:8px;font-size:12px;padding:10px 14px;">
+        scores = {<span class="st">"Sam"</span>: <span class="nu">95</span>}<br>
+        scores[<span class="st">"Sam"</span>]&nbsp;&nbsp;<span class="cm"># → 95</span>
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <h3>🔤 Strings</h3>
+      <p>Text you can slice, join, and shout with <code>.upper()</code>.</p>
+      <div class="code-block" style="margin-top:8px;font-size:12px;padding:10px 14px;">
+        name = <span class="st">"max"</span><br>
+        name.<span class="fn">upper</span>()&nbsp;&nbsp;<span class="cm"># → "MAX"</span>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--yellow);border-radius:14px;padding:14px 20px;margin-top:16px;display:flex;gap:12px;align-items:center;">
+    <span style="font-size:22px;">🎯</span>
+    <p style="font-size:14px;color:var(--dark);"><strong>Today's mission:</strong> add a 4th tool to your toolbox — the <strong>tuple</strong> — and learn when each one is the right choice.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — WHAT IS A TUPLE
+══════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">The Big Idea</div>
+  <h2>So… what IS a tuple? 🔒</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">A <strong>tuple</strong> is a list's twin — it holds a group of items in order. But there's ONE huge difference: once you create a tuple, you <strong>cannot change it</strong>. It's locked!</p>
+  <div class="grid2" style="gap:18px;">
+    <div style="background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border-top:4px solid var(--blue);">
+      <h3>📋 A List uses square brackets</h3>
+      <div class="code-block" style="margin-top:8px;">
+        colors = [<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>]
+      </div>
+      <p style="font-size:13px;margin-top:10px;">✏️ Like writing in <strong>pencil</strong> — you can always erase and rewrite.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border-top:4px solid var(--purple);">
+      <h3>🔒 A Tuple uses round parentheses</h3>
+      <div class="code-block" style="margin-top:8px;">
+        colors = (<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>)
+      </div>
+      <p style="font-size:13px;margin-top:10px;">🖊️ Like writing in <strong>permanent marker</strong> — once it's down, it stays.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:240px;background:#FFF8E1;border:2px solid var(--yellow);border-radius:14px;padding:14px 18px;">
+      <h3>🧠 Easy way to remember</h3>
+      <p style="font-size:13px;margin-top:4px;"><strong>L</strong>ist = <strong>L</strong>oose (can change). <strong>T</strong>uple = <strong>T</strong>ight / locked (cannot change). Tuples even use the same shape of brackets as a hug: ( )!</p>
+    </div>
+    <div style="flex:1;min-width:240px;background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);border-left:5px solid var(--teal);">
+      <h3>🔤 The word "tuple"</h3>
+      <p style="font-size:13px;margin-top:4px;">It rhymes with "couple." A "couple" is 2 things; a tuple can be 2, 3, 5, or more — a fixed bunch of items locked together.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — WHY LOCKED / IMPORTANCE
+══════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">Why Tuples Matter</div>
+  <h2>Why would we WANT something locked? 🤔</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">It sounds strange that "can't change" is a superpower — but locking data protects it from mistakes. Some things should never change!</p>
+  <div class="grid3">
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--red);">
+      <div style="font-size:28px;margin-bottom:6px;">🛡️</div>
+      <h3>Protects important data</h3>
+      <p style="font-size:13px;margin-top:4px;">Your birthday is <em>(month, day, year)</em>. It should NEVER accidentally change. A tuple keeps it safe.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--teal);">
+      <div style="font-size:28px;margin-bottom:6px;">⚡</div>
+      <h3>Faster for the computer</h3>
+      <p style="font-size:13px;margin-top:4px;">Because tuples never change, Python can store them more efficiently than lists. Small speed boost!</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--purple);">
+      <div style="font-size:28px;margin-bottom:6px;">📦</div>
+      <h3>Groups that belong together</h3>
+      <p style="font-size:13px;margin-top:4px;">A point on a map is <em>(x, y)</em>. The two numbers belong together — a tuple bundles them as ONE thing.</p>
+    </div>
+  </div>
+  <div style="background:var(--dark);border-radius:14px;padding:16px 20px;margin-top:16px;display:flex;gap:12px;align-items:center;">
+    <span style="font-size:24px;">🔑</span>
+    <p style="font-size:14px;color:white;"><strong style="color:var(--yellow);">Key insight:</strong> Use a tuple when the group of items should stay <em>exactly</em> the way you made it — no surprises, no accidental edits.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — SYNTAX
+══════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-label">How to Write Tuples 🐍</div>
+  <h2>Tuple syntax in Python</h2>
+  <div class="grid2" style="gap:20px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="code-block">
+<span class="cm"># Make a tuple with parentheses</span>
+birthday = (<span class="nu">10</span>, <span class="nu">25</span>, <span class="nu">2013</span>)
+
+<span class="cm"># Read items by position (starts at 0!)</span>
+<span class="fn">print</span>(birthday[<span class="nu">0</span>])&nbsp;&nbsp;<span class="cm"># → 10</span>
+<span class="fn">print</span>(birthday[<span class="nu">2</span>])&nbsp;&nbsp;<span class="cm"># → 2013</span>
+
+<span class="cm"># Find how many items</span>
+<span class="fn">print</span>(<span class="fn">len</span>(birthday))&nbsp;<span class="cm"># → 3</span>
+      </div>
+      <div class="code-block">
+<span class="cm"># Unpacking — give each item a name!</span>
+point = (<span class="nu">4</span>, <span class="nu">7</span>)
+x, y = point
+<span class="fn">print</span>(x)&nbsp;&nbsp;<span class="cm"># → 4</span>
+<span class="fn">print</span>(y)&nbsp;&nbsp;<span class="cm"># → 7</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:rgba(255,255,255,0.07);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">The Rules</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">1️⃣</span>
+          <p style="font-size:14px;color:#fff;">Use <strong>round brackets</strong> <code style="background:rgba(255,255,255,0.15);color:#fff;">( )</code> and separate items with commas.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">2️⃣</span>
+          <p style="font-size:14px;color:#fff;">Read any item with <strong>square brackets and a number</strong> — counting from <code style="background:rgba(255,255,255,0.15);color:#fff;">0</code>.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">3️⃣</span>
+          <p style="font-size:14px;color:#fff;">You <strong>cannot</strong> do <code style="background:rgba(255,255,255,0.15);color:#fff;">tuple[0] = 99</code> — Python will give an error!</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">4️⃣</span>
+          <p style="font-size:14px;color:#fff;"><strong>Unpacking</strong> lets you pull items out into named variables in one line.</p>
+        </div>
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:12px 16px;">
+        <p style="font-size:13px;color:var(--dark);"><strong>⚠️ One sneaky rule:</strong> a tuple with a single item needs a comma: <code>(5,)</code> is a tuple, but <code>(5)</code> is just the number 5!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — REAL WORLD EXAMPLES
+══════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <div class="slide-label">Tuples in Real Life</div>
+  <h2>Where tuples show up around you 🌍</h2>
+  <div class="grid2" style="gap:14px;">
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--blue);">
+      <div style="font-size:22px;margin-bottom:6px;">🗺️ Map coordinates</div>
+      <p style="font-size:13px;">Your location on a map is locked together as <code>(latitude, longitude)</code>. The two numbers always travel as a pair.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--pink);">
+      <div style="font-size:22px;margin-bottom:6px;">🎨 RGB colors</div>
+      <p style="font-size:13px;">Every color on a screen is <code>(red, green, blue)</code>. Hot pink is <code>(255, 105, 180)</code> — three numbers, one color.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--orange);">
+      <div style="font-size:22px;margin-bottom:6px;">📅 A date</div>
+      <p style="font-size:13px;">A birthday like <code>(10, 25, 2013)</code> = month, day, year. It should never accidentally change!</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--teal);">
+      <div style="font-size:22px;margin-bottom:6px;">📐 Screen size</div>
+      <p style="font-size:13px;">Your phone screen is <code>(width, height)</code> in pixels, like <code>(1080, 1920)</code> — a fixed measurement.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--purple);">
+      <div style="font-size:22px;margin-bottom:6px;">🎵 A music note</div>
+      <p style="font-size:13px;">A note can be stored as <code>(name, beats)</code> like <code>("C", 4)</code> — the note and how long it plays.</p>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--lime);">
+      <div style="font-size:22px;margin-bottom:6px;">🍕 A menu price</div>
+      <p style="font-size:13px;">An item could be <code>("Pizza", 12)</code> — the name and its price stuck together as one unit.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — ACCESS & UNPACK INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="slide-label">Interactive — Reading a Tuple</div>
+  <h2>Click an item to read it! 👆</h2>
+  <div class="tup-layout">
+    <div class="tup-left">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Pick a tuple</div>
+      <select id="tup-pick" onchange="setupTup()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none;">
+        <option value="color">🎨 RGB color (255, 105, 180)</option>
+        <option value="date">📅 Birthday (10, 25, 2013)</option>
+        <option value="point">🗺️ Map point (4, 7)</option>
+        <option value="screen">📐 Screen (1080, 1920)</option>
+      </select>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">The tuple (click a slot)</div>
+      <div class="tup-slots" id="tup-slots"></div>
+      <div class="tup-op-btns">
+        <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="unpackTup()">📦 Unpack all</button>
+        <button class="pill-btn" style="background:rgba(255,255,255,0.1);color:white;" onclick="resetTup()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="tup-right">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Code</div>
+      <div class="code-block" style="font-size:13px;" id="tup-code">my_tuple = (...)</div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Output</div>
+      <div class="tup-output" id="tup-output"><span style="color:rgba(255,255,255,0.25);font-style:italic;">Click a slot above to read its value...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — IMMUTABLE INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-label">Interactive — The Lock in Action</div>
+  <h2>List vs Tuple: try to change them! 🔓🔒</h2>
+  <div class="imm-layout">
+    <div class="imm-col">
+      <div class="imm-box" style="background:rgba(0,129,207,0.12);border:2px solid var(--blue);">
+        <div class="imm-chip" style="background:var(--blue);color:white;">📋 LIST — changeable</div>
+        <div class="code-block" style="font-size:13px;">snacks = [<span id="li-0" class="st">"chips"</span>, <span class="st">"cookie"</span>]</div>
+        <button class="pill-btn" style="background:var(--blue);color:white;align-self:flex-start;" onclick="tryChangeList()">✏️ snacks[0] = "apple"</button>
+        <div class="imm-log" id="li-log"><span style="color:rgba(255,255,255,0.3);font-style:italic;">Press the button to try changing it...</span></div>
+      </div>
+    </div>
+    <div class="imm-col">
+      <div class="imm-box" style="background:rgba(132,94,194,0.14);border:2px solid var(--purple);">
+        <div class="imm-chip" style="background:var(--purple);color:white;">🔒 TUPLE — locked</div>
+        <div class="code-block" style="font-size:13px;">snacks = (<span id="tu-0" class="st">"chips"</span>, <span class="st">"cookie"</span>)</div>
+        <button class="pill-btn" style="background:var(--purple);color:white;align-self:flex-start;" onclick="tryChangeTuple()">✏️ snacks[0] = "apple"</button>
+        <div class="imm-log" id="tu-log"><span style="color:rgba(255,255,255,0.3);font-style:italic;">Press the button to try changing it...</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--yellow);border-radius:12px;padding:12px 18px;margin-top:14px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>💡 Notice:</strong> the list happily changed. The tuple refused and threw an error — that's the lock protecting your data!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — COMPARISON TABLE
+══════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="blob b1"></div>
+  <div class="slide-label">Side by Side</div>
+  <h2>List vs Tuple vs Dictionary 📊</h2>
+  <table class="comp-table">
+    <thead>
+      <tr><th>Feature</th><th>📋 List</th><th>🔒 Tuple</th><th>📖 Dictionary</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Brackets</td>
+        <td><code>[ ]</code> square</td>
+        <td><code>( )</code> round</td>
+        <td><code>{ }</code> curly</td>
+      </tr>
+      <tr>
+        <td>Can you change it?</td>
+        <td>✅ Yes — add/remove/edit</td>
+        <td>❌ No — it's locked</td>
+        <td>✅ Yes — change values</td>
+      </tr>
+      <tr>
+        <td>How to look things up</td>
+        <td>By position <code>[0]</code></td>
+        <td>By position <code>[0]</code></td>
+        <td>By key <code>["name"]</code></td>
+      </tr>
+      <tr>
+        <td>Example</td>
+        <td><code>["a","b","c"]</code></td>
+        <td><code>("a","b","c")</code></td>
+        <td><code>{"pet":"dog"}</code></td>
+      </tr>
+      <tr>
+        <td>Best for...</td>
+        <td>A collection that grows &amp; changes 🛒</td>
+        <td>Fixed data that shouldn't change 🔒</td>
+        <td>Looking things up by a label 🏷️</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="background:white;border-radius:14px;padding:12px 20px;margin-top:8px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;">
+    <span style="font-size:20px;">🧭</span>
+    <p style="font-size:14px;"><strong>The big difference:</strong> Lists and dictionaries can change. A tuple is the one that stays frozen exactly how you made it.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — WHEN TO USE WHICH
+══════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <div class="slide-label">Decision Helper</div>
+  <h2>Which one should I pick? 🤷</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">Ask yourself these quick questions:</p>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:900px;">
+    <div style="background:white;border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center;border-left:5px solid var(--purple);">
+      <span style="font-size:26px;">🔒</span>
+      <div>
+        <h3>"Should this data stay exactly the same forever?"</h3>
+        <p style="font-size:13px;">→ Use a <strong>TUPLE</strong>. Examples: a birthday, a color code, map coordinates.</p>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center;border-left:5px solid var(--blue);">
+      <span style="font-size:26px;">📋</span>
+      <div>
+        <h3>"Will I add, remove, or reorder items later?"</h3>
+        <p style="font-size:13px;">→ Use a <strong>LIST</strong>. Examples: a to-do list, players in a game, items in a cart.</p>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center;border-left:5px solid var(--teal);">
+      <span style="font-size:26px;">📖</span>
+      <div>
+        <h3>"Do I need to look things up by a name or label?"</h3>
+        <p style="font-size:13px;">→ Use a <strong>DICTIONARY</strong>. Examples: a phone book, scores by player name, settings.</p>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--dark);border-radius:14px;padding:14px 20px;margin-top:16px;display:flex;gap:12px;align-items:center;max-width:900px;">
+    <span style="font-size:22px;">⭐</span>
+    <p style="font-size:14px;color:white;"><strong style="color:var(--yellow);">Rule of thumb:</strong> If it should never change → tuple. If it grows → list. If it has labels → dictionary.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 11 — QUIZ
+══════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="slide-label">Quiz Time! 🧪</div>
+  <h2>Test Your Knowledge 💡</h2>
+  <div class="prog-bar"><div class="prog-fill" id="qprog" style="width:0%"></div></div>
+  <div id="quiz-area">
+    <div class="quiz-q" id="q-text"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <span class="q-ctr" id="q-ctr"></span>
+      <button class="pill-btn" style="background:var(--dark);color:white;display:none;" id="q-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-done" style="display:none;text-align:center;padding-top:10px;">
+    <div style="font-size:52px;margin-bottom:12px;">🎉</div>
+    <h3 style="font-size:22px;margin-bottom:6px;">Quiz complete!</h3>
+    <p id="quiz-score" style="font-size:17px;color:var(--muted);margin-bottom:18px;"></p>
+    <button class="pill-btn" style="background:var(--purple);color:white;" onclick="resetQuiz()">Try again 🔄</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 12 — ASSIGNMENTS
+══════════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="blob b1"></div>
+  <div class="slide-label">Coding Assignments 💻</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <h2 style="margin:0;">Practice Time! ✏️</h2>
+    <button class="pill-btn" onclick="saveMyWork()" style="background:var(--teal);color:#fff;font-size:13px;">💾 Save My Work</button>
+  </div>
+  <div class="assign-tabs">
+    <button class="assign-tab active" onclick="showAssign('a1',this)">1 — Rectangle Function</button>
+    <button class="assign-tab" onclick="showAssign('a2',this)">2 — Return a Tuple</button>
+    <button class="assign-tab" onclick="showAssign('a3',this)">3 — Distance Between Points</button>
+    <button class="assign-tab" onclick="showAssign('a4',this)">4 — Highest Score</button>
+  </div>
+
+  <div class="assign-panel show" id="a1">
+    <div class="assign-meta">
+      <span class="tag tag-teal">functions + tuples</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤○○ Medium</span>
+    </div>
+    <p style="font-size:13px;"><strong>Goal:</strong> A rectangle's size is stored as a tuple <code>(width, height)</code>. Build a function that finds its area.</p>
+    <p style="font-size:13px;margin-top:6px;"><strong>Steps:</strong></p>
+    <ol style="font-size:13px;margin:4px 0 0 18px;line-height:1.7;">
+      <li>Inside the <code>area</code> function, <em>unpack</em> the size tuple into <code>width</code> and <code>height</code>.</li>
+      <li><code>return</code> <code>width * height</code>.</li>
+      <li>Run it — the test calls at the bottom should print <code>20</code> then <code>6</code>.</li>
+    </ol>
+    <p style="font-size:12px;color:var(--muted);margin-top:6px;">💡 Replace <code>pass</code> with your code. Keep the two <code>print()</code> lines so "Check My Answer" can grade you!</p>
+    <textarea class="assign-editor" id="ed-a1" rows="12">def area(size):
+    # 1. Unpack size into width and height
+    # 2. return width * height
+    pass
+
+room = (4, 5)
+poster = (2, 3)
+
+print(area(room))
+print(area(poster))
+
+# ── More test vectors to try (change the prints above) ──
+# (5, 5)  -> 25      (2, 10) -> 20      (1, 1) -> 1
+</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a1')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a1')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-a1">(output will appear here)</div>
+    <div class="check-output" id="chk-a1"></div>
+  </div>
+
+  <div class="assign-panel" id="a2">
+    <div class="assign-meta">
+      <span class="tag tag-purple">function returns a tuple</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Challenge</span>
+    </div>
+    <p style="font-size:13px;"><strong>Goal:</strong> A function can <em>return a tuple</em> — that's how it gives back more than one answer at once!</p>
+    <p style="font-size:13px;margin-top:6px;"><strong>Steps:</strong></p>
+    <ol style="font-size:13px;margin:4px 0 0 18px;line-height:1.7;">
+      <li>Inside <code>min_and_max(a, b, c)</code>, find the smallest with <code>min(a, b, c)</code> and the largest with <code>max(a, b, c)</code>.</li>
+      <li>Return them together as one tuple: <code>(smallest, largest)</code>.</li>
+      <li>The test code <em>unpacks</em> the returned tuple into <code>low, high</code> and prints each. It should print <code>2</code> then <code>9</code>.</li>
+    </ol>
+    <textarea class="assign-editor" id="ed-a2" rows="12">def min_and_max(a, b, c):
+    # Return a tuple: (smallest, largest)
+    pass
+
+low, high = min_and_max(7, 2, 9)
+print(low)
+print(high)
+
+# ── More test vectors to try ──
+# min_and_max(4, 4, 4)    -> (4, 4)
+# min_and_max(-3, 0, 8)   -> (-3, 8)
+# min_and_max(100, 50, 75) -> (50, 100)
+</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a2')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a2')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-a2">(output will appear here)</div>
+    <div class="check-output" id="chk-a2"></div>
+  </div>
+
+  <div class="assign-panel" id="a3">
+    <div class="assign-meta">
+      <span class="tag tag-blue">functions + unpacking</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Challenge</span>
+    </div>
+    <p style="font-size:13px;"><strong>Goal:</strong> Each spot on a grid is a tuple <code>(x, y)</code>. Count how many steps it takes to walk from one point to another (across, then up or down).</p>
+    <p style="font-size:13px;margin-top:6px;"><strong>Steps:</strong></p>
+    <ol style="font-size:13px;margin:4px 0 0 18px;line-height:1.7;">
+      <li>Unpack <code>start</code> into <code>x1, y1</code> and <code>end</code> into <code>x2, y2</code>.</li>
+      <li>Find the across distance (<code>x2 - x1</code>) and the up/down distance (<code>y2 - y1</code>).</li>
+      <li>A distance might be negative — use an <code>if</code> to flip it positive (multiply by <code>-1</code>) when it's less than 0. (Or use <code>abs()</code>!)</li>
+      <li>Return the across distance plus the up/down distance. The test should print <code>7</code>.</li>
+    </ol>
+    <textarea class="assign-editor" id="ed-a3" rows="12">def steps(start, end):
+    # Unpack both points, add the across + up/down distances
+    pass
+
+print(steps((1, 1), (4, 5)))
+
+# ── More test vectors to try ──
+# steps((4, 5), (1, 1)) -> 7   (same distance backwards!)
+# steps((0, 0), (0, 0)) -> 0   (already there)
+# steps((2, 3), (5, 1)) -> 5
+</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a3')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a3')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-a3">(output will appear here)</div>
+    <div class="check-output" id="chk-a3"></div>
+  </div>
+
+  <div class="assign-panel" id="a4">
+    <div class="assign-meta">
+      <span class="tag tag-orange">functions + tuples + loop</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤⬤ Hard</span>
+    </div>
+    <p style="font-size:13px;"><strong>Goal:</strong> Find the winner! You're given a list where each player is a tuple <code>(name, score)</code>. Write <code>top_player(players)</code> so it returns the <strong>name</strong> of the player with the highest score. 🏆</p>
+    <p style="font-size:13px;margin-top:6px;"><strong>Think it through first (this one's up to you!):</strong></p>
+    <ul style="font-size:13px;margin:4px 0 0 18px;line-height:1.7;">
+      <li>How will you look at <em>every</em> player, not just one?</li>
+      <li>As you go, how do you remember the best player you've seen <em>so far</em>?</li>
+      <li>How do you decide whether a new player is better than your current best?</li>
+      <li>What should your "best so far" start as, before you've checked anyone?</li>
+    </ul>
+    <p style="font-size:12px;color:var(--muted);margin-top:6px;">💡 Plan it in plain words (pseudocode) first, then turn each idea into Python. The test list should print <code>Ava</code>.</p>
+    <textarea class="assign-editor" id="ed-a4" rows="14">def top_player(players):
+    # Your code here — return the name with the highest score
+    pass
+
+players = [("Sam", 85), ("Ava", 92), ("Leo", 88)]
+print(top_player(players))
+
+# ── More test vectors to try (change the list above) ──
+# [("Mia", 70), ("Max", 70), ("Zoe", 100)]   -> Zoe
+# [("Kai", 55)]                               -> Kai
+# [("Ravi", 40), ("Nina", 95), ("Omar", 95)] -> Nina
+</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a4')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a4')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-a4">(output will appear here)</div>
+    <div class="check-output" id="chk-a4"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 13 — FINAL RECAP
+══════════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <h2>Awesome work today! 🌟</h2>
+  <div class="final-grid">
+    <div class="final-card" style="background:rgba(132,94,194,0.18);border:2px solid var(--purple);">
+      <div style="font-size:36px;">🔒</div>
+      <h3>Tuples are locked</h3>
+      <p>Made with ( ) round brackets. Once created, you can't change them.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,201,167,0.12);border:2px solid var(--teal);">
+      <div style="font-size:36px;">🔢</div>
+      <h3>Read by position</h3>
+      <p>Use [0], [1], [2]... counting from zero. You can also unpack into named variables.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,140,66,0.15);border:2px solid var(--orange);">
+      <div style="font-size:36px;">🧭</div>
+      <h3>Pick the right tool</h3>
+      <p>Tuple = won't change. List = grows &amp; changes. Dictionary = look up by label.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;justify-content:center;max-width:820px;">
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:14px 20px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Next lesson:</strong> Functions — giving names to your own blocks of code so you can reuse them anywhere!</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:14px 20px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Keep practicing:</strong> Open the assignment slide and try to complete all 4 coding challenges!</p>
+    </div>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);margin-top:18px;font-size:13px;">Arrow keys to navigate · Press F for fullscreen</p>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button onclick="nav(-1)">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="ctr">1 / 13</span>
+  <button onclick="nav(1)">→</button>
+</div>
+
+<script>
+// ── SLIDE ENGINE ──────────────────────────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+let cur = 0;
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),400);
+  cur=(n+slides.length)%slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent=(cur+1)+' / '+slides.length;
+}
+function nav(d){goTo(cur+d);}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='TEXTAREA') return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+
+// ── TUPLE READ/UNPACK INTERACTIVE (slide 7) ───────────────────────────────────
+const tupData = {
+  color:  {name:'color',   vars:['r','g','b'],          vals:[255,105,180], labels:['red','green','blue']},
+  date:   {name:'birthday',vars:['month','day','year'], vals:[10,25,2013],  labels:['month','day','year']},
+  point:  {name:'point',   vars:['x','y'],              vals:[4,7],         labels:['x','y']},
+  screen: {name:'screen',  vars:['width','height'],     vals:[1080,1920],   labels:['width','height']}
+};
+let curTup='color';
+function setupTup(){
+  curTup=document.getElementById('tup-pick').value;
+  const t=tupData[curTup];
+  const slots=document.getElementById('tup-slots');
+  slots.innerHTML='';
+  t.vals.forEach((v,i)=>{
+    const s=document.createElement('div');
+    s.className='tup-slot';
+    s.innerHTML=`<div class="sv">${v}</div><div class="si">[${i}] ${t.labels[i]}</div>`;
+    s.onclick=()=>readTup(i,s);
+    slots.appendChild(s);
+  });
+  document.getElementById('tup-code').innerHTML=
+    `${t.name} = (`+t.vals.map(v=>`<span style="color:var(--cyan);">${v}</span>`).join(', ')+`)`;
+  document.getElementById('tup-output').innerHTML=
+    '<span style="color:rgba(255,255,255,0.25);font-style:italic;">Click a slot above to read its value...</span>';
+}
+function readTup(i,el){
+  const t=tupData[curTup];
+  document.querySelectorAll('.tup-slot').forEach(s=>s.classList.remove('highlight'));
+  el.classList.add('highlight');
+  document.getElementById('tup-output').innerHTML=
+    `<span style="color:var(--cyan);">${t.name}[${i}]</span>  →  <span style="color:var(--teal);">${t.vals[i]}</span>`;
+}
+function unpackTup(){
+  const t=tupData[curTup];
+  document.querySelectorAll('.tup-slot').forEach(s=>s.classList.add('highlight'));
+  const left=t.vars.join(', ');
+  let lines=`<span style="color:var(--cyan);">${left} = ${t.name}</span><br>`;
+  t.vars.forEach((vn,i)=>{
+    lines+=`<span style="color:var(--teal);">${vn} = ${t.vals[i]}</span><br>`;
+  });
+  document.getElementById('tup-output').innerHTML=lines;
+}
+function resetTup(){setupTup();}
+setupTup();
+
+// ── IMMUTABLE DEMO (slide 8) ──────────────────────────────────────────────────
+function tryChangeList(){
+  document.getElementById('li-0').textContent='"apple"';
+  document.getElementById('li-0').style.color='var(--teal)';
+  document.getElementById('li-log').innerHTML=
+    `<span style="color:var(--teal);">✅ Success! snacks is now ["apple", "cookie"]</span><br>`+
+    `<span style="color:rgba(255,255,255,0.5);">Lists let you change items any time.</span>`;
+}
+function tryChangeTuple(){
+  document.getElementById('tu-log').innerHTML=
+    `<span style="color:var(--red);">❌ TypeError:</span><br>`+
+    `<span style="color:rgba(255,255,255,0.7);">'tuple' object does not support item assignment</span><br>`+
+    `<span style="color:rgba(255,255,255,0.5);">The lock held — the tuple stays ("chips", "cookie").</span>`;
+}
+
+// ── QUIZ (slide 11) ───────────────────────────────────────────────────────────
+const questions=[
+  {q:'Which brackets do you use to make a tuple?',opts:['[ ] square brackets','( ) round brackets','{ } curly brackets','< > angle brackets'],ans:1},
+  {q:'What is the MAIN difference between a list and a tuple?',opts:['Tuples can only hold numbers','A tuple cannot be changed after you make it','Lists are faster than tuples','Tuples can be empty'],ans:1},
+  {q:'For the tuple  t = (10, 20, 30)  what does  t[0]  give you?',opts:['10','20','30','an error'],ans:0},
+  {q:'Which of these is the BEST use for a tuple?',opts:['A shopping list that keeps growing','Storing a birthday (month, day, year)','Players who join and leave a game','A to-do list you edit daily'],ans:1},
+  {q:'What happens if you try  t[0] = 99  on a tuple?',opts:['It quietly works','Python gives an error','It adds a new item','It deletes the tuple'],ans:1},
+  {q:'What does "unpacking" a tuple mean?',opts:['Deleting the tuple','Pulling its items into separate named variables','Turning it into a list','Counting its items'],ans:1},
+  {q:'Counting positions in a tuple starts at which number?',opts:['1','0','-1','It depends'],ans:1},
+  {q:'Which collection lets you look things up by a label or key?',opts:['List','Tuple','Dictionary','String'],ans:2},
+  {q:'A color on screen is often stored as (255, 105, 180). Why is a tuple a good choice here?',opts:['Colors change all the time','The three numbers belong together and stay fixed','Tuples can hold more numbers','It looks prettier'],ans:1},
+  {q:'How do you find how many items are in a tuple named  t ?',opts:['t.count()','size(t)','len(t)','t.length'],ans:2},
+];
+let qIdx=0,score=0,answered=false;
+function renderQ(){
+  const q=questions[qIdx];
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-ctr').textContent='Question '+(qIdx+1)+' of '+questions.length;
+  document.getElementById('qprog').style.width=(qIdx/questions.length*100)+'%';
+  document.getElementById('q-fb').textContent='';
+  document.getElementById('q-next').style.display='none';
+  answered=false;
+  const opts=document.getElementById('q-opts');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-opt';btn.textContent=opt;
+    btn.onclick=()=>answer(i,btn);
+    opts.appendChild(btn);
+  });
+}
+function answer(i,btn){
+  if(answered) return;
+  answered=true;
+  const correct=questions[qIdx].ans;
+  document.querySelectorAll('.quiz-opt').forEach((b,idx)=>{
+    if(idx===correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled=true;
+  });
+  const fb=document.getElementById('q-fb');
+  if(i===correct){score++;fb.innerHTML='🎉 Correct!';}
+  else fb.innerHTML='❌ Not quite — the green answer is correct!';
+  document.getElementById('q-next').style.display='inline-block';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=questions.length){
+    document.getElementById('quiz-area').style.display='none';
+    document.getElementById('quiz-done').style.display='block';
+    document.getElementById('qprog').style.width='100%';
+    const pct=Math.round(score/questions.length*100);
+    document.getElementById('quiz-score').textContent=`You got ${score} out of ${questions.length} (${pct}%) ${pct>=87?'🌟 Outstanding!':pct>=62?'👍 Well done!':'💪 Keep practicing!'}`;
+  } else renderQ();
+}
+function resetQuiz(){qIdx=0;score=0;document.getElementById('quiz-area').style.display='block';document.getElementById('quiz-done').style.display='none';renderQ();}
+renderQ();
+
+// ── ASSIGNMENTS (slide 12) — powered by Skulpt (real Python) ───────────────────
+function showAssign(id,btn){
+  document.querySelectorAll('.assign-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+function runAssign(id){
+  const code=document.getElementById('ed-'+id).value;
+  const out=document.getElementById('out-'+id);
+  out.textContent='';
+  out.style.color='var(--teal)';
+  Sk.configure({
+    output:t=>{ out.textContent+=t; },
+    read:x=>{
+      if(Sk.builtinFiles?.files[x]===undefined) throw 'File not found: '+x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody('<stdin>',false,code,true))
+    .then(()=>{ if(!out.textContent) out.textContent='(No output — did you forget print()?)'; })
+    .catch(err=>{ out.textContent='Error: '+err.toString(); out.style.color='var(--red)'; });
+}
+
+// Expected output lines for "Check My Answer"
+const TESTS={
+  'a1': ["20","6"],
+  'a2': ["2","9"],
+  'a3': ["7"],
+  'a4': ["Ava"],
+};
+
+function checkAnswer(id){
+  const code=document.getElementById('ed-'+id).value;
+  const expected=TESTS[id];
+  const chk=document.getElementById('chk-'+id);
+  chk.innerHTML='<div class="check-label">CHECKING...</div>';
+  let captured='';
+  Sk.configure({
+    output:t=>{ captured+=t; },
+    read:x=>{
+      if(Sk.builtinFiles?.files[x]===undefined) throw 'File not found: '+x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody('<stdin>',false,code,true))
+    .then(()=>{
+      const lines=captured.split('\n').filter(l=>l!=='');
+      let html='<div class="check-label">RESULTS:</div>';
+      let allPass=true;
+      expected.forEach((exp,i)=>{
+        const got=lines[i]!==undefined?lines[i]:'(no output)';
+        const pass=got===exp;
+        if(!pass) allPass=false;
+        html+=`<div class="check-row ${pass?'pass':'fail'}">${pass?'✅':'❌'} Line ${i+1}: <strong>${exp}</strong>${pass?'':` — got: <strong>${got}</strong>`}</div>`;
+      });
+      if(lines.length>expected.length){
+        allPass=false;
+        for(let i=expected.length;i<lines.length;i++){
+          html+=`<div class="check-row fail">❌ Extra line ${i+1}: <strong>${lines[i]}</strong></div>`;
+        }
+      }
+      if(allPass) html+='<div class="check-row pass" style="margin-top:6px;font-weight:700;">🎉 All correct! Great work!</div>';
+      chk.innerHTML=html;
+    })
+    .catch(err=>{ chk.innerHTML=`<div class="check-row fail">❌ Error: ${err.toString()}</div>`; });
+}
+
+// ── Auto-save students' code to the browser so it survives refreshes ──
+(function(){
+  const P='l3-';
+  document.querySelectorAll('.assign-editor').forEach(t=>{
+    const saved=localStorage.getItem(P+t.id);
+    if(saved!==null) t.value=saved;
+    t.addEventListener('input',()=>localStorage.setItem(P+t.id,t.value));
+  });
+})();
+
+// ── Save a copy of this lesson (with the student's code baked in) ──
+function saveMyWork(){
+  const clone=document.documentElement.cloneNode(true);
+  document.querySelectorAll('.assign-editor').forEach((t,i)=>{
+    clone.querySelectorAll('.assign-editor')[i].textContent=t.value;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>'+clone.outerHTML],{type:'text/html'}));
+  a.download='lesson3_tuples_mywork.html';
+  a.click();
+}
+
+</script>
+</body>
+</html>

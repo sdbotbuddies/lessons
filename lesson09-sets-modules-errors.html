@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 9 – Sets, Modules & Error Handling</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8; --violet:#C77DFF;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ── SLIDE SYSTEM ── */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:32px 52px 88px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav .slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.nav .dots{display:flex;gap:5px;}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.nav .dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* ── TYPOGRAPHY ── */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(26px,4.2vw,52px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(18px,2.6vw,34px);font-weight:900;line-height:1.2;margin-bottom:12px;}
+h3{font-size:15px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.5vw,15px);line-height:1.6;color:var(--text);}
+
+/* ── UTILITIES ── */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.tag-cyan{background:var(--cyan);color:var(--dark);}
+.tag-violet{background:var(--violet);color:#fff;}
+.card{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:8px 18px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:14px 18px;font-size:clamp(11px,1.3vw,13px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.code-block .hl{background:rgba(255,217,61,.14);border-radius:4px;display:block;}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* ══ S1 TITLE ══ */
+#s1{background:linear-gradient(135deg,#EEE8FF 0%,#E8F5FF 50%,#E8FFF5 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--purple);top:-110px;right:-90px;}
+#s1 .b2{width:300px;height:300px;background:var(--teal);bottom:-70px;left:-70px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+
+/* ══ S2 RECAP ══ */
+#s2{background:#F5F0FF;}
+.recap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;}
+.recap-chip{background:white;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);border-left:4px solid;display:flex;flex-direction:column;gap:6px;}
+
+/* ══ S3 WHAT IS A SET ══ */
+#s3{background:linear-gradient(135deg,#FFFBF0 0%,#FFF0E8 100%);}
+#s3 .b1{width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;}
+.set-analogy{display:flex;gap:14px;margin-top:10px;flex:1;}
+.set-analogy-card{flex:1;background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:4px solid;display:flex;flex-direction:column;gap:8px;}
+.marble-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.marble{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:white;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.marble.faded{opacity:0.25;position:relative;}
+.marble.faded::after{content:'✕';position:absolute;font-size:16px;font-weight:900;}
+
+/* ══ S4 NO DUPLICATES ══ */
+#s4{background:#F5F0FF;}
+#s4 .b1{width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;}
+.vs-table{width:100%;border-collapse:separate;border-spacing:0 8px;flex:1;}
+.vs-table th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px 4px;}
+.vs-table td{padding:10px 14px;background:white;font-size:13px;}
+.vs-table tr td:first-child{border-radius:10px 0 0 10px;font-weight:700;font-family:'Fira Code',monospace;font-size:12px;}
+.vs-table tr td:last-child{border-radius:0 10px 10px 0;}
+.dedup-demo{margin-top:10px;background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);}
+.item-pill{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;margin:3px;}
+
+/* ══ S5 SET OPERATIONS INTERACTIVE ══ */
+#s5{background:var(--dark);color:white;}
+#s5 h2{color:white;}#s5 .slide-label{opacity:.5;}
+.venn-layout{display:flex;gap:18px;flex:1;margin-top:8px;}
+.venn-controls{display:flex;flex-direction:column;gap:10px;min-width:180px;}
+.op-btn{padding:9px 14px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all .2s;text-align:left;}
+.op-btn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,217,61,0.08);}
+.op-btn:hover:not(.active){border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.75);}
+.venn-main{flex:1;display:flex;flex-direction:column;gap:10px;}
+.venn-cols{display:grid;grid-template-columns:1fr auto 1fr;gap:0;flex:1;align-items:stretch;}
+.venn-col{padding:12px;display:flex;flex-direction:column;gap:6px;border:2px solid rgba(255,255,255,0.08);transition:all .3s;border-radius:0;}
+.venn-col:first-child{border-radius:14px 0 0 14px;}
+.venn-col:last-child{border-radius:0 14px 14px 0;}
+.venn-divider{width:2px;background:rgba(255,255,255,0.08);transition:background .3s;}
+.venn-col.hl-a{border-color:var(--blue);background:rgba(0,129,207,0.1);}
+.venn-col.hl-b{border-color:var(--orange);background:rgba(255,140,66,0.1);}
+.venn-col.hl-both{border-color:var(--purple);background:rgba(132,94,194,0.15);}
+.venn-col-title{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:rgba(255,255,255,0.3);margin-bottom:4px;transition:color .3s;}
+.venn-col.hl-a .venn-col-title{color:var(--cyan);}
+.venn-col.hl-b .venn-col-title{color:var(--orange);}
+.venn-col.hl-both .venn-col-title{color:var(--violet);}
+.venn-item{padding:5px 8px;border-radius:8px;font-size:12px;font-weight:700;text-align:center;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);transition:all .3s;}
+.venn-col.hl-a .venn-item{background:rgba(0,129,207,0.2);color:white;}
+.venn-col.hl-b .venn-item{background:rgba(255,140,66,0.2);color:white;}
+.venn-col.hl-both .venn-item{background:rgba(132,94,194,0.25);color:white;}
+.venn-code-box{background:#120f24;border-radius:12px;padding:11px 14px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.8;color:#e2dcff;min-height:44px;}
+
+/* ══ S6 SET METHODS ══ */
+#s6{background:linear-gradient(135deg,#E8FBF4 0%,#F0F8FF 100%);}
+#s6 .b1{width:280px;height:280px;background:var(--teal);top:-60px;right:-60px;}
+
+/* ══ S7 MODULES INTRO ══ */
+#s7{background:linear-gradient(135deg,#FFF8E1 0%,#FFE8D8 100%);}
+#s7 .b1{width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;}
+.module-row{display:flex;gap:12px;flex-wrap:wrap;flex:1;margin-top:8px;}
+.module-card{flex:1;min-width:140px;background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-top:4px solid;display:flex;flex-direction:column;gap:6px;}
+
+/* ══ S8 MATH MODULE ══ */
+#s8{background:var(--dark);color:white;}
+#s8 h2{color:white;}#s8 .slide-label{opacity:.5;}
+.math-layout{display:flex;gap:18px;flex:1;margin-top:8px;}
+.math-left{flex:1;display:flex;flex-direction:column;gap:10px;}
+.math-right{flex:1;display:flex;flex-direction:column;gap:10px;}
+.math-btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.math-fn-btn{padding:10px 12px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);font-family:'Fira Code',monospace;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;text-align:center;}
+.math-fn-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.math-fn-btn.active{border-color:var(--yellow);background:rgba(255,217,61,0.1);color:var(--yellow);}
+.math-result-box{background:#120f24;border-radius:14px;padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:6px;}
+.math-call{font-family:'Fira Code',monospace;font-size:13px;color:#6e65a0;}
+.math-arrow{font-family:'Fira Code',monospace;font-size:13px;color:rgba(255,255,255,0.3);}
+.math-answer{font-size:40px;font-weight:900;color:var(--yellow);text-align:center;padding:10px;}
+.math-input-row{display:flex;gap:8px;align-items:center;}
+.math-input{background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;color:white;font-family:'Fira Code',monospace;font-size:14px;padding:8px 12px;width:90px;outline:none;text-align:center;}
+.math-input:focus{border-color:var(--cyan);}
+
+/* ══ S9 RANDOM MODULE ══ */
+#s9{background:var(--dark);color:white;}
+#s9 h2{color:white;}#s9 .slide-label{opacity:.5;}
+.rand-layout{display:flex;gap:18px;flex:1;margin-top:8px;}
+.rand-btns-col{display:flex;flex-direction:column;gap:10px;min-width:190px;}
+.rand-big-btn{padding:14px 18px;border-radius:14px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px;}
+.rand-big-btn:hover{border-color:var(--yellow);background:rgba(255,217,61,0.08);}
+.rand-result-col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.rand-display{background:#120f24;border-radius:14px;padding:16px;flex:1;display:flex;flex-direction:column;gap:8px;}
+.rand-big-output{font-size:48px;text-align:center;padding:10px;line-height:1;transition:transform .15s;font-weight:900;}
+.rand-sub-output{font-family:'Fira Code',monospace;font-size:13px;color:var(--teal);text-align:center;}
+.rand-code-hint{font-family:'Fira Code',monospace;font-size:11px;color:#6e65a0;margin-top:4px;}
+
+/* ══ S10 TYPES OF ERRORS ══ */
+#s10{background:linear-gradient(135deg,#FFF0F0 0%,#FFF8E1 100%);}
+#s10 .b1{width:280px;height:280px;background:var(--red);top:-60px;right:-60px;}
+.err-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;flex:1;margin-top:8px;}
+.err-card{background:white;border-radius:var(--radius);padding:13px 16px;box-shadow:var(--shadow);border-left:4px solid var(--red);display:flex;flex-direction:column;gap:5px;}
+.err-name{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--red);}
+.err-cause{font-size:12px;color:var(--muted);}
+.err-eg{font-family:'Fira Code',monospace;font-size:11px;background:#FFF0F0;border-radius:6px;padding:4px 8px;color:var(--dark);margin-top:2px;}
+
+/* ══ S11 TRY/EXCEPT BASICS ══ */
+#s12{background:linear-gradient(135deg,#FFFBF0 0%,#F0FFF8 100%);}
+#s12 .b1{width:280px;height:280px;background:var(--teal);bottom:-60px;right:-60px;}
+
+/* ══ S12 ADVANCED ══ */
+#s13{background:var(--dark);color:white;}
+#s13 h2{color:white;}#s13 .slide-label{opacity:.5;}
+
+/* ══ S13 ERROR INTERACTIVE ══ */
+#s14{background:#1A1333;color:white;}
+#s14 h2{color:white;}#s14 .slide-label{opacity:.5;}
+.err-demo-layout{display:flex;gap:14px;flex:1;margin-top:8px;}
+.err-demo-panel{flex:1;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.err-panel-bad{background:#2A0A0A;border:2px solid #5A1A1A;}
+.err-panel-good{background:#0A2A1A;border:2px solid #1A5A3A;}
+.err-panel-title{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+.err-demo-code{font-family:'Fira Code',monospace;font-size:11px;background:#120f24;border-radius:10px;padding:11px;line-height:1.8;color:#e2dcff;}
+.err-output{font-family:'Fira Code',monospace;font-size:13px;border-radius:10px;padding:10px;min-height:40px;font-weight:700;}
+.err-output.bad{background:#3A0A0A;color:var(--red);}
+.err-output.good{background:#0A3A1A;color:var(--teal);}
+.scenario-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.scen-btn{padding:5px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+.scen-btn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,217,61,0.08);}
+
+/* ══ S14 QUIZ ══ */
+#s15{background:#F5F0FF;}
+#s15 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-q{font-size:clamp(14px,2vw,19px);font-weight:800;margin-bottom:14px;line-height:1.4;}
+.quiz-q code{font-size:.85em;color:var(--purple);}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quiz-opt{padding:12px 16px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:50px;font-size:14px;font-weight:700;padding-top:10px;display:flex;align-items:center;gap:8px;line-height:1.4;}
+.quiz-nav{display:flex;align-items:center;gap:12px;margin-top:10px;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:12px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+.diff-badge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.06em;}
+.diff-easy{background:#E8FBF4;color:#0F6E56;}
+.diff-medium{background:#FFF8E1;color:#8B5E00;}
+.diff-hard{background:#FFF0F0;color:#A32D2D;}
+
+/* ══ S15 ASSIGNMENTS ══ */
+#s16{background:#F0FFF8;}
+#s16 .b1{width:280px;height:280px;background:var(--teal);bottom:-70px;right:-70px;}
+.assign-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.assign-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.assign-tab{padding:6px 14px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;}
+.assign-panel.show{display:flex;flex-direction:column;gap:8px;}
+.assign-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:2px;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:12.5px;background:var(--dark);color:#e2dcff;border:none;border-radius:14px;padding:14px;resize:none;outline:none;line-height:1.9;}
+.assign-run-btn{align-self:flex-start;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:12px;border-radius:12px;padding:12px;min-height:46px;white-space:pre-wrap;line-height:1.7;}
+.save-btn{padding:7px 16px;border-radius:999px;border:none;background:var(--purple);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;margin-left:auto;}
+.save-btn:hover{background:#6B4BA0;transform:translateY(-1px);}
+.autosave-txt{font-size:10px;color:var(--muted);font-style:italic;white-space:nowrap;}
+
+/* CHECK MY WORK */
+.assign-btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:0;}
+.assign-check-btn{padding:8px 18px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;background:var(--purple);color:#fff;transition:transform .12s,box-shadow .12s;}
+.assign-check-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.15);}
+.assign-check-btn:active{transform:scale(.97);}
+.check-result{background:#F5F0FF;border-radius:12px;padding:10px 14px;display:none;margin-top:4px;line-height:1.7;}
+.check-result.show{display:block;}
+.chk-summary{font-size:13px;font-weight:800;margin-bottom:5px;}
+.chk-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;margin:2px;line-height:1.5;}
+.chk-pass{background:#E8FBF4;color:#0F6E56;}
+.chk-fail{background:#FFF0F0;color:#A32D2D;}
+.assign-desc{background:rgba(255,255,255,0.55);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:8px 14px;margin:6px 0 8px;font-size:12.5px;line-height:1.75;}.assign-desc ol{margin:0;padding-left:18px;}.assign-desc li{margin-bottom:1px;}
+/* ══ S16 FINAL ══ */
+#s17{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s17 .b1{width:360px;height:360px;background:var(--purple);top:-100px;left:-100px;}
+#s17 .b2{width:300px;height:300px;background:var(--teal);bottom:-80px;right:-80px;}
+#s17 h2{color:white;font-size:clamp(22px,3.2vw,40px);}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;width:100%;max-width:840px;}
+.final-card{border-radius:var(--radius);padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
+.final-card h3{font-size:13px;color:white;}
+.final-card p{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <span class="tag tag-purple">Lesson 9</span>
+    <span class="tag tag-teal">6th Grade Python</span>
+    <span class="tag tag-yellow">Advanced Topics</span>
+  </div>
+  <h1>Sets, <em>Modules</em> &amp;<br>Error Handling 🛡️</h1>
+  <p style="font-size:clamp(14px,1.8vw,19px);color:var(--muted);margin-top:14px;font-weight:600;">Three powerful tools every Python programmer needs to know</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+    <span class="tag tag-orange">✦ Sets</span>
+    <span class="tag tag-blue">✦ math module</span>
+    <span class="tag tag-lime">✦ random module</span>
+    <span class="tag tag-pink">✦ try / except</span>
+    <span class="tag tag-purple">✦ Quiz</span>
+    <span class="tag tag-teal">✦ Coding Challenges</span>
+  </div>
+  <div style="margin-top:26px;background:white;border-radius:14px;padding:13px 18px;box-shadow:var(--shadow);display:inline-flex;gap:12px;align-items:center;max-width:560px;">
+    <span style="font-size:22px;">💡</span>
+    <p style="font-size:13px;"><strong>Last time:</strong> We learned functions, lists, tuples, strings, and dictionaries. Today we add three more tools to your Python toolkit!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 2 — RECAP
+══════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-label">Quick Recap — What We Know</div>
+  <h2>Your Python toolbox so far 🧠</h2>
+  <div class="recap-grid">
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <span style="font-size:22px;">🔀</span><h3>Conditionals</h3>
+      <p style="font-size:12px;">if / elif / else — making decisions</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <span style="font-size:22px;">🔁</span><h3>Loops</h3>
+      <p style="font-size:12px;">for &amp; while — repeating code</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <span style="font-size:22px;">📦</span><h3>Functions</h3>
+      <p style="font-size:12px;">def — reusable blocks of code</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--orange);">
+      <span style="font-size:22px;">📋</span><h3>Lists</h3>
+      <p style="font-size:12px;">Ordered, changeable, allows duplicates</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--pink);">
+      <span style="font-size:22px;">🔒</span><h3>Tuples</h3>
+      <p style="font-size:12px;">Ordered, fixed — can't be changed</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--yellow);">
+      <span style="font-size:22px;">🗂️</span><h3>Dictionaries</h3>
+      <p style="font-size:12px;">Key → Value pairs, like a real dictionary</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--cyan);">
+      <span style="font-size:22px;">🔤</span><h3>Strings</h3>
+      <p style="font-size:12px;">Text + methods: .upper(), .split(), etc.</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--lime);" style="background:#FFFBF0;">
+      <span style="font-size:22px;">🆕</span><h3>Today</h3>
+      <p style="font-size:12px;">Sets · Modules · Error Handling</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>🎯 Goal today:</strong> Learn to store unique items, use Python's built-in toolkits, and write programs that don't crash!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 3 — WHAT IS A SET?
+══════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 1 — Sets</div>
+  <h2>What is a Set? 🎱</h2>
+  <div class="set-analogy">
+    <div class="set-analogy-card" style="border-color:var(--orange);">
+      <div style="font-size:22px;">🛍️</div>
+      <h3>Real life: A bag of marbles</h3>
+      <p style="font-size:13px;">Imagine a bag where every marble colour is unique — you'd remove duplicates. Order doesn't matter; you just care which colours are in the bag.</p>
+      <div class="marble-row">
+        <div class="marble" style="background:var(--red);">R</div>
+        <div class="marble" style="background:var(--blue);">B</div>
+        <div class="marble" style="background:var(--teal);">G</div>
+        <div class="marble" style="background:var(--yellow);color:var(--dark);">Y</div>
+        <div class="marble" style="background:var(--purple);">P</div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);">No duplicates. No "first" marble.</p>
+    </div>
+    <div class="set-analogy-card" style="border-color:var(--blue);">
+      <div style="font-size:22px;">🐍</div>
+      <h3>In Python</h3>
+      <p style="font-size:13px;">A set is created with <strong>curly braces</strong> <code>{}</code>. It stores items with NO duplicates and NO fixed order.</p>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;margin-top:4px;">
+<span class="cm"># Creating a set</span>
+<span class="kw">colors</span> = {<span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span>}
+
+<span class="cm"># Check membership — super fast!</span>
+<span class="fn">print</span>(<span class="st">"red"</span> <span class="kw">in</span> colors)   <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"pink"</span> <span class="kw">in</span> colors)  <span class="cm"># False</span>
+
+<span class="cm"># Add a new item</span>
+colors.<span class="fn">add</span>(<span class="st">"yellow"</span>)
+<span class="fn">print</span>(colors)
+      </div>
+    </div>
+    <div class="set-analogy-card" style="border-color:var(--purple);">
+      <div style="font-size:22px;">⚡</div>
+      <h3>Three key properties</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <div style="background:#F5F0FF;border-radius:10px;padding:8px 12px;">
+          <p style="font-size:13px;font-weight:800;color:var(--purple);">1. No duplicates</p>
+          <p style="font-size:12px;">Adding "red" twice keeps only one "red"</p>
+        </div>
+        <div style="background:#E8FBF4;border-radius:10px;padding:8px 12px;">
+          <p style="font-size:13px;font-weight:800;color:var(--teal);">2. No fixed order</p>
+          <p style="font-size:12px;">Can't do <code>colors[0]</code> — sets have no index</p>
+        </div>
+        <div style="background:#FFF8E1;border-radius:10px;padding:8px 12px;">
+          <p style="font-size:13px;font-weight:800;color:var(--orange);">3. Fast membership test</p>
+          <p style="font-size:12px;"><code>"red" in colors</code> is extremely fast</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 4 — NO DUPLICATES + COMPARISON
+══════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">Sets — No Duplicates</div>
+  <h2>Sets always keep items unique ✨</h2>
+  <div class="grid2" style="flex:1;gap:18px;margin-top:8px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="dedup-demo">
+        <p style="font-weight:800;font-size:13px;margin-bottom:8px;">What happens when you add duplicates to a set:</p>
+        <div class="code-block" style="font-size:12px;padding:10px 14px;">
+<span class="kw">nums</span> = {<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>, <span class="nu">9</span>, <span class="nu">2</span>, <span class="nu">6</span>, <span class="nu">5</span>}
+<span class="fn">print</span>(nums)
+<span class="cm"># {1, 2, 3, 4, 5, 6, 9}  ← duplicates gone!</span>
+
+<span class="kw">tags</span> = {<span class="st">"python"</span>, <span class="st">"python"</span>, <span class="st">"coding"</span>}
+<span class="fn">print</span>(tags)
+<span class="cm"># {"python", "coding"}  ← only one "python"</span>
+
+<span class="cm"># A common trick: remove duplicates from a list</span>
+<span class="kw">votes</span> = [<span class="st">"Alice"</span>,<span class="st">"Bob"</span>,<span class="st">"Alice"</span>,<span class="st">"Carol"</span>,<span class="st">"Bob"</span>]
+<span class="kw">unique_voters</span> = <span class="fn">set</span>(votes)
+<span class="fn">print</span>(unique_voters)  <span class="cm"># {"Alice","Bob","Carol"}</span>
+        </div>
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:10px 14px;">
+        <p style="font-size:13px;color:var(--dark);"><strong>💡 Pro Trick:</strong> Wrap a list with <code>set()</code> to instantly remove all duplicates!</p>
+      </div>
+    </div>
+    <div>
+      <p style="font-weight:800;font-size:13px;margin-bottom:10px;">Sets vs Lists vs Tuples — side by side:</p>
+      <table class="vs-table">
+        <tr>
+          <th>Feature</th><th style="text-align:center;">List [ ]</th><th style="text-align:center;">Tuple ( )</th><th style="text-align:center;">Set { }</th>
+        </tr>
+        <tr>
+          <td>Ordered?</td>
+          <td style="text-align:center;">✅ Yes</td>
+          <td style="text-align:center;">✅ Yes</td>
+          <td style="text-align:center;">❌ No</td>
+        </tr>
+        <tr>
+          <td>Allows duplicates?</td>
+          <td style="text-align:center;">✅ Yes</td>
+          <td style="text-align:center;">✅ Yes</td>
+          <td style="text-align:center;">❌ No</td>
+        </tr>
+        <tr>
+          <td>Can change it?</td>
+          <td style="text-align:center;">✅ Yes</td>
+          <td style="text-align:center;">❌ No</td>
+          <td style="text-align:center;">✅ Yes</td>
+        </tr>
+        <tr>
+          <td>Index access?</td>
+          <td style="text-align:center;">✅ <code>a[0]</code></td>
+          <td style="text-align:center;">✅ <code>a[0]</code></td>
+          <td style="text-align:center;">❌ No</td>
+        </tr>
+        <tr>
+          <td>Fast <code>in</code> check?</td>
+          <td style="text-align:center;">🐢 Slow</td>
+          <td style="text-align:center;">🐢 Slow</td>
+          <td style="text-align:center;">⚡ Fast</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 5 — SET OPERATIONS INTERACTIVE
+══════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-label">Sets — Operations</div>
+  <h2>Set Operations — like a Venn Diagram 🟣🟠</h2>
+  <div class="venn-layout">
+    <div class="venn-controls">
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;">Choose an operation:</p>
+      <button class="op-btn active" id="op-union" onclick="setOp('union')">🔵🟠 A | B — Union<br><span style="font-size:11px;font-weight:600;opacity:.7;">Everything in both sets</span></button>
+      <button class="op-btn" id="op-inter" onclick="setOp('inter')">🟣 A &amp; B — Intersection<br><span style="font-size:11px;font-weight:600;opacity:.7;">Only items in BOTH</span></button>
+      <button class="op-btn" id="op-diff_ab" onclick="setOp('diff_ab')">🔵 A - B — Difference<br><span style="font-size:11px;font-weight:600;opacity:.7;">In A but NOT in B</span></button>
+      <button class="op-btn" id="op-diff_ba" onclick="setOp('diff_ba')">🟠 B - A — Difference<br><span style="font-size:11px;font-weight:600;opacity:.7;">In B but NOT in A</span></button>
+      <div style="margin-top:8px;background:rgba(255,255,255,0.05);border-radius:12px;padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.45);">
+        <div style="margin-bottom:4px;"><span style="color:var(--cyan);font-weight:700;">Set A</span> = {🍎 apple, 🥭 mango, 🍇 grape, 🍒 cherry}</div>
+        <div><span style="color:var(--orange);font-weight:700;">Set B</span> = {🥭 mango, 🍇 grape, 🥝 kiwi, 🍋 lemon}</div>
+      </div>
+    </div>
+    <div class="venn-main">
+      <div class="venn-cols" id="venn-cols">
+        <div class="venn-col hl-a" id="vcol-a">
+          <div class="venn-col-title">Only in A</div>
+          <div class="venn-item">🍎 apple</div>
+          <div class="venn-item">🍒 cherry</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0;min-width:8px;">
+          <div class="venn-divider" style="flex:1;" id="vd1"></div>
+        </div>
+        <div class="venn-col hl-both" id="vcol-both">
+          <div class="venn-col-title">In BOTH (A ∩ B)</div>
+          <div class="venn-item">🥭 mango</div>
+          <div class="venn-item">🍇 grape</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0;min-width:8px;">
+          <div class="venn-divider" style="flex:1;" id="vd2"></div>
+        </div>
+        <div class="venn-col hl-b" id="vcol-b">
+          <div class="venn-col-title">Only in B</div>
+          <div class="venn-item">🥝 kiwi</div>
+          <div class="venn-item">🍋 lemon</div>
+        </div>
+      </div>
+      <div class="venn-code-box" id="venn-code">
+        A = {"apple","mango","grape","cherry"}<br>
+        B = {"mango","grape","kiwi","lemon"}<br>
+        <span style="color:var(--yellow);">result = A | B</span> &nbsp;<span style="color:#6e65a0;"># Union: everything</span><br>
+        <span style="color:var(--teal);">→ {"apple","mango","grape","cherry","kiwi","lemon"}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 6 — SET METHODS SYNTAX
+══════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <div class="slide-label">Sets — Methods</div>
+  <h2>Working with sets in Python 🛠️</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+    <div class="code-block" style="font-size:12px;padding:14px 16px;">
+<span class="cm"># Create a set</span>
+<span class="kw">s</span> = {<span class="st">"cat"</span>, <span class="st">"dog"</span>, <span class="st">"bird"</span>}
+
+<span class="cm"># Add an item</span>
+s.<span class="fn">add</span>(<span class="st">"fish"</span>)
+<span class="fn">print</span>(s)
+
+<span class="cm"># Remove — raises error if not found</span>
+s.<span class="fn">remove</span>(<span class="st">"bird"</span>)
+
+<span class="cm"># Discard — safe! no error if missing</span>
+s.<span class="fn">discard</span>(<span class="st">"elephant"</span>)  <span class="cm"># no crash</span>
+
+<span class="cm"># Check membership</span>
+<span class="fn">print</span>(<span class="st">"cat"</span> <span class="kw">in</span> s)    <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">len</span>(s))          <span class="cm"># number of items</span>
+
+<span class="cm"># Loop through a set</span>
+<span class="kw">for</span> animal <span class="kw">in</span> s:
+    <span class="fn">print</span>(animal)
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:white;border-radius:14px;padding:13px 16px;box-shadow:var(--shadow);border-left:4px solid var(--teal);">
+        <h3>Operations with symbols</h3>
+        <div class="code-block" style="font-size:12px;padding:10px 14px;margin-top:8px;">
+<span class="kw">a</span> = {<span class="nu">1</span>,<span class="nu">2</span>,<span class="nu">3</span>}
+<span class="kw">b</span> = {<span class="nu">2</span>,<span class="nu">3</span>,<span class="nu">4</span>}
+
+a | b   <span class="cm"># Union:     {1,2,3,4}</span>
+a &amp; b   <span class="cm"># Intersect: {2,3}</span>
+a - b   <span class="cm"># Diff A-B:  {1}</span>
+b - a   <span class="cm"># Diff B-A:  {4}</span>
+        </div>
+      </div>
+      <div style="background:white;border-radius:14px;padding:13px 16px;box-shadow:var(--shadow);border-left:4px solid var(--purple);">
+        <h3>⚠️ Important rules</h3>
+        <ul style="display:flex;flex-direction:column;gap:5px;margin-top:6px;padding-left:16px;">
+          <li style="font-size:13px;">Sets use <code>{}</code> but an <strong>empty set</strong> must be <code>set()</code> not <code>{}</code> — that creates an empty dict!</li>
+          <li style="font-size:13px;">Items inside a set must be <strong>immutable</strong> — strings, numbers, tuples ✅ — but NOT lists ❌</li>
+          <li style="font-size:13px;">You can't access set items by index: <code>s[0]</code> will crash</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 7 — MODULES INTRODUCTION
+══════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 2 — Modules &amp; Libraries</div>
+  <h2>What is a Module? 📦</h2>
+  <div style="display:flex;gap:14px;margin-bottom:12px;">
+    <div style="flex:1;background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--orange);">
+      <div style="font-size:24px;margin-bottom:6px;">🧰</div>
+      <h3>Real life: A toolbox</h3>
+      <p style="font-size:13px;margin-top:4px;">Imagine a toolbox full of pre-built tools someone else made. You don't build a hammer from scratch — you just pick it up and use it. Modules are Python's toolboxes!</p>
+    </div>
+    <div style="flex:1;background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--blue);">
+      <div style="font-size:24px;margin-bottom:6px;">📱</div>
+      <h3>Real life: App store</h3>
+      <p style="font-size:13px;margin-top:4px;">Python comes with thousands of pre-built tools. You just <code>import</code> one when you need it — like downloading an app. The <strong>standard library</strong> comes free with Python!</p>
+    </div>
+    <div style="flex:1;background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--purple);">
+      <div style="font-size:22px;margin-bottom:6px;">🐍</div>
+      <h3>The import keyword</h3>
+      <div class="code-block" style="font-size:12px;padding:10px 12px;margin-top:4px;">
+<span class="cm"># Step 1: import the module</span>
+<span class="kw">import</span> math
+
+<span class="cm"># Step 2: use module.function()</span>
+<span class="fn">print</span>(math.<span class="fn">sqrt</span>(<span class="nu">25</span>))  <span class="cm"># 5.0</span>
+      </div>
+    </div>
+  </div>
+  <div class="module-row">
+    <div class="module-card" style="border-color:var(--blue);">
+      <span style="font-size:20px;">📐</span>
+      <h3>math</h3>
+      <p style="font-size:12px;">Square roots, rounding, pi, powers, trig</p>
+      <code style="font-size:11px;">import math</code>
+    </div>
+    <div class="module-card" style="border-color:var(--pink);">
+      <span style="font-size:20px;">🎲</span>
+      <h3>random</h3>
+      <p style="font-size:12px;">Random numbers, shuffling, picking items</p>
+      <code style="font-size:11px;">import random</code>
+    </div>
+    <div class="module-card" style="border-color:var(--teal);">
+      <span style="font-size:20px;">📅</span>
+      <h3>datetime</h3>
+      <p style="font-size:12px;">Dates and times — today's date, timers</p>
+      <code style="font-size:11px;">import datetime</code>
+    </div>
+    <div class="module-card" style="border-color:var(--orange);">
+      <span style="font-size:20px;">🗂️</span>
+      <h3>os</h3>
+      <p style="font-size:12px;">Work with files and folders on your computer</p>
+      <code style="font-size:11px;">import os</code>
+    </div>
+    <div class="module-card" style="border-color:var(--purple);">
+      <span style="font-size:20px;">📊</span>
+      <h3>statistics</h3>
+      <p style="font-size:12px;">Mean, median, standard deviation</p>
+      <code style="font-size:11px;">import statistics</code>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 8 — MATH MODULE INTERACTIVE
+══════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-label">Modules — math</div>
+  <h2>The math module 📐</h2>
+  <div class="math-layout">
+    <div class="math-left">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:4px;">Enter a number, then click a function:</p>
+      <div class="math-input-row">
+        <input class="math-input" id="math-num" type="number" value="16" oninput="updateMath()">
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);">← change me!</span>
+      </div>
+      <div class="math-btn-grid" style="margin-top:6px;">
+        <button class="math-fn-btn active" id="mfn-sqrt" onclick="mathFn('sqrt')">math.sqrt( )</button>
+        <button class="math-fn-btn" id="mfn-floor" onclick="mathFn('floor')">math.floor( )</button>
+        <button class="math-fn-btn" id="mfn-ceil" onclick="mathFn('ceil')">math.ceil( )</button>
+        <button class="math-fn-btn" id="mfn-pow" onclick="mathFn('pow')">math.pow( , 2)</button>
+        <button class="math-fn-btn" id="mfn-abs" onclick="mathFn('abs')">math.fabs( )</button>
+        <button class="math-fn-btn" id="mfn-log" onclick="mathFn('log')">math.log10( )</button>
+      </div>
+      <div style="margin-top:8px;background:rgba(255,255,255,0.05);border-radius:12px;padding:10px 12px;">
+        <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Special constants</p>
+        <div class="code-block" style="font-size:12px;padding:10px 14px;margin-top:0;">
+<span class="kw">math</span>.pi    <span class="cm"># 3.14159…</span>
+<span class="kw">math</span>.e     <span class="cm"># 2.71828…</span>
+<span class="kw">math</span>.inf   <span class="cm"># ∞ infinity</span>
+        </div>
+      </div>
+    </div>
+    <div class="math-right">
+      <div class="math-result-box">
+        <div class="math-call" id="math-call">import math<br>math.sqrt(16)</div>
+        <div class="math-arrow">→</div>
+        <div class="math-answer" id="math-answer">4.0</div>
+        <div style="font-family:'Fira Code',monospace;font-size:12px;color:#6e65a0;" id="math-explain">The square root of 16 is 4.0</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px 14px;">
+        <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Quick reference</p>
+        <div style="font-family:'Fira Code',monospace;font-size:11px;line-height:2;color:rgba(255,255,255,0.5);">
+          math.sqrt(x)   → square root<br>
+          math.floor(x)  → round DOWN<br>
+          math.ceil(x)   → round UP<br>
+          math.pow(x,n)  → x to the power n<br>
+          math.fabs(x)   → absolute value<br>
+          math.log10(x)  → log base 10
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 9 — RANDOM MODULE INTERACTIVE
+══════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-label">Modules — random</div>
+  <h2>The random module 🎲</h2>
+  <div class="rand-layout">
+    <div class="rand-btns-col">
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Click to try it!</p>
+      <button class="rand-big-btn" onclick="randAction('dice')">🎲 <span>Roll a Dice</span></button>
+      <button class="rand-big-btn" onclick="randAction('coin')">🪙 <span>Flip a Coin</span></button>
+      <button class="rand-big-btn" onclick="randAction('choice')">🎨 <span>Pick a Color</span></button>
+      <button class="rand-big-btn" onclick="randAction('range')">🔢 <span>Random 1–100</span></button>
+      <button class="rand-big-btn" onclick="randAction('shuffle')">🔀 <span>Shuffle a List</span></button>
+    </div>
+    <div class="rand-result-col">
+      <div class="rand-display">
+        <div class="rand-big-output" id="rand-output">🎲</div>
+        <div class="rand-sub-output" id="rand-sub">Press a button to generate something random!</div>
+        <div class="rand-code-hint" id="rand-code"></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px 14px;">
+        <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Quick reference</p>
+        <div style="font-family:'Fira Code',monospace;font-size:11px;line-height:2;color:rgba(255,255,255,0.5);">
+          random.randint(1, 6)          → integer between 1 and 6<br>
+          random.choice(["a","b","c"])  → pick one item<br>
+          random.random()               → float 0.0 to 1.0<br>
+          random.shuffle(my_list)       → shuffle in place<br>
+          random.sample(my_list, k=3)   → pick k unique items
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10 — TYPES OF ERRORS
+══════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 3 — Error Handling</div>
+  <h2>When programs go wrong 💥</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:10px;">Errors (called <strong>exceptions</strong>) crash your program. Python tells you exactly what went wrong — learn to read the message!</p>
+  <div class="err-grid">
+    <div class="err-card" style="border-color:var(--red);">
+      <div class="err-name">SyntaxError</div>
+      <div class="err-cause">Code was written incorrectly — Python can't even read it</div>
+      <div class="err-eg">if x = 5:  ← should be ==</div>
+    </div>
+    <div class="err-card" style="border-color:var(--orange);">
+      <div class="err-name">TypeError</div>
+      <div class="err-cause">Wrong type for an operation</div>
+      <div class="err-eg">"hello" + 5  ← can't add string + int</div>
+    </div>
+    <div class="err-card" style="border-color:var(--purple);">
+      <div class="err-name">ValueError</div>
+      <div class="err-cause">Right type, but the value makes no sense</div>
+      <div class="err-eg">int("hello")  ← "hello" isn't a number</div>
+    </div>
+    <div class="err-card" style="border-color:var(--blue);">
+      <div class="err-name">NameError</div>
+      <div class="err-cause">Variable doesn't exist yet</div>
+      <div class="err-eg">print(score)  ← score was never defined</div>
+    </div>
+    <div class="err-card" style="border-color:var(--teal);">
+      <div class="err-name">ZeroDivisionError</div>
+      <div class="err-cause">Dividing by zero (mathematically impossible!)</div>
+      <div class="err-eg">10 / 0  ← math error</div>
+    </div>
+    <div class="err-card" style="border-color:var(--pink);">
+      <div class="err-name">IndexError</div>
+      <div class="err-cause">Trying to access an index that doesn't exist</div>
+      <div class="err-eg">my_list[99]  ← only 3 items in list</div>
+    </div>
+  </div>
+  <div style="background:var(--yellow);border-radius:12px;padding:10px 14px;margin-top:10px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>🎯 The goal:</strong> Instead of letting these crash your program, we can <strong>catch</strong> them and handle them gracefully using <code>try</code> and <code>except</code>!</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SLIDE 11 — WHY ERROR HANDLING MATTERS
+══════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="slide-label">Error Handling — Why It Matters</div>
+  <h2>Why error handling? And why does it make code <em>cleaner</em>? 🛡️</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--orange);">
+        <p style="font-size:13px;font-weight:800;color:var(--orange);margin-bottom:8px;">🌍 Real programs always face surprises</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;"><span style="font-size:16px;flex-shrink:0;">⌨️</span><span>A user types <code>"abc"</code> where a number was expected</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;"><span style="font-size:16px;flex-shrink:0;">📂</span><span>A file your program needs has been deleted or moved</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;"><span style="font-size:16px;flex-shrink:0;">📡</span><span>The internet connection drops mid-download</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;"><span style="font-size:16px;flex-shrink:0;">🧮</span><span>A sensor sends corrupted data instead of a clean number</span></div>
+        </div>
+      </div>
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--purple);">
+        <p style="font-size:13px;font-weight:800;color:var(--purple);margin-bottom:8px;">✅ Three reasons to always handle errors</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:26px;height:26px;border-radius:50%;background:var(--teal);color:var(--dark);display:flex;align-items:center;justify-content:center;font-size:13px;">🛡️</div>
+            <p style="font-size:12.5px;"><strong>Robustness</strong> — your program keeps running even when something unexpected happens</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:26px;height:26px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;">📖</div>
+            <p style="font-size:12.5px;"><strong>Readability</strong> — code clearly separates <em>what should happen</em> from <em>what to do if it goes wrong</em></p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:26px;height:26px;border-radius:50%;background:var(--pink);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;">🔧</div>
+            <p style="font-size:12.5px;"><strong>Maintainability</strong> — easy to add new error cases later without rewriting everything</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);">
+        <p style="font-size:13px;font-weight:800;margin-bottom:8px;">📖 How error handling <em>improves readability</em></p>
+        <p style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px;">😣 Without try/except — every failure needs its own <code>if</code>:</p>
+        <div class="code-block" style="font-size:11px;padding:8px 12px;margin-bottom:8px;"><span class="kw">def</span> <span class="fn">divide</span>(a, b):
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(a, (<span class="kw">int</span>, <span class="kw">float</span>)):
+        <span class="fn">print</span>(<span class="st">"a must be a number"</span>)
+    <span class="kw">elif not</span> <span class="fn">isinstance</span>(b, (<span class="kw">int</span>, <span class="kw">float</span>)):
+        <span class="fn">print</span>(<span class="st">"b must be a number"</span>)
+    <span class="kw">elif</span> b == <span class="nu">0</span>:
+        <span class="fn">print</span>(<span class="st">"Can't divide by zero"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(a / b)  <span class="cm"># actual goal buried at the end!</span></div>
+        <p style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:4px;">😌 With try/except — intent is front and centre:</p>
+        <div class="code-block" style="font-size:11px;padding:8px 12px;"><span class="kw">def</span> <span class="fn">divide</span>(a, b):
+    <span class="kw">try</span>:
+        <span class="fn">print</span>(a / b)   <span class="cm"># ← what we WANT — seen first!</span>
+    <span class="kw">except</span> ZeroDivisionError:
+        <span class="fn">print</span>(<span class="st">"Can't divide by zero"</span>)
+    <span class="kw">except</span> TypeError:
+        <span class="fn">print</span>(<span class="st">"Numbers only, please"</span>)</div>
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:10px 14px;">
+        <p style="font-size:12.5px;color:var(--dark);">
+          <strong>💡 The big idea:</strong> <code>try</code> shows the <em>happy path</em> — what the code is <em>supposed</em> to do — right at the top.
+          Each <code>except</code> names exactly <em>what could go wrong</em> and handles it in one clear place.
+          A reader understands the intent immediately, without hunting through a wall of <code>if</code>s.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ══════════════════════════════════════
+     SLIDE 12 — TRY/EXCEPT BASICS
+══════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="blob b1"></div>
+  <div class="slide-label">Error Handling — Basics</div>
+  <h2>try and except — the safety net 🥅</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--red);">
+        <p style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:6px;">😱 Without try/except — CRASH!</p>
+        <div class="code-block" style="font-size:12px;padding:10px 14px;">
+<span class="kw">age</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)  <span class="cm"># 💥 CRASH</span>
+<span class="fn">print</span>(<span class="st">"You are"</span>, age)
+<span class="cm"># Program stops with: ValueError</span>
+        </div>
+      </div>
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);border-top:4px solid var(--teal);">
+        <p style="font-size:13px;font-weight:800;color:var(--teal);margin-bottom:6px;">😌 With try/except — HANDLED!</p>
+        <div class="code-block" style="font-size:12px;padding:10px 14px;">
+<span class="kw">try</span>:
+    <span class="kw">age</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)
+    <span class="fn">print</span>(<span class="st">"You are"</span>, age)
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="st">"That's not a number!"</span>)
+<span class="cm"># Prints: "That's not a number!" ✅</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:white;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);">
+        <h3>How it works — step by step</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">1</div>
+            <p style="font-size:13px;"><strong>try:</strong> Python tries to run the code inside. If it works, great! The except block is skipped entirely.</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--red);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">2</div>
+            <p style="font-size:13px;"><strong>except:</strong> If an error occurs in try, Python jumps here instead of crashing. You decide what to do with the problem.</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--dark);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">3</div>
+            <p style="font-size:13px;"><strong>Program continues!</strong> After the except block, the rest of your program runs normally. No more crash!</p>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:10px 14px;">
+        <p style="font-size:13px;color:var(--dark);"><strong>🔑 Key rule:</strong> Always name the specific error type in <code>except</code> (like <code>ValueError</code>) so you catch only what you expect. Using bare <code>except:</code> without a type catches everything — which can hide real bugs!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 13 — MULTIPLE EXCEPT + FINALLY
+══════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="slide-label">Error Handling — Advanced</div>
+  <h2>Multiple except, else &amp; finally 🔧</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+    <div class="code-block" style="font-size:12px;padding:14px 18px;">
+<span class="cm"># Multiple except blocks</span>
+<span class="kw">def</span> <span class="fn">safe_divide</span>(a, b):
+    <span class="kw">try</span>:
+        <span class="kw">result</span> = a / b
+    <span class="kw">except</span> ZeroDivisionError:
+        <span class="fn">print</span>(<span class="st">"Can't divide by zero!"</span>)
+    <span class="kw">except</span> TypeError:
+        <span class="fn">print</span>(<span class="st">"Both inputs must be numbers"</span>)
+    <span class="kw">else</span>:
+        <span class="cm"># Runs ONLY if NO error occurred</span>
+        <span class="fn">print</span>(<span class="st">"Answer:"</span>, result)
+    <span class="kw">finally</span>:
+        <span class="cm"># ALWAYS runs — error or not</span>
+        <span class="fn">print</span>(<span class="st">"Done calculating."</span>)
+
+<span class="fn">safe_divide</span>(<span class="nu">10</span>, <span class="nu">2</span>)
+<span class="cm"># Answer: 5.0</span>
+<span class="cm"># Done calculating.</span>
+
+<span class="fn">safe_divide</span>(<span class="nu">10</span>, <span class="nu">0</span>)
+<span class="cm"># Can't divide by zero!</span>
+<span class="cm"># Done calculating.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:14px 16px;border:2px solid rgba(255,140,66,0.4);">
+        <p style="font-size:12px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Multiple except</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.75);">Stack as many <code>except</code> blocks as you need — one for each error type. Python checks them top to bottom and runs only the FIRST matching one.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:14px 16px;border:2px solid rgba(0,201,167,0.4);">
+        <p style="font-size:12px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">else — the "it worked!" block</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.75);">The <code>else</code> block runs ONLY if the <code>try</code> block completed without any errors. Use it for code that should only run when everything is fine.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:14px 16px;border:2px solid rgba(255,217,61,0.4);">
+        <p style="font-size:12px;font-weight:800;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">finally — the "always" block</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.75);">The <code>finally</code> block <strong>always</strong> runs, no matter what — whether there was an error or not. Perfect for clean-up code like closing files.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 14 — ERROR INTERACTIVE DEMO
+══════════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="slide-label">Error Handling — Live Demo</div>
+  <h2>See the difference — crash vs. handled 🆚</h2>
+  <div style="margin-bottom:8px;">
+    <p style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Choose a scenario:</p>
+    <div class="scenario-row">
+      <button class="scen-btn active" id="scen-zero" onclick="setScenario('zero')">÷ 0 Division</button>
+      <button class="scen-btn" id="scen-type" onclick="setScenario('type')">❌ Wrong Type</button>
+      <button class="scen-btn" id="scen-value" onclick="setScenario('value')">🔤 Bad Value</button>
+      <button class="scen-btn" id="scen-index" onclick="setScenario('index')">📋 Index Error</button>
+    </div>
+  </div>
+  <div class="err-demo-layout">
+    <div class="err-demo-panel err-panel-bad">
+      <div class="err-panel-title" style="color:#FF6B6B;">😱 Without try/except</div>
+      <div class="err-demo-code" id="err-bad-code"></div>
+      <div style="font-size:10px;color:rgba(255,100,100,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Output:</div>
+      <div class="err-output bad" id="err-bad-out"></div>
+    </div>
+    <div class="err-demo-panel err-panel-good">
+      <div class="err-panel-title" style="color:#00C9A7;">😌 With try/except</div>
+      <div class="err-demo-code" id="err-good-code"></div>
+      <div style="font-size:10px;color:rgba(0,201,167,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Output:</div>
+      <div class="err-output good" id="err-good-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 15 — QUIZ
+══════════════════════════════════════ -->
+<div class="slide" id="s15">
+  <div class="blob b1"></div>
+  <div class="slide-label">Knowledge Check</div>
+  <h2>Quiz Time! 🧠</h2>
+  <div class="prog-bar"><div class="prog-fill" id="qprog" style="width:0%"></div></div>
+  <div id="quiz-area">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span class="q-ctr" id="q-ctr">Question 1 of 16</span>
+      <span id="q-diff-badge" class="diff-badge diff-easy">🟢 Warm-Up</span>
+    </div>
+    <div class="quiz-q" id="q-text"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" style="background:var(--purple);color:white;display:none;" id="q-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-done" style="display:none;text-align:center;padding:20px;">
+    <div style="font-size:52px;margin-bottom:10px;">🎉</div>
+    <h2 style="color:var(--purple);">Quiz Complete!</h2>
+    <p style="font-size:18px;font-weight:800;margin:12px 0;" id="quiz-score"></p>
+    <button class="pill-btn" style="background:var(--purple);color:white;margin-top:10px;" onclick="resetQuiz()">Try Again 🔄</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 16 — ASSIGNMENTS
+══════════════════════════════════════ -->
+<div class="slide" id="s16">
+  <div class="blob b1"></div>
+  <div class="slide-label">Coding Challenges</div>
+  <div class="assign-header">
+    <h2 style="margin-bottom:0;">Programming Assignments 💻</h2>
+    <button class="save-btn" onclick="saveWork()">💾 Save My Work</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+    <div class="assign-tabs">
+      <button class="assign-tab active" onclick="showAssign('a1',this)">P1</button>
+      <button class="assign-tab" onclick="showAssign('a2',this)">P2</button>
+      <button class="assign-tab" onclick="showAssign('a3',this)">P3</button>
+      <button class="assign-tab" onclick="showAssign('a4',this)">P4</button>
+      <button class="assign-tab" onclick="showAssign('a5',this)">P5</button>
+      <button class="assign-tab" onclick="showAssign('a6',this)">P6</button>
+      <button class="assign-tab" onclick="showAssign('a7',this)">P7</button>
+      <button class="assign-tab" onclick="showAssign('a8',this)">P8</button>
+    </div>
+    <span class="autosave-txt" id="autosave-txt">✓ Auto-saved</span>
+  </div>
+
+  <!-- PROBLEM 1 -->
+  <div class="assign-panel show" id="a1">
+    <div class="assign-meta">
+      <span class="tag tag-teal">Sets</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤○○○ Easy</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> A set of your favourite sports is started for you. Add a new sport, remove one, and check if a sport is in the set. Then print the full set and its length.</p>
+    <div class="assign-desc"><ol><li>Start with: <code>sports = {"basketball", "soccer", "tennis", "swimming"}</code></li><li>Add <code>"volleyball"</code> to the set</li><li>Remove <code>"tennis"</code> from the set</li><li>Check if <code>"soccer"</code> is in the set — print <code>True</code> or <code>False</code></li><li>Print the full set and its length</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a1" rows="8">sports = {"basketball", "soccer", "tennis", "swimming"}
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a1','out-a1')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a1','out-a1')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a1">Output will appear here...</div>
+    <div class="check-result" id="chk-a1"></div>
+  </div>
+
+  <!-- PROBLEM 2 -->
+  <div class="assign-panel" id="a2">
+    <div class="assign-meta">
+      <span class="tag tag-teal">Sets</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤○○ Medium</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Find the unique characters in a word and also find which letters two words have in common. Use sets to do both.</p>
+    <div class="assign-desc"><ol><li>Three variables are given: <code>word</code>, <code>word1</code>, <code>word2</code></li><li>Convert <code>word</code> to a set to get its unique letters — hint: <code>set("hello")</code> gives <code>{'h','e','l','o'}</code></li><li>Print the unique letters and how many there are</li><li>Find letters that appear in BOTH <code>word1</code> and <code>word2</code> using intersection (<code>&amp;</code>)</li><li>Print the common letters</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a2" rows="9">word = "mississippi"
+word1 = "python"
+word2 = "typhoon"
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a2','out-a2')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a2','out-a2')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a2">Output will appear here...</div>
+    <div class="check-result" id="chk-a2"></div>
+  </div>
+
+  <!-- PROBLEM 3 -->
+  <div class="assign-panel" id="a3">
+    <div class="assign-meta">
+      <span class="tag tag-teal">Sets</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤○○ Medium</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Two classes are signing up for an after-school club. Use set operations to answer questions about who signed up.</p>
+    <div class="assign-desc"><ol><li>Two sets are given: <code>class_a</code> and <code>class_b</code></li><li>Which students are in <strong>both</strong> clubs? (use <code>&amp;</code>)</li><li>Which students are in <code>class_a</code> but <strong>not</strong> <code>class_b</code>? (use <code>-</code>)</li><li>What is the full list of <strong>everyone</strong>, no duplicates? (use <code>|</code>)</li><li>How many unique students signed up in total? Print the count.</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a3" rows="11">class_a = {"Alice", "Bob", "Carol", "Dave", "Eve"}
+class_b = {"Dave", "Eve", "Frank", "Grace", "Alice"}
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a3','out-a3')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a3','out-a3')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a3">Output will appear here...</div>
+    <div class="check-result" id="chk-a3"></div>
+  </div>
+
+  <!-- PROBLEM 4 -->
+  <div class="assign-panel" id="a4">
+    <div class="assign-meta">
+      <span class="tag tag-blue">math module</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤○○ Medium</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Use the <code>math</code> module to solve real math problems. Don't forget <code>import math</code> at the top!</p>
+    <div class="assign-desc"><ol><li>Import the <code>math</code> module at the top of your code</li><li>Find the square root of 225 and print it</li><li>Calculate the area of a circle with radius 7 &mdash; area = &pi; &times; r&sup2;</li><li>Round 8.3 <strong>down</strong> and 8.7 <strong>up</strong> using <code>math.floor()</code> and <code>math.ceil()</code></li><li>Find the hypotenuse of a right triangle with sides 9 and 12 &mdash; hyp = &radic;(a&sup2; + b&sup2;)</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a4" rows="11"></textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a4','out-a4')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a4','out-a4')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a4">Output will appear here...</div>
+    <div class="check-result" id="chk-a4"></div>
+  </div>
+
+  <!-- PROBLEM 5 -->
+  <div class="assign-panel" id="a5">
+    <div class="assign-meta">
+      <span class="tag tag-pink">random module</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Hard</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Build a mini random activity picker. Given a list of activities and difficulties, use the <code>random</code> module to create a surprise daily challenge.</p>
+    <div class="assign-desc"><ol><li>Import the <code>random</code> module — two lists are given: <code>activities</code> and <code>difficulties</code></li><li>Pick a random activity using <code>random.choice()</code> and print it</li><li>Pick a random difficulty level the same way</li><li>Shuffle the <code>activities</code> list with <code>random.shuffle()</code> and print the first 3</li><li>Generate a random "challenge score" between 50 and 100 using <code>random.randint()</code></li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a5" rows="11">activities = ["read a book", "draw something", "write a poem",
+              "learn a magic trick", "solve a puzzle", "teach someone something"]
+difficulties = ["easy", "medium", "hard"]
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a5','out-a5')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a5','out-a5')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a5">Output will appear here...</div>
+    <div class="check-result" id="chk-a5"></div>
+  </div>
+
+  <!-- PROBLEM 6 -->
+  <div class="assign-panel" id="a6">
+    <div class="assign-meta">
+      <span class="tag tag-orange">Error Handling</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Hard</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Write a <code>safe_divide</code> function that handles errors gracefully. What questions do you need to ask: what can go wrong? What should happen in each case?</p>
+    <div class="assign-desc"><ol><li>Write a function called <code>safe_divide(a, b)</code></li><li>Use <code>try/except</code> so the function never crashes</li><li>If division works, print the result</li><li>If <code>b</code> is zero, catch the <code>ZeroDivisionError</code> and print a helpful message</li><li>If the inputs are the wrong type, catch the <code>TypeError</code> and print a helpful message</li><li>Test it: <code>safe_divide(20, 4)</code>, <code>safe_divide(10, 0)</code>, <code>safe_divide("x", 2)</code></li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a6" rows="11"></textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a6','out-a6')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a6','out-a6')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a6">Output will appear here...</div>
+    <div class="check-result" id="chk-a6"></div>
+  </div>
+
+  <!-- PROBLEM 7 -->
+  <div class="assign-panel" id="a7">
+    <div class="assign-meta">
+      <span class="tag tag-orange">Sets + Error Handling</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Hard</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> A sensor recorded readings but some are corrupted. Use <code>try/except</code> inside a loop to separate valid readings from bad ones — storing each group in a set.</p>
+    <div class="assign-desc"><ol><li>A sensor recorded data, but some values are corrupted &mdash; the <code>data</code> list is given</li><li>Create two empty sets: <code>valid_readings</code> and <code>bad_data</code></li><li>Loop through <code>data</code> and try to convert each item to a <code>float</code></li><li>If it works &rarr; add the float to <code>valid_readings</code> (sets remove the duplicate 18.0 automatically!)</li><li>If it fails with a <code>ValueError</code> &rarr; add the string to <code>bad_data</code></li><li>Print both sets and how many items are in each</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a7" rows="11">data = ["23.5", "18.0", "oops", "31.2", "N/A", "27.8", "bad", "22.1", "18.0"]
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a7','out-a7')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a7','out-a7')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a7">Output will appear here...</div>
+    <div class="check-result" id="chk-a7"></div>
+  </div>
+
+  <!-- PROBLEM 8 -->
+  <div class="assign-panel" id="a8">
+    <div class="assign-meta">
+      <span class="tag tag-purple">Grand Challenge</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤⬤ Expert</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Combine sets, the math module, random, and error handling in one program. Build a "Grade Analyser" that cleans, analyses, and reports on student scores.</p>
+    <div class="assign-desc"><ol><li>A list called <code>raw_scores</code> is given &mdash; it has valid integers mixed with bad strings</li><li>Loop through <code>raw_scores</code> with <code>try/except</code>: build a set of valid int scores and a set of bad entries</li><li>Import <code>math</code> and calculate the average of the unique valid scores &mdash; guard against an empty set with another <code>try/except</code></li><li>Import <code>random</code> and pick a "student of the day" score from the valid set</li><li>Print a full report: unique scores, bad entries, average, and the lucky score</li></ol></div>
+
+    <textarea class="assign-editor" id="ed-a8" rows="12">raw_scores = [85, 92, 78, 85, 90, 78, 95, 92, 88, 85, "absent", 91, "N/A"]
+</textarea>
+    <div class="assign-btn-row">
+      <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runSkulpt('a8','out-a8')">▶ Run My Code</button>
+      <button class="assign-check-btn" onclick="checkWork('a8','out-a8')">&#10003; Check My Work</button>
+    </div>
+    <div class="assign-output" id="out-a8">Output will appear here...</div>
+    <div class="check-result" id="chk-a8"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 17 — FINAL RECAP
+══════════════════════════════════════ -->
+<div class="slide" id="s17">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <h2>Outstanding work today! 🌟</h2>
+  <div class="final-grid">
+    <div class="final-card" style="background:rgba(255,140,66,0.15);border:2px solid var(--orange);">
+      <div style="font-size:34px;">🎱</div>
+      <h3>Sets</h3>
+      <p>Unique items, no order. Fast membership testing with <code>in</code>. Union <code>|</code>, Intersection <code>&amp;</code>, Difference <code>-</code>.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,129,207,0.12);border:2px solid var(--blue);">
+      <div style="font-size:34px;">📐</div>
+      <h3>math module</h3>
+      <p>sqrt(), floor(), ceil(), pi. Use <code>import math</code> then <code>math.function()</code>.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,107,157,0.12);border:2px solid var(--pink);">
+      <div style="font-size:34px;">🎲</div>
+      <h3>random module</h3>
+      <p>randint(), choice(), shuffle(). Great for games, simulations, and surprises!</p>
+    </div>
+    <div class="final-card" style="background:rgba(232,64,64,0.10);border:2px solid var(--red);">
+      <div style="font-size:34px;">💥</div>
+      <h3>Error Types</h3>
+      <p>ValueError, TypeError, ZeroDivisionError, NameError, IndexError — know what went wrong.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,201,167,0.12);border:2px solid var(--teal);">
+      <div style="font-size:34px;">🥅</div>
+      <h3>try / except</h3>
+      <p>Catch errors before they crash your program. <code>else</code> for success, <code>finally</code> for always.</p>
+    </div>
+    <div class="final-card" style="background:rgba(132,94,194,0.12);border:2px solid var(--purple);">
+      <div style="font-size:34px;">🚀</div>
+      <h3>Putting it Together</h3>
+      <p>Combine sets + modules + error handling to write programs that are powerful AND reliable!</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;justify-content:center;max-width:800px;">
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:12px 18px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Keep practicing:</strong> Head to the assignments slide and try all 8 challenges — especially the Expert one!</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:12px 18px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Next steps:</strong> File I/O — reading and writing real files with Python!</p>
+    </div>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);margin-top:14px;font-size:12px;">Arrow keys to navigate · Press F for fullscreen</p>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button onclick="nav(-1)">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="ctr">1 / 16</span>
+  <button onclick="nav(1)">→</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  SLIDE ENGINE
+// ═══════════════════════════════════════════════════════
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+let cur = 0;
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),400);
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent = (cur+1)+' / '+slides.length;
+}
+function nav(d){ goTo(cur+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 5 — SET OPERATIONS INTERACTIVE
+// ═══════════════════════════════════════════════════════
+const venncodes = {
+  union: {
+    code:`A = {"apple","mango","grape","cherry"}\nB = {"mango","grape","kiwi","lemon"}\nresult = <span style="color:var(--yellow);">A | B</span>  <span style="color:#6e65a0;"># Union</span>\n<span style="color:var(--teal);">→ {"apple","mango","grape","cherry","kiwi","lemon"}</span>`,
+    a:true, both:true, b:true,
+    hlA:'hl-a', hlB:'hl-b', hlBoth:'hl-both'
+  },
+  inter: {
+    code:`A = {"apple","mango","grape","cherry"}\nB = {"mango","grape","kiwi","lemon"}\nresult = <span style="color:var(--yellow);">A &amp; B</span>  <span style="color:#6e65a0;"># Intersection</span>\n<span style="color:var(--teal);">→ {"mango","grape"}</span>`,
+    a:false, both:true, b:false,
+    hlA:'', hlB:'', hlBoth:'hl-both'
+  },
+  diff_ab: {
+    code:`A = {"apple","mango","grape","cherry"}\nB = {"mango","grape","kiwi","lemon"}\nresult = <span style="color:var(--yellow);">A - B</span>  <span style="color:#6e65a0;"># A minus B</span>\n<span style="color:var(--teal);">→ {"apple","cherry"}</span>`,
+    a:true, both:false, b:false,
+    hlA:'hl-a', hlB:'', hlBoth:''
+  },
+  diff_ba: {
+    code:`A = {"apple","mango","grape","cherry"}\nB = {"mango","grape","kiwi","lemon"}\nresult = <span style="color:var(--yellow);">B - A</span>  <span style="color:#6e65a0;"># B minus A</span>\n<span style="color:var(--teal);">→ {"kiwi","lemon"}</span>`,
+    a:false, both:false, b:true,
+    hlA:'', hlB:'hl-b', hlBoth:''
+  }
+};
+function setOp(op){
+  ['union','inter','diff_ab','diff_ba'].forEach(k=>{
+    document.getElementById('op-'+k).classList.toggle('active',k===op);
+  });
+  const v = venncodes[op];
+  document.getElementById('venn-code').innerHTML = v.code;
+  const ca = document.getElementById('vcol-a');
+  const cb = document.getElementById('vcol-b');
+  const cboth = document.getElementById('vcol-both');
+  ca.className = 'venn-col ' + v.hlA;
+  cb.className = 'venn-col ' + v.hlB;
+  cboth.className = 'venn-col ' + v.hlBoth;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 8 — MATH MODULE INTERACTIVE
+// ═══════════════════════════════════════════════════════
+let activeMathFn = 'sqrt';
+function mathFn(fn){
+  activeMathFn = fn;
+  document.querySelectorAll('.math-fn-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mfn-'+fn).classList.add('active');
+  updateMath();
+}
+function updateMath(){
+  const raw = document.getElementById('math-num').value;
+  const n = parseFloat(raw);
+  let callStr='', ans='', explain='';
+  if(isNaN(n)){ document.getElementById('math-answer').textContent='?'; return; }
+  switch(activeMathFn){
+    case 'sqrt':
+      callStr=`import math\nmath.sqrt(${n})`;
+      const sq=Math.sqrt(n);
+      ans= n<0 ? '⚠️ No real sqrt' : sq.toFixed(4).replace(/\.?0+$/,'');
+      explain= n<0 ? 'Cannot take sqrt of a negative number' : `√${n} = ${ans}`;
+      break;
+    case 'floor':
+      callStr=`import math\nmath.floor(${n})`;
+      ans=Math.floor(n);
+      explain=`Floor rounds ${n} DOWN to the nearest integer`;
+      break;
+    case 'ceil':
+      callStr=`import math\nmath.ceil(${n})`;
+      ans=Math.ceil(n);
+      explain=`Ceil rounds ${n} UP to the nearest integer`;
+      break;
+    case 'pow':
+      callStr=`import math\nmath.pow(${n}, 2)`;
+      ans=(Math.pow(n,2)).toFixed(2).replace(/\.?0+$/,'');
+      explain=`${n} squared = ${n} × ${n} = ${ans}`;
+      break;
+    case 'abs':
+      callStr=`import math\nmath.fabs(${n})`;
+      ans=Math.abs(n).toFixed(1);
+      explain=`Absolute value: distance from zero = ${ans}`;
+      break;
+    case 'log':
+      callStr=`import math\nmath.log10(${n})`;
+      const lg=n<=0?NaN:Math.log10(n);
+      ans= isNaN(lg) ? '⚠️ Must be > 0' : lg.toFixed(4).replace(/\.?0+$/,'');
+      explain= n<=0 ? 'log10 requires a positive number' : `log₁₀(${n}) = ${ans}`;
+      break;
+  }
+  document.getElementById('math-call').innerHTML = callStr.replace('\n','<br>');
+  document.getElementById('math-answer').textContent = ans;
+  document.getElementById('math-explain').textContent = explain;
+}
+updateMath();
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 9 — RANDOM MODULE INTERACTIVE
+// ═══════════════════════════════════════════════════════
+const randFaces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const randColors=['🔴 red','🟠 orange','🟡 yellow','🟢 green','🔵 blue','🟣 purple','🩷 pink','⚫ black','⚪ white'];
+const randActivities=['reading','gaming','cooking','hiking','drawing','swimming','coding','dancing'];
+function randAction(type){
+  const out=document.getElementById('rand-output');
+  const sub=document.getElementById('rand-sub');
+  const code=document.getElementById('rand-code');
+  out.style.transform='scale(1.2)';
+  setTimeout(()=>out.style.transform='scale(1)',200);
+  switch(type){
+    case 'dice':
+      const d=Math.floor(Math.random()*6);
+      out.textContent=randFaces[d];
+      sub.textContent='You rolled a '+(d+1)+'!';
+      code.textContent='random.randint(1, 6)  →  '+(d+1);
+      break;
+    case 'coin':
+      const c=Math.random()<0.5;
+      out.textContent=c?'🪙':'💰';
+      sub.textContent=c?'Heads!':'Tails!';
+      code.textContent='random.choice(["Heads","Tails"])  →  '+(c?'Heads':'Tails');
+      break;
+    case 'choice':
+      const col=randColors[Math.floor(Math.random()*randColors.length)];
+      out.textContent=col.split(' ')[0];
+      sub.textContent='Random color: '+col.split(' ').slice(1).join(' ');
+      code.textContent='random.choice(colors)  →  "'+col.split(' ').slice(1).join(' ')+'"';
+      break;
+    case 'range':
+      const n=Math.floor(Math.random()*100)+1;
+      out.textContent=n;
+      sub.textContent='Random number between 1 and 100';
+      code.textContent='random.randint(1, 100)  →  '+n;
+      break;
+    case 'shuffle':
+      const arr=[...randActivities].sort(()=>Math.random()-.5);
+      out.textContent='🔀';
+      sub.textContent='Shuffled: '+arr.slice(0,3).join(', ')+'...';
+      code.textContent='random.shuffle(list)  →  new order each time!';
+      break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 14 — ERROR HANDLING INTERACTIVE
+// ═══════════════════════════════════════════════════════
+const scenarios = {
+  zero:{
+    bad:`result = 10 / 0\nprint("Result:", result)\n# 💥 ZeroDivisionError: division by zero`,
+    good:`try:\n    result = 10 / 0\n    print("Result:", result)\nexcept ZeroDivisionError:\n    print("Oops! Can't divide by zero.")\nprint("Program continues safely.")`,
+    badOut:'💥 ZeroDivisionError: division by zero',
+    goodOut:'Oops! Can\'t divide by zero.\nProgram continues safely. ✅'
+  },
+  type:{
+    bad:`name = "Alex"\nage = 12\nresult = name + age\nprint(result)\n# 💥 TypeError: can't add str + int`,
+    good:`try:\n    name = "Alex"\n    age = 12\n    result = name + str(age)\n    print(result)\nexcept TypeError:\n    print("Type mismatch! Convert types first.")\nprint("All good!")`,
+    badOut:'💥 TypeError: can only concatenate str (not "int") to str',
+    goodOut:'Alex12\nAll good! ✅'
+  },
+  value:{
+    bad:`user_input = "hello"\nnum = int(user_input)\nprint("Number is:", num)\n# 💥 ValueError: invalid literal`,
+    good:`try:\n    user_input = "hello"\n    num = int(user_input)\n    print("Number is:", num)\nexcept ValueError:\n    print("That's not a valid number!")\nfinally:\n    print("Finished input check.")`,
+    badOut:"💥 ValueError: invalid literal for int() with base 10: 'hello'",
+    goodOut:"That's not a valid number!\nFinished input check. ✅"
+  },
+  index:{
+    bad:`items = ["cat","dog","bird"]\nprint(items[10])\n# 💥 IndexError: list index out of range`,
+    good:`try:\n    items = ["cat","dog","bird"]\n    print(items[10])\nexcept IndexError:\n    print("Index too large! List has only",\n          len(items), "items.")\nprint("Program keeps running!")`,
+    badOut:'💥 IndexError: list index out of range',
+    goodOut:'Index too large! List has only 3 items.\nProgram keeps running! ✅'
+  }
+};
+function setScenario(s){
+  document.querySelectorAll('.scen-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('scen-'+s).classList.add('active');
+  const sc=scenarios[s];
+  document.getElementById('err-bad-code').textContent=sc.bad;
+  document.getElementById('err-good-code').textContent=sc.good;
+  document.getElementById('err-bad-out').textContent=sc.badOut;
+  document.getElementById('err-good-out').textContent=sc.goodOut;
+}
+setScenario('zero');
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 15 — QUIZ ENGINE
+// ═══════════════════════════════════════════════════════
+const questions = [
+  // EASY (1–3)
+  { q:'Which of these creates a set in Python?',
+    opts:['[1, 2, 3]','(1, 2, 3)','{1, 2, 3}','"1, 2, 3"'], ans:2,
+    diff:'easy',
+    exp:'Curly braces {} create a set. Square brackets [] make a list, parentheses () make a tuple.' },
+  { q:'What does "import math" allow you to do?',
+    opts:['Create a variable called math','Use built-in functions like math.sqrt()','Do faster arithmetic automatically','Define your own math functions'],
+    ans:1, diff:'easy',
+    exp:'import math loads Python\'s built-in math module so you can call functions like math.sqrt(), math.floor(), and access math.pi.' },
+  { q:'What keyword begins a block of code that might fail?',
+    opts:['handle','safe','catch','try'], ans:3, diff:'easy',
+    exp:'The "try:" keyword starts the block that might cause an error. The "except:" block that follows handles the error if one occurs.' },
+  // MEDIUM (4–7)
+  { q:'What is the output of: len({5, 5, 5, 3, 2}) ?',
+    opts:['5','6','3','2'], ans:2, diff:'medium',
+    exp:'A set automatically removes duplicates. {5, 5, 5, 3, 2} becomes {5, 3, 2} — only 3 unique items, so len() returns 3.' },
+  { q:'What does math.floor(4.9) return?',
+    opts:['5','4.9','5.0','4'], ans:3, diff:'medium',
+    exp:'math.floor() always rounds DOWN to the nearest integer. Floor of 4.9 is 4 (the floor you\'re standing on — below you!).' },
+  { q:'If the code inside try: runs WITHOUT any error, what happens to the except: block?',
+    opts:['It also runs','It is completely skipped','It gives a warning','The program restarts'],
+    ans:1, diff:'medium',
+    exp:'The except block is only entered when an error occurs in try. If everything works fine, Python jumps right over the except block.' },
+  { q:'Which method safely removes an item from a set WITHOUT crashing if the item is not there?',
+    opts:['set.remove(x)','set.delete(x)','set.discard(x)','set.pop(x)'], ans:2, diff:'medium',
+    exp:'discard(x) silently does nothing if x isn\'t in the set. remove(x) raises a KeyError if the item is missing. discard is the "safe" version.' },
+  // HARD (8–16)
+  { q:'What does {1, 2, 3} & {2, 3, 4} return?',
+    opts:['{1, 2, 3, 4}','{2, 3}','{1, 4}','{1, 2, 3, 2, 3, 4}'], ans:1, diff:'hard',
+    exp:'& is intersection — items that appear in BOTH sets. 2 and 3 are in both {1,2,3} and {2,3,4}, so the result is {2, 3}.' },
+  { q:'What does {1, 2, 3} | {3, 4, 5} return?',
+    opts:['{3}','{1, 2, 4, 5}','{1, 2, 3, 4, 5}','{1, 2, 3, 3, 4, 5}'], ans:2, diff:'hard',
+    exp:'| is union — all items from both sets combined, with no duplicates. 3 appears in both but is only kept once, giving {1, 2, 3, 4, 5}.' },
+  { q:'What does {1, 2, 3, 4} - {2, 4} return?',
+    opts:['{1, 3}','{2, 4}','{}','{1, 2, 3, 4, 2, 4}'], ans:0, diff:'hard',
+    exp:'- is difference. A - B means "items in A that are NOT in B." Removing 2 and 4 from {1,2,3,4} leaves {1, 3}.' },
+  { q:'Which of these CANNOT be stored as an element inside a Python set?',
+    opts:['42','"hello"','(1, 2, 3)','[1, 2, 3]'], ans:3, diff:'hard',
+    exp:'Set elements must be immutable (unchangeable). Lists are mutable, so Python rejects them. Numbers, strings, and tuples are all fine.' },
+  { q:'What does math.floor(-2.7) return?',
+    opts:['-2','-3','-2.7','2'], ans:1, diff:'hard',
+    exp:'floor() rounds toward negative infinity — always "down" on the number line. -3 is below -2.7, so floor(-2.7) = -3, not -2.' },
+  { q:'When does the "finally:" block run?',
+    opts:['Only when an error occurs','Only when there is NO error','Always — whether there was an error or not','Only if you call it explicitly'],
+    ans:2, diff:'hard',
+    exp:'finally always runs no matter what happened in try/except. It\'s perfect for clean-up tasks like closing files or displaying "done!" messages.' },
+  { q:'Your except block catches ValueError and TypeError. A ZeroDivisionError occurs. What happens?',
+    opts:['ValueError catches it','TypeError catches it','The program crashes with an unhandled error','finally catches it'],
+    ans:2, diff:'hard',
+    exp:'except only catches the specific error types you name. ZeroDivisionError is not ValueError or TypeError, so it is NOT caught — the program crashes.' },
+  { q:'What will this code print?\ntry:\n    x = int("123")\nexcept ValueError:\n    print("bad")\nelse:\n    print("good")\nfinally:\n    print("done")',
+    opts:['"bad" then "done"','"good" then "done"','"done" only','"good" only'], ans:1, diff:'hard',
+    exp:'int("123") succeeds (no error), so except is skipped and else runs → prints "good". Finally always runs → prints "done". Output: good then done.' },
+  { q:'An empty set in Python must be written as set(), not {}. Why?',
+    opts:['set() is faster','{} creates an empty dictionary, not an empty set','set() is the older syntax','{} is only for numbers'],
+    ans:1, diff:'hard',
+    exp:'In Python, {} is already taken — it creates an empty dictionary! To make an empty set, you must write set(). This is a common beginner trap.' },
+];
+
+let qIdx=0, score=0, answered=false;
+function renderQ(){
+  const q = questions[qIdx];
+  document.getElementById('q-text').innerHTML = q.q.replace(/\n/g,'<br>');
+  document.getElementById('q-ctr').textContent = 'Question '+(qIdx+1)+' of '+questions.length;
+  document.getElementById('qprog').style.width = (qIdx/questions.length*100)+'%';
+  document.getElementById('q-fb').textContent = '';
+  document.getElementById('q-next').style.display = 'none';
+  answered = false;
+  // difficulty badge
+  const badge = document.getElementById('q-diff-badge');
+  badge.className = 'diff-badge diff-'+q.diff;
+  badge.textContent = q.diff==='easy' ? '🟢 Warm-Up' : q.diff==='medium' ? '🟡 Getting Harder' : '🔴 Challenge';
+  // options
+  const opts = document.getElementById('q-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answer(i, btn);
+    opts.appendChild(btn);
+  });
+}
+function answer(i, btn){
+  if(answered) return;
+  answered = true;
+  const correct = questions[qIdx].ans;
+  document.querySelectorAll('.quiz-opt').forEach((b,idx)=>{
+    if(idx===correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled = true;
+  });
+  const fb = document.getElementById('q-fb');
+  if(i===correct){
+    score++;
+    fb.innerHTML = '🎉 Correct! <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  } else {
+    fb.innerHTML = '❌ Not quite. <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  }
+  document.getElementById('q-next').style.display = 'inline-block';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx >= questions.length){
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('quiz-done').style.display = 'block';
+    document.getElementById('qprog').style.width = '100%';
+    const pct = Math.round(score/questions.length*100);
+    document.getElementById('quiz-score').textContent =
+      `You got ${score} out of ${questions.length} (${pct}%) ${pct>=88?'🌟 Outstanding!':pct>=68?'👍 Well done!':pct>=50?'💪 Keep practicing!':'📖 Review the slides and try again!'}`;
+  } else renderQ();
+}
+function resetQuiz(){
+  qIdx=0; score=0;
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-done').style.display='none';
+  renderQ();
+}
+renderQ();
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 16 — ASSIGNMENTS
+// ═══════════════════════════════════════════════════════
+function showAssign(id, btn){
+  document.querySelectorAll('.assign-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+// ── Skulpt Runner ──────────────────────────────────────
+function runSkulpt(edId, outId){
+  const code = document.getElementById('ed-' + edId).value;
+  const outEl = document.getElementById(outId);
+  outEl.textContent = '';
+  outEl.style.color = 'var(--teal)';
+
+  Sk.configure({
+    output: (text) => { outEl.textContent += text; },
+    read: (file) => {
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][file] === undefined)
+        throw "File not found: '" + file + "'";
+      return Sk.builtinFiles["files"][file];
+    },
+    __future__: Sk.python3
+  });
+
+  Sk.misceval.asyncToPromise(() =>
+    Sk.importMainWithBody('<stdin>', false, code, true)
+  ).then(
+    () => {
+      if(!outEl.textContent.trim())
+        outEl.textContent = '(No output — did you forget print()?)';
+    },
+    (err) => {
+      outEl.textContent = '⚠️ ' + err.toString();
+      outEl.style.color = 'var(--red)';
+    }
+  );
+}
+
+// ── Check My Work ──────────────────────────────────────
+const _CHK_PRE=`import sys as _sys
+_orig_stdout=_sys.stdout
+class _Cap:
+    def __init__(self):self._d=[]
+    def write(self,s):_orig_stdout.write(s);self._d.append(s)
+    def flush(self):pass
+_cap=_Cap()
+_sys.stdout=_cap
+`;
+const _CHK_MID=`
+_sys.stdout=_orig_stdout
+_student_out=''.join(_cap._d)
+`;
+const CHECK_CODES={
+a1:`
+_c=[]
+try:
+    _c.append(('volleyball added','volleyball' in sports))
+    _c.append(('tennis removed','tennis' not in sports))
+    _c.append(('set has 4 items',len(sports)==4))
+except NameError:_c.append(('sports variable found',False))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a2:`
+_c=[]
+_eu=set('mississippi')
+_ec=set('python')&set('typhoon')
+_g={k:v for k,v in globals().items() if not k.startswith('_')}
+_fu=any(isinstance(v,set) and v==_eu for v in _g.values())
+_fc=any(isinstance(v,set) and v==_ec for v in _g.values())
+_c.append(('unique letters {m,i,p,s} created',_fu))
+_c.append(('common letters of python & typhoon found',_fc))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a3:`
+_c=[]
+_eb={'Alice','Dave','Eve'}
+_ed={'Bob','Carol'}
+_g={k:v for k,v in globals().items() if not k.startswith('_') and k not in ('class_a','class_b')}
+_fb=any(isinstance(v,set) and v==_eb for v in _g.values())
+_fd=any(isinstance(v,set) and v==_ed for v in _g.values())
+_ft=(any((isinstance(v,set) and len(v)==7) or (isinstance(v,int) and v==7) for v in _g.values()) or '7' in _student_out)
+_c.append(('both-clubs intersection {Alice,Dave,Eve}',_fb))
+_c.append(('class_a only {Bob,Carol}',_fd))
+_c.append(('total 7 unique students',_ft))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a4:`
+_c=[]
+try:
+    _c.append(('math module imported','math' in globals()))
+    _c.append(('sqrt(225)=15.0 in output','15.0' in _student_out or '15' in _student_out.split()))
+    _c.append(('circle area ~153.9 in output','153.9' in _student_out))
+    _c.append(('floor=8 and ceil=9 in output','8' in _student_out and '9' in _student_out))
+except Exception as _e:_c.append(('check error: '+str(_e),False))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a5:`
+_c=[]
+try:
+    _c.append(('random module imported','random' in globals()))
+    _c.append(('something was printed',len(_student_out.strip())>0))
+    _ns=[]
+    for _p in _student_out.split():
+        try:_ns.append(int(_p))
+        except:pass
+    _c.append(('random score 50-100 printed',any(50<=n<=100 for n in _ns)))
+except Exception as _e:_c.append(('check error: '+str(_e),False))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a6:`
+_c=[]
+_sf=globals().get('safe_divide',None)
+_c.append(('safe_divide function defined',callable(_sf)))
+if callable(_sf):
+    class _B:
+        def __init__(self):self._d=[]
+        def write(self,s):self._d.append(s)
+        def flush(self):pass
+    import sys as _s2
+    _b1=_B();_s2.stdout=_b1
+    _ok1=True
+    try:safe_divide(20,4)
+    except:_ok1=False
+    _s2.stdout=_orig_stdout
+    _c.append(('safe_divide(20,4) prints 5.0',_ok1 and '5' in ''.join(_b1._d)))
+    _b2=_B();_s2.stdout=_b2
+    _ok2=True
+    try:safe_divide(10,0)
+    except:_ok2=False
+    _s2.stdout=_orig_stdout
+    _c.append(('safe_divide(10,0) handled gracefully',_ok2))
+    _b3=_B();_s2.stdout=_b3
+    _ok3=True
+    try:safe_divide('x',2)
+    except:_ok3=False
+    _s2.stdout=_orig_stdout
+    _c.append(("safe_divide('x',2) handled gracefully",_ok3))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a7:`
+_c=[]
+_ev={23.5,18.0,31.2,27.8,22.1}
+try:
+    _c.append(('valid_readings is a set',isinstance(valid_readings,set)))
+    _c.append(('5 unique valid readings',len(valid_readings)==5))
+    _c.append(('correct readings stored',valid_readings==_ev))
+except NameError:_c.append(("'valid_readings' variable found",False))
+try:
+    _c.append(('3 bad entries in bad_data',len(bad_data)==3))
+except NameError:_c.append(("'bad_data' variable found",False))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`,
+a8:`
+_c=[]
+_g={k:v for k,v in globals().items() if not k.startswith('_')}
+_ss=[v for v in _g.values() if isinstance(v,set) and len(v)>3 and all(isinstance(x,int) for x in v)]
+_bs=[v for v in _g.values() if isinstance(v,set) and any(isinstance(x,str) for x in v)]
+_av=[v for v in _g.values() if isinstance(v,(int,float)) and not isinstance(v,bool) and 80<=v<=96]
+_c.append(('unique scores set created',len(_ss)>0))
+_c.append(('bad entries set created',len(_bs)>0))
+_c.append(('average score calculated (~88)',len(_av)>0))
+_c.append(('random module imported','random' in globals()))
+for _l,_ok in _c:print(('__PASS__' if _ok else '__FAIL__')+_l)
+`};
+
+function checkWork(edId,outId){
+  const studentCode=document.getElementById('ed-'+edId).value;
+  const checkCode=CHECK_CODES[edId];
+  if(!checkCode)return;
+  const fullCode=_CHK_PRE+'\n'+studentCode+'\n'+_CHK_MID+'\n'+checkCode;
+  const outEl=document.getElementById(outId);
+  const chkEl=document.getElementById('chk-'+edId);
+  outEl.textContent='';
+  outEl.style.color='var(--teal)';
+  chkEl.innerHTML='<span style="color:var(--muted);font-size:12px;">Running checks…</span>';
+  chkEl.classList.add('show');
+  let allOutput='';
+  Sk.configure({
+    output:(t)=>{allOutput+=t;},
+    read:(file)=>{
+      if(Sk.builtinFiles===undefined||Sk.builtinFiles["files"][file]===undefined)
+        throw "File not found: '"+file+"'";
+      return Sk.builtinFiles["files"][file];
+    },
+    __future__:Sk.python3
+  });
+  Sk.misceval.asyncToPromise(()=>
+    Sk.importMainWithBody('<stdin>',false,fullCode,true)
+  ).then(()=>{
+    const lines=allOutput.split('\n');
+    const stuLines=[],chkRes=[];
+    for(const line of lines){
+      if(line.startsWith('__PASS__'))chkRes.push({ok:true,label:line.slice(8)});
+      else if(line.startsWith('__FAIL__'))chkRes.push({ok:false,label:line.slice(8)});
+      else stuLines.push(line);
+    }
+    outEl.textContent=stuLines.join('\n').trim()||'(No output — did you forget print()?)';
+    if(chkRes.length>0){
+      const passed=chkRes.filter(r=>r.ok).length,total=chkRes.length,allOk=passed===total;
+      const em=allOk?'🎉':passed>0?'💪':'📚';
+      chkEl.innerHTML=`<div class="chk-summary" style="color:${allOk?'var(--teal)':'var(--dark)'}">${em} ${passed}/${total} checks passed</div>`
+        +chkRes.map(r=>`<span class="chk-badge ${r.ok?'chk-pass':'chk-fail'}">${r.ok?'✓':'✗'} ${r.label}</span>`).join('');
+    }else{
+      chkEl.innerHTML='<span style="font-size:12px;color:var(--muted);">No results found</span>';
+    }
+  },(err)=>{
+    outEl.textContent='⚠️ '+err.toString();
+    outEl.style.color='var(--red)';
+    chkEl.innerHTML='<span style="font-size:12px;color:var(--red);">⚠️ Fix the error above first</span>';
+  });
+}
+
+// ── localStorage auto-save ─────────────────────────────
+const EDITORS = ['ed-a1','ed-a2','ed-a3','ed-a4','ed-a5','ed-a6','ed-a7','ed-a8'];
+const LS_KEY = 'py8_lesson_';
+let saveTimer = null;
+
+function flashSaved(){
+  const t = document.getElementById('autosave-txt');
+  t.textContent = '✓ Auto-saved';
+  t.style.color = 'var(--teal)';
+  setTimeout(()=>{ t.style.color = 'var(--muted)'; }, 1500);
+}
+
+EDITORS.forEach(id => {
+  const el = document.getElementById(id);
+  if(!el) return;
+  // Load saved content
+  const saved = localStorage.getItem(LS_KEY + id);
+  if(saved !== null) el.value = saved;
+  // Auto-save on input
+  el.addEventListener('input', () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      localStorage.setItem(LS_KEY + id, el.value);
+      flashSaved();
+    }, 600);
+  });
+});
+
+// ── Download / Save work ───────────────────────────────
+function saveWork(){
+  const labels = [
+    'P1 — Sets: Favourite Sports',
+    'P2 — Sets: Unique Letters',
+    'P3 — Sets: Club Sign-ups',
+    'P4 — math module',
+    'P5 — random module',
+    'P6 — Safe Calculator (try/except)',
+    'P7 — Sensor Data Cleaner',
+    'P8 — Grand Challenge'
+  ];
+  let content = '# ====================================================\n';
+  content    += '#  Python Lesson 9 — Sets, Modules & Error Handling\n';
+  content    += '#  My Work — saved ' + new Date().toLocaleString() + '\n';
+  content    += '# ====================================================\n\n';
+  EDITORS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    content += '# ──────────────────────────────────────────\n';
+    content += '#  ' + labels[i] + '\n';
+    content += '# ──────────────────────────────────────────\n';
+    content += el.value.trim() + '\n\n\n';
+  });
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'python_lesson9_mywork.py';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>

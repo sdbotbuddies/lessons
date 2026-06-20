@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 6 – String Methods</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* SLIDE SYSTEM */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 90px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);overflow-y:auto;}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* NAV */
+.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;}
+.dots{display:flex;gap:5px;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* TYPOGRAPHY */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(28px,4.5vw,56px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(20px,2.8vw,36px);font-weight:900;line-height:1.2;margin-bottom:14px;}
+h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.6vw,16px);line-height:1.6;}
+
+/* UTILITIES */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:9px 20px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:16px 20px;font-size:clamp(12px,1.4vw,14px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* QUIZ */
+.quiz-q{font-size:clamp(15px,2.2vw,20px);font-weight:800;margin-bottom:16px;line-height:1.4;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-opt{padding:14px 18px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Fira Code',monospace;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--teal);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:44px;font-size:16px;font-weight:800;padding-top:12px;}
+.quiz-nav{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.quiz-code{background:#1e1e2e;color:#cdd6f4;font-family:'Fira Code',monospace;font-size:13px;border-radius:10px;padding:12px 16px;margin:4px 0 10px;white-space:pre;overflow-x:auto;text-align:left;line-height:1.7;}
+.pill-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#cce;border-radius:3px;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .4s;}
+
+/* ASSIGNMENTS */
+.assign-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.assign-tab{padding:7px 16px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;flex-direction:column;gap:12px;}
+.assign-panel.show{display:flex;}
+.assign-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:#e2dcff;border:none;border-radius:var(--radius);padding:16px;resize:none;outline:none;line-height:1.9;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;border-radius:12px;padding:14px;min-height:52px;white-space:pre-wrap;line-height:1.8;}
+.check-output{margin-top:4px;}
+.check-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;}
+.check-row{font-family:'Fira Code',monospace;font-size:12px;padding:5px 10px;border-radius:8px;margin-bottom:3px;line-height:1.5;}
+.check-row.pass{background:#d4edda;color:#155724;}
+.check-row.fail{background:#f8d7da;color:#721c24;}
+
+/* TEXT LAB */
+#s7{background:#1A1333;color:white;}
+#s7 h2{color:white;}
+#s7 .slide-label{opacity:.5;color:white;}
+.lab-input-big{width:100%;padding:12px 18px;border-radius:12px;border:none;background:rgba(255,255,255,0.08);color:white;font-family:'Nunito',sans-serif;font-size:16px;outline:none;font-weight:700;}
+.lab-input-big::placeholder{color:rgba(255,255,255,0.3);}
+.method-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.method-btn{padding:8px 16px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.method-btn:hover{transform:translateY(-2px);}
+.lab-output-box{background:#120f24;border-radius:14px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:16px;color:var(--yellow);min-height:60px;flex:1;line-height:1.8;}
+.lab-code-shown{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:13px;color:rgba(255,255,255,0.5);white-space:pre;}
+
+/* FUN EXAMPLES */
+#s8{background:#1A1333;color:white;}
+#s8 h2{color:white;}
+#s8 .slide-label{opacity:.5;color:white;}
+.fun-row{display:flex;gap:16px;flex:1;margin-top:8px;}
+.fun-card{flex:1;background:rgba(255,255,255,0.07);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;}
+.fun-card h3{color:white;font-size:15px;margin:0;}
+.fun-input{width:100%;padding:8px 12px;border-radius:8px;border:none;background:#120f24;color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;outline:none;}
+.fun-output{font-family:'Fira Code',monospace;font-size:13px;color:var(--yellow);min-height:36px;padding:6px 0;line-height:1.6;}
+
+/* PHONE MOCKUP */
+.phone-mock{background:#120f24;border-radius:24px;padding:16px;max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.4);border:3px solid rgba(255,255,255,0.1);}
+.phone-status{background:rgba(255,255,255,0.05);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;text-align:center;font-family:'Fira Code',monospace;}
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.app-icon{border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform .15s;}
+.app-icon:hover{transform:scale(1.08);}
+.app-icon span{font-size:20px;}
+.app-icon p{font-size:9px;font-weight:800;text-align:center;line-height:1.2;}
+
+/* ── S1 TITLE ── */
+#s1{background:linear-gradient(135deg,#E8FBF4 0%,#FFE8F5 60%,#E8F4FF 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--teal);top:-120px;right:-100px;}
+#s1 .b2{width:320px;height:320px;background:var(--pink);bottom:-80px;left:-80px;}
+#s1 h1 em{color:var(--teal);font-style:normal;}
+.title-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.title-subtitle{font-size:clamp(13px,1.5vw,16px);font-weight:700;color:var(--muted);margin:12px 0 20px;font-family:'Fira Code',monospace;}
+.topic-tags{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;}
+.topic-tag{padding:8px 16px;border-radius:999px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:5px;}
+.callout{border-radius:var(--radius);padding:14px 18px;font-size:14px;font-weight:700;line-height:1.5;}
+.callout-yellow{background:#FFF9DB;border-left:4px solid var(--yellow);}
+.callout-teal{background:#E8FBF4;border-left:4px solid var(--teal);}
+
+/* ── S2 RECAP ── */
+#s2{background:#F8F4FF;}
+.recap-row{display:flex;gap:14px;margin-top:8px;flex:1;}
+.recap-chip{flex:1;background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-left:5px solid;display:flex;flex-direction:column;gap:8px;}
+
+/* ── S3 METHODS ── */
+#s3{background:#F0FFFE;}
+#s3 .b1{width:280px;height:280px;background:var(--teal);top:-60px;right:-60px;}
+.s3-layout{display:flex;gap:20px;flex:1;align-items:flex-start;margin-top:8px;}
+.s3-left{flex:1;display:flex;flex-direction:column;gap:14px;}
+.s3-right{flex:0 0 auto;}
+.syntax-card{background:var(--dark);border-radius:var(--radius);padding:16px 20px;font-family:'Fira Code',monospace;color:#e2dcff;font-size:14px;}
+.syntax-card .arrow{color:var(--teal);font-weight:700;margin:0 8px;}
+.result-pill{display:inline-block;background:var(--teal);color:var(--dark);border-radius:8px;padding:2px 10px;font-weight:800;}
+
+/* ── S4 CASE ── */
+#s4{background:#FFF8F0;}
+#s4 .b1{width:260px;height:260px;background:var(--orange);top:-60px;right:-60px;}
+.case-cards{display:flex;gap:14px;flex:1;margin-top:8px;}
+.case-card{flex:1;background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;border-top:5px solid;}
+
+/* ── S5 EDIT ── */
+#s5{background:#FFF0F7;}
+#s5 .b1{width:240px;height:240px;background:var(--pink);top:-60px;right:-60px;}
+.edit-cards{display:flex;gap:16px;flex:1;margin-top:8px;}
+.edit-card{flex:1;background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;border-top:5px solid;}
+.strip-visual{display:flex;align-items:center;gap:10px;background:#f7f2ff;border-radius:10px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:13px;flex-wrap:wrap;}
+.space-char{display:inline-block;background:#ffcdd2;border-radius:3px;padding:0 4px;color:var(--red);font-size:12px;font-weight:800;}
+
+/* ── S6 SEARCH ── */
+#s6{background:#F5F0FF;}
+#s6 .b1{width:260px;height:260px;background:var(--purple);bottom:-60px;left:-60px;}
+.search-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;margin-top:8px;}
+.search-card{background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:4px solid;display:flex;flex-direction:column;gap:6px;}
+.split-demo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.split-box{background:var(--purple);color:white;border-radius:8px;padding:4px 10px;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;}
+.split-arrow{color:var(--muted);font-size:16px;}
+.split-result{display:flex;gap:6px;flex-wrap:wrap;}
+.split-item{background:var(--teal);color:var(--dark);border-radius:8px;padding:4px 10px;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;}
+
+/* ── S9 QUIZ ── */
+#s9{background:#E8FBF4;}
+#s9 .b1{width:300px;height:300px;background:var(--teal);top:-80px;right:-80px;}
+
+/* ── S10 ASSIGNMENTS ── */
+#s10{background:#FFFBF0;}
+
+/* ── S11 CLOSING ── */
+#s11{background:linear-gradient(135deg,#1A1333 0%,#2D1F5E 60%,#0F2D47 100%);color:white;justify-content:center;align-items:center;text-align:center;}
+#s11 .b1{width:350px;height:350px;background:var(--teal);top:-100px;right:-80px;}
+#s11 .b2{width:280px;height:280px;background:var(--pink);bottom:-80px;left:-60px;}
+#s11 h2{color:white;font-size:clamp(24px,3.5vw,44px);}
+.achievement-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:860px;margin:20px auto;}
+.achievement{background:rgba(255,255,255,0.08);border-radius:14px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.achievement-icon{font-size:32px;}
+.achievement h3{color:white;font-size:13px;text-align:center;margin:0;}
+.achievement p{color:rgba(255,255,255,0.6);font-size:11px;text-align:center;margin:0;}
+.next-teaser{background:rgba(255,255,255,0.08);border-radius:var(--radius);padding:16px 24px;max-width:500px;margin:0 auto;font-size:15px;font-weight:700;color:var(--yellow);}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+</head>
+<body>
+<div class="deck">
+
+<!-- ========== SLIDE 1: TITLE ========== -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="title-tags">
+    <span class="tag tag-teal">Lesson 6</span>
+    <span class="tag tag-purple">6th Grade Python</span>
+    <span class="tag tag-pink">String Magic</span>
+  </div>
+  <h1>Superpower Your Text —<br><em>String Methods!</em> 🔡</h1>
+  <p class="title-subtitle">.upper() · .lower() · .replace() · .split() · .find() · .count()</p>
+  <div class="topic-tags">
+    <div class="topic-tag" style="background:#FFF3E0;color:var(--orange);">✦ .upper()</div>
+    <div class="topic-tag" style="background:#E3F2FD;color:var(--blue);">✦ .lower()</div>
+    <div class="topic-tag" style="background:#FCE4EC;color:var(--pink);">✦ .replace()</div>
+    <div class="topic-tag" style="background:#EDE7F6;color:var(--purple);">✦ .split()</div>
+    <div class="topic-tag" style="background:#E8FBF4;color:#0F6E56;">✦ Quiz</div>
+    <div class="topic-tag" style="background:var(--yellow);color:var(--dark);">✦ Assignments</div>
+  </div>
+  <div class="callout callout-yellow">
+    💡 <strong>Last time: Functions</strong> — def, parameters, return. Today we give strings superpowers!
+  </div>
+</div>
+
+<!-- ========== SLIDE 2: RECAP ========== -->
+<div class="slide" id="s2">
+  <div class="slide-label">Quick Recap — Lesson 5</div>
+  <h2>What we already know 🧠</h2>
+  <div class="recap-row">
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tag tag-purple">def keyword</span>
+      </div>
+      <p>Use <strong>def</strong> to define a reusable block of code — write once, run many times!</p>
+      <div class="code-block" style="padding:10px 14px;font-size:12px;">
+        <span class="kw">def</span> <span class="fn">greet</span>(name):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Hello, " + name</span>)
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tag tag-blue">parameters</span>
+      </div>
+      <p>Pass values into functions like ingredients into a recipe 🍳</p>
+      <div class="code-block" style="padding:10px 14px;font-size:12px;">
+        <span class="fn">greet</span>(<span class="st">"Alex"</span>)<br>
+        <span class="cm"># → Hello, Alex</span>
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tag tag-teal">return values</span>
+      </div>
+      <p>Send a result back out of a function using <strong>return</strong></p>
+      <div class="code-block" style="padding:10px 14px;font-size:12px;">
+        <span class="kw">return</span> total<br>
+        <span class="cm"># gives back the answer</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:16px;" class="callout" style="background:#E8FBF4;border-left:4px solid var(--teal);">
+    <div style="background:#E8FBF4;border-left:4px solid var(--teal);border-radius:var(--radius);padding:14px 18px;font-size:14px;font-weight:700;">
+      🚀 Today we unlock <strong>string methods</strong> — built-in tools that transform text like magic!
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 3: WHAT ARE METHODS? ========== -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">String Methods</div>
+  <h2>What are String Methods? 📱</h2>
+  <div class="s3-layout">
+    <div class="s3-left">
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <p style="font-size:15px;font-weight:700;">Methods are like <strong style="color:var(--teal);">apps built into your phone</strong> — strings come with built-in tools already installed! No downloads needed 🎉</p>
+      </div>
+      <div class="syntax-card">
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">KEY SYNTAX:</div>
+        <span style="color:var(--orange);">"your string"</span><span style="color:rgba(255,255,255,0.6);">.</span><span style="color:var(--teal);">method()</span>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;">The dot means "use this tool on this string"</div>
+      </div>
+      <div style="background:#E8FBF4;border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:var(--orange);border-radius:8px;padding:6px 12px;">"hello".upper()</div>
+        <div style="font-size:18px;color:var(--teal);">→</div>
+        <div style="font-family:'Fira Code',monospace;font-size:14px;font-weight:800;color:var(--dark);">"HELLO"</div>
+        <span class="tag tag-teal">It works!</span>
+      </div>
+    </div>
+    <div class="s3-right">
+      <div class="phone-mock">
+        <div class="phone-status">🔋 100% &nbsp;|&nbsp; String Methods Lab</div>
+        <div class="app-grid">
+          <div class="app-icon" style="background:var(--orange);">
+            <span>🔠</span>
+            <p style="color:white;">.upper()</p>
+          </div>
+          <div class="app-icon" style="background:var(--blue);">
+            <span>🔡</span>
+            <p style="color:white;">.lower()</p>
+          </div>
+          <div class="app-icon" style="background:var(--teal);">
+            <span>📝</span>
+            <p style="color:var(--dark);">.cap()</p>
+          </div>
+          <div class="app-icon" style="background:var(--pink);">
+            <span>✂️</span>
+            <p style="color:white;">.strip()</p>
+          </div>
+          <div class="app-icon" style="background:var(--purple);">
+            <span>🔄</span>
+            <p style="color:white;">.replace()</p>
+          </div>
+          <div class="app-icon" style="background:var(--yellow);">
+            <span>🔍</span>
+            <p style="color:var(--dark);">.find()</p>
+          </div>
+          <div class="app-icon" style="background:var(--lime);">
+            <span>✂️</span>
+            <p style="color:var(--dark);">.split()</p>
+          </div>
+          <div class="app-icon" style="background:var(--green);">
+            <span>📏</span>
+            <p style="color:white;">len()</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 4: CASE METHODS ========== -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">String Methods — Case</div>
+  <h2>Changing text case 🔠</h2>
+  <div class="case-cards">
+    <div class="case-card" style="border-color:var(--orange);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:24px;">📢</span>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:16px;font-weight:800;color:var(--orange);">.upper()</div>
+          <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">ALL CAPS</div>
+        </div>
+      </div>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;">
+        <span class="st">"hello"</span>.<span class="fn">upper</span>()<br>
+        <span class="cm"># → "HELLO"</span>
+      </div>
+      <p style="font-size:12px;"><strong>Use for:</strong> shouting, usernames, hashtags</p>
+    </div>
+    <div class="case-card" style="border-color:var(--blue);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:24px;">🤫</span>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:16px;font-weight:800;color:var(--blue);">.lower()</div>
+          <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">all lowercase</div>
+        </div>
+      </div>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;">
+        <span class="st">"Hello World"</span>.<span class="fn">lower</span>()<br>
+        <span class="cm"># → "hello world"</span>
+      </div>
+      <p style="font-size:12px;"><strong>Use for:</strong> comparing, normalizing text</p>
+    </div>
+    <div class="case-card" style="border-color:var(--teal);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:24px;">✍️</span>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:16px;font-weight:800;color:var(--teal);">.capitalize()</div>
+          <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">First letter only</div>
+        </div>
+      </div>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;">
+        <span class="st">"hello world"</span>.<span class="fn">capitalize</span>()<br>
+        <span class="cm"># → "Hello world"</span>
+      </div>
+      <p style="font-size:12px;"><strong>Use for:</strong> names, sentences, titles</p>
+    </div>
+  </div>
+  <div style="margin-top:14px;background:linear-gradient(135deg,#E3F2FD,#E8FBF4);border-radius:var(--radius);padding:14px 18px;font-size:14px;font-weight:700;border-left:4px solid var(--blue);">
+    🎮 <strong>Instagram</strong> does .lower() on every username — so "Alex123" and "alex123" are the SAME account!
+  </div>
+</div>
+
+<!-- ========== SLIDE 5: EDIT METHODS ========== -->
+<div class="slide" id="s5">
+  <div class="blob b1"></div>
+  <div class="slide-label">String Methods — Edit</div>
+  <h2>Cleaning and replacing text ✂️</h2>
+  <div class="edit-cards">
+    <div class="edit-card" style="border-color:var(--pink);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:28px;">🧹</span>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:16px;font-weight:800;color:var(--pink);">.strip()</div>
+          <div style="font-size:12px;font-weight:800;color:var(--muted);">The Eraser</div>
+        </div>
+      </div>
+      <p style="font-size:13px;">Removes extra spaces from <strong>both ends</strong> of a string</p>
+      <div class="strip-visual">
+        <span>
+          <span class="space-char">⎵</span><span class="space-char">⎵</span><span class="space-char">⎵</span>hello<span class="space-char">⎵</span><span class="space-char">⎵</span><span class="space-char">⎵</span>
+        </span>
+        <span style="font-size:14px;font-weight:800;color:var(--pink);">.strip()</span>
+        <span style="font-size:16px;color:var(--teal);">→</span>
+        <strong>hello</strong>
+      </div>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;">
+        name = <span class="st">"   Alex   "</span><br>
+        name.<span class="fn">strip</span>() <span class="cm"># → "Alex"</span>
+      </div>
+      <div style="background:#FCE4EC;border-radius:10px;padding:10px;font-size:12px;font-weight:700;">
+        🌐 Websites use .strip() to clean up form inputs — users accidentally add spaces all the time!
+      </div>
+    </div>
+    <div class="edit-card" style="border-color:var(--purple);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:28px;">🔄</span>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:16px;font-weight:800;color:var(--purple);">.replace(old, new)</div>
+          <div style="font-size:12px;font-weight:800;color:var(--muted);">The Autocorrect</div>
+        </div>
+      </div>
+      <p style="font-size:13px;">Replaces <strong>every occurrence</strong> of one thing with another</p>
+      <div class="code-block" style="font-size:12px;padding:10px 14px;">
+        msg = <span class="st">"I luv pizza"</span><br>
+        msg.<span class="fn">replace</span>(<span class="st">"luv"</span>, <span class="st">"love"</span>)<br>
+        <span class="cm"># → "I love pizza"</span>
+      </div>
+      <div style="background:#EDE7F6;border-radius:10px;padding:10px;font-size:12px;font-weight:700;">
+        📱 Autocorrect is basically .replace() for your keyboard! It swaps "teh" with "the" automatically.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 6: SEARCH & SPLIT ========== -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <div class="slide-label">String Methods — Search &amp; Split</div>
+  <h2>Finding things in strings 🔍</h2>
+  <div class="search-cards">
+    <div class="search-card" style="border-color:var(--yellow);">
+      <div style="font-family:'Fira Code',monospace;font-size:14px;font-weight:800;color:var(--orange);">🔍 .find(text)</div>
+      <p style="font-size:12px;">Returns the <strong>index</strong> (position) where text first appears. Returns <code>-1</code> if not found.</p>
+      <div class="code-block" style="font-size:11px;padding:8px 12px;">
+        <span class="st">"Python rocks"</span>.<span class="fn">find</span>(<span class="st">"rocks"</span>)<br>
+        <span class="cm"># → 7</span>
+      </div>
+    </div>
+    <div class="search-card" style="border-color:var(--pink);">
+      <div style="font-family:'Fira Code',monospace;font-size:14px;font-weight:800;color:var(--pink);">📊 .count(text)</div>
+      <p style="font-size:12px;">Counts <strong>how many times</strong> a word or letter appears in a string</p>
+      <div class="code-block" style="font-size:11px;padding:8px 12px;">
+        <span class="st">"banana"</span>.<span class="fn">count</span>(<span class="st">"a"</span>)<br>
+        <span class="cm"># → 3</span>
+      </div>
+    </div>
+    <div class="search-card" style="border-color:var(--purple);grid-column:span 2;">
+      <div style="font-family:'Fira Code',monospace;font-size:14px;font-weight:800;color:var(--purple);">✂️ .split() — breaks a string into a list!</div>
+      <div class="split-demo">
+        <div class="split-box">"Alex Sam Priya"</div>
+        <div class="split-arrow">→ .split() →</div>
+        <div class="split-result">
+          <div class="split-item">"Alex"</div>
+          <div class="split-item">"Sam"</div>
+          <div class="split-item">"Priya"</div>
+        </div>
+      </div>
+      <div class="code-block" style="font-size:11px;padding:8px 12px;margin-top:4px;">
+        names = <span class="st">"Alex Sam Priya"</span>.<span class="fn">split</span>()&nbsp;&nbsp;<span class="cm"># → ["Alex", "Sam", "Priya"]</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:linear-gradient(135deg,#EDE7F6,#E8FBF4);border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;gap:14px;">
+    <div style="font-family:'Fira Code',monospace;font-size:13px;font-weight:800;color:var(--purple);">📏 len("Python") → <span style="color:var(--teal);">6</span></div>
+    <div style="width:1px;height:30px;background:#ccc;"></div>
+    <p style="font-size:13px;font-weight:700;"><code>len()</code> counts <strong>total characters</strong> in a string — spaces included! len("Hi there") → 8</p>
+  </div>
+</div>
+
+<!-- ========== SLIDE 7: TEXT LAB ========== -->
+<div class="slide" id="s7">
+  <div class="slide-label" style="color:rgba(255,255,255,0.5);">Interactive — Text Lab</div>
+  <h2>🧪 The String Methods Lab</h2>
+  <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+    <input id="lab-input" class="lab-input-big" type="text" placeholder="Type any text here... try 'Hello World!'">
+    <div class="method-btns">
+      <button class="method-btn" style="background:var(--orange);color:white;" onclick="applyMethod('upper')">.upper()</button>
+      <button class="method-btn" style="background:var(--blue);color:white;" onclick="applyMethod('lower')">.lower()</button>
+      <button class="method-btn" style="background:var(--teal);color:var(--dark);" onclick="applyMethod('capitalize')">.capitalize()</button>
+      <button class="method-btn" style="background:var(--pink);color:white;" onclick="applyMethod('strip')">.strip()</button>
+      <button class="method-btn" style="background:var(--purple);color:white;" onclick="applyMethod('replace')">.replace("a","@")</button>
+      <button class="method-btn" style="background:var(--lime);color:var(--dark);" onclick="applyMethod('split')">.split()</button>
+      <button class="method-btn" style="background:var(--green);color:white;" onclick="applyMethod('len')">len()</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Output:</div>
+      <div id="lab-output" class="lab-output-box">Click a method button above! 👆</div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Method used:</div>
+      <div id="lab-method" class="lab-code-shown">&gt;&gt;&gt; (click a button to see the code here)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 8: FUN EXAMPLES ========== -->
+<div class="slide" id="s8">
+  <div class="slide-label" style="color:rgba(255,255,255,0.5);">Fun Examples 🎉</div>
+  <h2>String methods in the real world!</h2>
+  <div class="fun-row">
+    <div class="fun-card">
+      <h3>🎤 Rapper Name Maker</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);">Type your name → get your rapper alias</p>
+      <input id="rap-in" class="fun-input" type="text" placeholder="Your name..." oninput="doRapper()">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);font-family:'Fira Code',monospace;">"lil " + name.upper()</div>
+      <div id="rap-out" class="fun-output" style="font-size:16px;font-weight:900;color:var(--yellow);">🎤 lil YOUR NAME</div>
+      <button class="pill-btn" style="background:var(--orange);color:white;font-size:12px;padding:6px 14px;" onclick="doRapper()">Make it! 🎵</button>
+    </div>
+    <div class="fun-card">
+      <h3>💬 Hype Machine</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);">Type a boring sentence → watch it get hyped up!</p>
+      <input id="hype-in" class="fun-input" type="text" placeholder="This is okay..." oninput="doHype()">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);font-family:'Fira Code',monospace;">.replace(old, hyped)</div>
+      <div id="hype-out" class="fun-output">Type something above! ✨</div>
+      <button class="pill-btn" style="background:var(--pink);color:white;font-size:12px;padding:6px 14px;" onclick="doHype()">Hype it! 🔥</button>
+    </div>
+    <div class="fun-card">
+      <h3>🎵 Lyric Word Counter</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);">Paste a lyric, then search for a word</p>
+      <input id="lyric-in" class="fun-input" type="text" placeholder="Paste lyrics here..." style="margin-bottom:6px;">
+      <input id="lyric-word" class="fun-input" type="text" placeholder="Word to count..." oninput="doLyric()">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);font-family:'Fira Code',monospace;">lyric.count(word)</div>
+      <div id="lyric-out" class="fun-output">Enter a lyric + word above! 🎵</div>
+      <button class="pill-btn" style="background:var(--cyan);color:var(--dark);font-size:12px;padding:6px 14px;" onclick="doLyric()">Count it! 🔢</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 9: QUIZ ========== -->
+<div class="slide" id="s9">
+  <div class="blob b1"></div>
+  <div class="slide-label">Quiz Time!</div>
+  <h2>Test your string knowledge 🏆</h2>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+    <div class="prog-bar"><div class="prog-fill" style="width:0%"></div></div>
+    <div id="q-text" class="quiz-q">Loading question...</div>
+    <pre class="quiz-code" id="q-code" style="display:none;"></pre>
+    <div class="quiz-opts">
+      <button class="quiz-opt"></button>
+      <button class="quiz-opt"></button>
+      <button class="quiz-opt"></button>
+      <button class="quiz-opt"></button>
+    </div>
+    <div id="q-fb" class="quiz-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" id="q-prev" style="background:#888;color:white;" onclick="prevQ()" disabled>← Previous</button>
+      <button class="pill-btn" id="q-next" style="background:var(--teal);color:var(--dark);" onclick="nextQ()">Next Question →</button>
+      <span class="q-ctr">1 / 8</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 10: ASSIGNMENTS ========== -->
+<div class="slide" id="s10">
+  <div class="slide-label">Assignments</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <h2 style="margin:0;">Practice time! 💪</h2>
+    <button class="pill-btn" onclick="saveMyWork()" style="background:var(--teal);color:#fff;font-size:13px;">💾 Save My Work</button>
+  </div>
+  <div class="assign-tabs">
+    <button class="assign-tab active" onclick="showTab('a1',this)">1 — Shout It Out</button>
+    <button class="assign-tab" onclick="showTab('a2',this)">2 — Vowel Counter</button>
+    <button class="assign-tab" onclick="showTab('a3',this)">3 — Username Maker</button>
+    <button class="assign-tab" onclick="showTab('a4',this)">4 — Pig Latin</button>
+  </div>
+
+  <div id="a1" class="assign-panel show">
+    <div class="assign-meta">
+      <span class="tag" style="background:#E8F5E9;color:#2E7D32;border:2px solid var(--green);">Easy 🟢</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Use .upper() to make your name SHOUT!</span>
+    </div>
+    <textarea id="ed-a1" class="assign-editor" rows="7">def shout(name):
+    # Return the name in ALL CAPS with "!" at the end
+    # Example: shout("Alex") -> "ALEX!"
+    pass
+
+print(shout("Alex"))
+print(shout("Python"))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runCode('a1')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a1')">🔍 Check My Answer</button>
+    </div>
+    <div id="out-a1" class="assign-output">(output will appear here)</div>
+    <div class="check-output" id="chk-a1"></div>
+  </div>
+
+  <div id="a2" class="assign-panel">
+    <div class="assign-meta">
+      <span class="tag" style="background:#FFF9C4;color:#856400;border:2px solid var(--yellow);">Medium 🟡</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Count all the vowels using a loop!</span>
+    </div>
+    <textarea id="ed-a2" class="assign-editor" rows="8">def count_vowels(sentence):
+    pass
+
+print(count_vowels("hello world"))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runCode('a2')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a2')">🔍 Check My Answer</button>
+    </div>
+    <div id="out-a2" class="assign-output">(output will appear here)</div>
+    <div class="check-output" id="chk-a2"></div>
+  </div>
+
+  <div id="a3" class="assign-panel">
+    <div class="assign-meta">
+      <span class="tag" style="background:#FFF3E0;color:#E65100;border:2px solid var(--orange);">Hard 🟠</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Build a username generator function!</span>
+    </div>
+    <textarea id="ed-a3" class="assign-editor" rows="10">print(make_username("Alex", "King"))
+print(make_username("Priya", "Sharma"))
+print(make_username("Jordan", "Lee"))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runCode('a3')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a3')">🔍 Check My Answer</button>
+    </div>
+    <div id="out-a3" class="assign-output">(output will appear here)</div>
+    <div class="check-output" id="chk-a3"></div>
+  </div>
+
+  <div id="a4" class="assign-panel">
+    <div class="assign-meta">
+      <span class="tag" style="background:#FCE4EC;color:#880E4F;border:2px solid var(--red);">Challenge 🔴</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Build a Pig Latin translator!</span>
+    </div>
+    <textarea id="ed-a4" class="assign-editor" rows="10">print(pig_latin("cat"))
+print(pig_latin("python"))
+print(pig_latin("hello"))
+print(pig_latin("code"))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runCode('a4')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('a4')">🔍 Check My Answer</button>
+    </div>
+    <div id="out-a4" class="assign-output">(output will appear here)</div>
+    <div class="check-output" id="chk-a4"></div>
+  </div>
+</div>
+
+<!-- ========== SLIDE 11: CLOSING ========== -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <h2>🏆 String Wizard Unlocked!</h2>
+  <p style="color:rgba(255,255,255,0.6);font-size:15px;margin-bottom:8px;">You've mastered the power of string methods!</p>
+  <div class="achievement-grid">
+    <div class="achievement">
+      <div class="achievement-icon">🔠</div>
+      <h3>.upper() &amp; .lower()</h3>
+      <p>Change text to ALL CAPS or all lowercase like a pro</p>
+    </div>
+    <div class="achievement">
+      <div class="achievement-icon">🧹</div>
+      <h3>.strip() &amp; .replace()</h3>
+      <p>Clean and edit text — just like autocorrect!</p>
+    </div>
+    <div class="achievement">
+      <div class="achievement-icon">🔍</div>
+      <h3>.find() &amp; .count()</h3>
+      <p>Search inside strings and count occurrences</p>
+    </div>
+    <div class="achievement">
+      <div class="achievement-icon">✂️</div>
+      <h3>.split() &amp; len()</h3>
+      <p>Chop strings into lists and measure their length</p>
+    </div>
+  </div>
+  <div class="next-teaser">
+    Up next: <strong>Dictionaries</strong> — organize your data like a pro! 📚<br>
+    <span style="font-size:12px;color:rgba(255,217,61,0.7);font-weight:600;">key: value pairs, lookup tables, real-world data structures</span>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="prev">←</button>
+  <div class="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <span class="slide-counter">1 / 11</span>
+  <button class="next">→</button>
+</nav>
+
+<script>
+/* ── NAVIGATION ── */
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.dot');
+let cur = 0;
+
+function goTo(n) {
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(() => slides[cur].classList.remove('out'), 350);
+  cur = n;
+  slides[cur].classList.add('active');
+  dots.forEach((d, i) => d.classList.toggle('active', i === cur));
+  document.querySelector('.slide-counter').textContent = (cur + 1) + ' / ' + slides.length;
+}
+
+document.querySelector('.prev').onclick = () => cur > 0 && goTo(cur - 1);
+document.querySelector('.next').onclick = () => cur < slides.length - 1 && goTo(cur + 1);
+document.addEventListener('keydown', e => {
+  const tag = e.target.tagName;
+  if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === ' ') cur < slides.length - 1 && goTo(cur + 1);
+  if (e.key === 'ArrowLeft') cur > 0 && goTo(cur - 1);
+});
+dots.forEach((d, i) => d.onclick = () => goTo(i));
+
+/* ── TEXT LAB (Slide 7) ── */
+function applyMethod(method) {
+  const text = document.getElementById('lab-input').value || 'Hello World!';
+  let result = '', shown = '';
+  switch (method) {
+    case 'upper':
+      result = text.toUpperCase();
+      shown = `"${text}".upper()`;
+      break;
+    case 'lower':
+      result = text.toLowerCase();
+      shown = `"${text}".lower()`;
+      break;
+    case 'capitalize':
+      result = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+      shown = `"${text}".capitalize()`;
+      break;
+    case 'strip':
+      result = text.trim();
+      shown = `"${text}".strip()`;
+      break;
+    case 'replace':
+      result = text.replaceAll('a', '@');
+      shown = `"${text}".replace("a","@")`;
+      break;
+    case 'split':
+      result = JSON.stringify(text.trim().split(/\s+/));
+      shown = `"${text}".split()`;
+      break;
+    case 'len':
+      result = 'Length: ' + text.length + ' characters';
+      shown = `len("${text}")`;
+      break;
+  }
+  document.getElementById('lab-output').textContent = result || '(empty string)';
+  document.getElementById('lab-method').textContent = '>>> ' + shown + '\n→  ' + result;
+}
+
+/* ── FUN EXAMPLES (Slide 8) ── */
+function doRapper() {
+  const n = (document.getElementById('rap-in').value || 'Your Name').trim();
+  document.getElementById('rap-out').textContent = '🎤 lil ' + n.toUpperCase();
+}
+
+function doHype() {
+  let t = (document.getElementById('hype-in').value || 'This is okay and pretty good').trim();
+  if (!t) { document.getElementById('hype-out').textContent = 'Type something above! ✨'; return; }
+  t = t.replace(/\bgood\b/gi, 'AMAZING 🔥')
+       .replace(/\bbad\b/gi, 'not it 💀')
+       .replace(/\bokay\b/gi, 'mid 😐')
+       .replace(/\bgreat\b/gi, 'LEGENDARY 👑')
+       .replace(/\bfine\b/gi, 'lowkey bussin ✨')
+       .replace(/\bcool\b/gi, 'FIRE 🔥')
+       .replace(/\bnice\b/gi, 'BUSSIN 🙌');
+  document.getElementById('hype-out').textContent = t;
+}
+
+function doLyric() {
+  const lyric = (document.getElementById('lyric-in').value || 'shake it off shake it off').toLowerCase();
+  const word = (document.getElementById('lyric-word').value || '').toLowerCase().trim();
+  if (!word) { document.getElementById('lyric-out').textContent = 'Enter a word to search! 🔍'; return; }
+  const count = (lyric.match(new RegExp('\\b' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')) || []).length;
+  document.getElementById('lyric-out').textContent = `"${word}" appears ${count} time${count !== 1 ? 's' : ''} 🎵`;
+}
+
+/* ── QUIZ (Slide 9) ── */
+const QUIZ = [
+  { q: 'What does "Hello World".upper() return?', opts: ['"hello world"', '"Hello World"', '"HELLO WORLD"', '"Hello world"'], ans: 2 },
+  { q: 'What does .split() do to a string?', opts: ['Joins two strings together', 'Breaks a string into a list of words', 'Removes spaces from ends', 'Counts characters'], ans: 1 },
+  { q: 'What does len("Python") return?', opts: ['5', '6', '7', '"Python"'], ans: 1 },
+  { q: 'What does "  hi  ".strip() return?', opts: ['"  hi  "', '"hi  "', '"  hi"', '"hi"'], ans: 3 },
+  { q: 'What does "hello".capitalize() return?', opts: ['"HELLO"', '"hello"', '"Hello"', '"hELLO"'], ans: 2 },
+  { q: 'What does "cat".replace("c", "b") return?', opts: ['"cat"', '"bat"', '"cab"', '"cbt"'], ans: 1 },
+  { q: 'What does "hello world".find("world") return?', opts: ['0', '5', '6', '-1'], ans: 2 },
+  { q: 'What does "banana".count("a") return?', opts: ['1', '2', '3', '4'], ans: 2 },
+];
+let qIdx = 0, score = 0;
+const answers = new Array(QUIZ.length).fill(null);
+
+function renderQ() {
+  const q = QUIZ[qIdx];
+  document.getElementById('q-text').textContent = q.q;
+  const codeEl = document.getElementById('q-code');
+  if (q.code) { codeEl.textContent = q.code; codeEl.style.display = 'block'; }
+  else { codeEl.style.display = 'none'; }
+  document.querySelectorAll('.quiz-opt').forEach((b, i) => {
+    b.textContent = q.opts[i];
+    b.className = 'quiz-opt';
+    b.disabled = false;
+    b.onclick = () => checkAns(i);
+  });
+  if (answers[qIdx] !== null) {
+    const chosen = answers[qIdx];
+    document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+    document.querySelectorAll('.quiz-opt')[chosen].classList.add(chosen === q.ans ? 'correct' : 'wrong');
+    if (chosen !== q.ans) document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent = chosen === q.ans ? '✅ Correct! 🎉 Nice work!' : '❌ Not quite — the answer was: ' + q.opts[q.ans];
+  } else {
+    document.getElementById('q-fb').textContent = '';
+  }
+  document.querySelector('.q-ctr').textContent = (qIdx + 1) + ' / ' + QUIZ.length;
+  document.querySelector('.prog-fill').style.width = ((qIdx / QUIZ.length) * 100) + '%';
+  document.getElementById('q-prev').disabled = qIdx === 0;
+}
+
+function checkAns(i) {
+  if (answers[qIdx] !== null) return;
+  const q = QUIZ[qIdx];
+  answers[qIdx] = i;
+  document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+  if (i === q.ans) {
+    document.querySelectorAll('.quiz-opt')[i].classList.add('correct');
+    score++;
+    document.getElementById('q-fb').textContent = '✅ Correct! 🎉 Nice work!';
+  } else {
+    document.querySelectorAll('.quiz-opt')[i].classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent = '❌ Not quite — the answer was: ' + q.opts[q.ans];
+  }
+}
+
+function prevQ() { if (qIdx > 0) { qIdx--; renderQ(); } }
+
+function nextQ() {
+  if (qIdx < QUIZ.length - 1) { qIdx++; renderQ(); }
+  else {
+    document.getElementById('q-text').textContent = '🎉 Quiz complete! You scored ' + score + ' / ' + QUIZ.length + '!';
+    document.getElementById('q-code').style.display = 'none';
+    document.querySelectorAll('.quiz-opt').forEach(b => { b.style.display = 'none'; });
+    document.getElementById('q-fb').textContent = score === QUIZ.length ? '🏆 Perfect score! String wizard!' : '💪 Keep practicing — you\'ve got this!';
+    document.querySelector('.prog-fill').style.width = '100%';
+    document.getElementById('q-prev').style.display = 'none';
+    document.getElementById('q-next').textContent = 'Restart Quiz 🔄';
+    document.getElementById('q-next').onclick = () => {
+      qIdx = 0; score = 0; answers.fill(null);
+      document.querySelectorAll('.quiz-opt').forEach(b => { b.style.display = ''; });
+      document.getElementById('q-next').textContent = 'Next Question →';
+      document.getElementById('q-next').onclick = nextQ;
+      document.getElementById('q-prev').style.display = '';
+      renderQ();
+    };
+  }
+}
+
+renderQ();
+
+/* ── ASSIGNMENTS (Slide 10) ── */
+function showTab(id, btn) {
+  document.querySelectorAll('.assign-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+function runCode(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const out = document.getElementById('out-' + id);
+  out.textContent = '';
+  out.style.color = 'var(--teal)';
+  Sk.configure({
+    output: t => { out.textContent += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      if (!out.textContent) out.textContent = '(No output — did you forget print()?)';
+    })
+    .catch(err => {
+      out.textContent = 'Error: ' + err.toString();
+      out.style.color = 'var(--red)';
+    });
+}
+
+
+
+const TESTS = {
+  'a1': ["ALEX!", "PYTHON!"],
+  'a2': ["3"],
+  'a3': ["alex_k", "priya_s", "jordan_l"],
+  'a4': ["atcay", "ythonpay", "ellohay", "odecay"],
+};
+
+function checkAnswer(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const expected = TESTS[id];
+  const chk = document.getElementById('chk-' + id);
+  chk.innerHTML = '<div class="check-label">CHECKING...</div>';
+  let captured = '';
+  Sk.configure({
+    output: t => { captured += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      const lines = captured.split('\n').filter(l => l !== '');
+      let html = '<div class="check-label">RESULTS:</div>';
+      let allPass = true;
+      expected.forEach((exp, i) => {
+        const got = lines[i] !== undefined ? lines[i] : '(no output)';
+        const pass = got === exp;
+        if (!pass) allPass = false;
+        html += `<div class="check-row ${pass?'pass':'fail'}">${pass?'✅':'❌'} Line ${i+1}: <strong>${exp}</strong>${pass?'':` — got: <strong>${got}</strong>`}</div>`;
+      });
+      if (lines.length > expected.length) {
+        allPass = false;
+        for (let i = expected.length; i < lines.length; i++) {
+          html += `<div class="check-row fail">❌ Extra line ${i+1}: <strong>${lines[i]}</strong></div>`;
+        }
+      }
+      if (allPass) html += '<div class="check-row pass" style="margin-top:6px;font-weight:700;">🎉 All correct! Great work!</div>';
+      chk.innerHTML = html;
+    })
+    .catch(err => {
+      chk.innerHTML = `<div class="check-row fail">❌ Error: ${err.toString()}</div>`;
+    });
+}
+
+// localStorage auto-save
+(function(){
+  const P='l6-';
+  document.querySelectorAll('.assign-editor').forEach(t=>{
+    const saved=localStorage.getItem(P+t.id);
+    if(saved!==null)t.value=saved;
+    t.addEventListener('input',()=>localStorage.setItem(P+t.id,t.value));
+  });
+})();
+
+function saveMyWork(){
+  const clone=document.documentElement.cloneNode(true);
+  document.querySelectorAll('.assign-editor').forEach((t,i)=>{
+    clone.querySelectorAll('.assign-editor')[i].textContent=t.value;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>'+clone.outerHTML],{type:'text/html'}));
+  a.download='lesson6_strings_mywork.html';
+  a.click();
+}
+</script>
+</body>
+</html>

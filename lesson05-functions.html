@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 5 – Functions</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* SLIDE SYSTEM */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 90px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);overflow-y:auto;}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* NAV */
+.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.dots{display:flex;gap:5px;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* TYPOGRAPHY */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(28px,4.5vw,56px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(20px,2.8vw,36px);font-weight:900;line-height:1.2;margin-bottom:14px;}
+h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.6vw,16px);line-height:1.6;}
+
+/* UTILITIES */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:9px 20px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:16px 20px;font-size:clamp(12px,1.4vw,14px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── S1 TITLE ── */
+#s1{background:linear-gradient(135deg,#F0E8FF 0%,#E8F5FF 60%,#FFF0E8 100%);justify-content:center;}
+#s1 .b1{width:440px;height:440px;background:var(--purple);top:-130px;right:-110px;}
+#s1 .b2{width:340px;height:340px;background:var(--orange);bottom:-90px;left:-90px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+.title-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.title-subtitle{font-size:clamp(13px,1.6vw,17px);color:var(--muted);margin:10px 0 20px;font-weight:600;letter-spacing:.03em;}
+.topic-tags{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px;}
+.title-callout{background:white;border-radius:var(--radius);padding:16px 22px;box-shadow:var(--shadow);border-left:5px solid var(--purple);font-size:15px;font-weight:600;max-width:760px;}
+
+/* ── S2 RECAP ── */
+#s2{background:#F8F4FF;}
+#s2 .b1{width:300px;height:300px;background:var(--purple);top:-80px;right:-80px;}
+.recap-row{display:flex;gap:14px;margin-top:8px;flex:1;align-items:stretch;}
+.recap-chip{flex:1;background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:5px solid;display:flex;flex-direction:column;gap:10px;}
+.recap-chip .rc-cb{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:10px;padding:10px 14px;font-size:clamp(11px,1.2vw,13px);line-height:1.8;margin-top:4px;}
+.recap-chip .rc-cb .kw{color:var(--yellow);font-weight:700;}
+.recap-chip .rc-cb .fn{color:var(--teal);}
+.recap-chip .rc-cb .st{color:var(--orange);}
+.recap-callout{background:var(--yellow);border-radius:var(--radius);padding:14px 20px;font-size:15px;font-weight:800;color:var(--dark);margin-top:14px;}
+
+/* ── S3 WHAT IS A FUNCTION ── */
+#s3{background:#FFF8F0;}
+#s3 .b1{width:320px;height:320px;background:var(--orange);top:-80px;right:-80px;}
+.s3-layout{display:flex;gap:20px;flex:1;margin-top:8px;align-items:stretch;}
+.s3-left{flex:1.2;display:flex;flex-direction:column;gap:12px;}
+.s3-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.s3-compare-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.machine-wrap{background:white;border-radius:20px;padding:20px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:0;width:100%;}
+.machine-box{border-radius:14px;padding:12px 20px;text-align:center;font-weight:800;font-size:14px;width:90%;}
+.machine-arrow{font-size:24px;color:var(--muted);padding:4px 0;font-weight:900;}
+.machine-in{background:#EEF7FF;color:var(--blue);}
+.machine-fn{background:#F0E8FF;color:var(--purple);}
+.machine-out{background:#E8FBF4;color:#0F6E56;}
+
+/* ── S4 SYNTAX ── */
+#s4{background:#F5F0FF;}
+#s4 .b1{width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;}
+.s4-layout{display:flex;gap:20px;flex:1;margin-top:8px;align-items:flex-start;}
+.s4-left{flex:1.1;display:flex;flex-direction:column;gap:12px;}
+.s4-right{flex:1;display:flex;flex-direction:column;gap:10px;}
+.syntax-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.syn-card{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;}
+.syn-card h4{font-size:13px;font-weight:900;margin:0;}
+.syn-card p{font-size:12px;color:var(--muted);margin:0;}
+
+/* ── S5 RETURN VALUES ── */
+#s5{background:#E8FBF4;}
+#s5 .b1{width:300px;height:300px;background:var(--teal);top:-70px;right:-70px;}
+.s5-layout{display:flex;gap:20px;flex:1;margin-top:8px;align-items:flex-start;}
+.s5-left{flex:1;display:flex;flex-direction:column;gap:12px;}
+.s5-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.return-table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13px;}
+.return-table th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 12px 2px;}
+.return-table td{padding:9px 12px;background:white;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.return-table tr td:first-child{border-radius:10px 0 0 10px;font-weight:700;color:var(--purple);}
+.return-table tr td:last-child{border-radius:0 10px 10px 0;}
+.uber-callout{background:var(--dark);color:white;border-radius:14px;padding:12px 16px;font-size:13px;line-height:1.6;}
+.uber-callout strong{color:var(--yellow);}
+
+/* ── S6 PARAMETERS ── */
+#s6{background:#FFF0F8;}
+#s6 .b1{width:280px;height:280px;background:var(--pink);top:-70px;right:-70px;}
+.param-cards{display:flex;gap:14px;flex:1;margin-top:8px;align-items:stretch;}
+.param-card{flex:1;border-radius:var(--radius);padding:18px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);}
+.param-card h3{font-size:14px;font-weight:900;}
+.param-card p{font-size:12px;color:var(--muted);}
+.param-cb{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:10px;padding:10px 12px;font-size:clamp(11px,1.2vw,13px);line-height:1.9;flex:1;}
+.param-cb .kw{color:var(--yellow);font-weight:700;}
+.param-cb .fn{color:var(--teal);}
+.param-cb .st{color:var(--orange);}
+.param-cb .cm{color:#6e65a0;font-style:italic;}
+.game-callout{background:var(--yellow);border-radius:var(--radius);padding:14px 20px;font-size:14px;font-weight:700;color:var(--dark);margin-top:14px;}
+
+/* ── S7 INTERACTIVE VM ── */
+#s7{background:var(--dark);color:white;}
+#s7 h2{color:white;}
+#s7 .slide-label{color:rgba(255,255,255,0.5);}
+.vm-wrap{display:flex;gap:24px;flex:1;margin-top:8px;align-items:flex-start;}
+.vm-machine{background:rgba(255,255,255,0.07);border-radius:20px;padding:20px;min-width:220px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.vm-robot{font-size:48px;line-height:1;}
+.vm-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.45);}
+.vm-screen{background:#120f24;border-radius:12px;padding:14px;width:100%;min-height:90px;font-family:'Fira Code',monospace;font-size:12px;color:var(--teal);text-align:center;line-height:1.9;word-break:break-word;}
+.vm-input-row{display:flex;flex-direction:column;gap:6px;width:100%;}
+.vm-input{width:100%;padding:8px 12px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);background:#120f24;color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;outline:none;}
+.vm-input:focus{border-color:var(--teal);}
+.vm-code{flex:1;display:flex;flex-direction:column;gap:6px;}
+.vm-code-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;}
+.fn-line{padding:8px 14px;border-radius:8px;font-family:'Fira Code',monospace;font-size:clamp(12px,1.4vw,15px);line-height:2;transition:background .35s,transform .35s,color .35s;color:rgba(255,255,255,0.55);}
+.fn-line.active{background:rgba(255,217,61,.18);transform:translateX(8px);color:white;}
+.fn-line .kw{color:var(--yellow);font-weight:700;}
+.fn-line .fn{color:var(--teal);}
+.fn-line .st{color:var(--orange);}
+.fn-line .cm{color:#6e65a0;}
+#vm-explain{margin-top:10px;background:rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;font-size:13px;color:rgba(255,255,255,0.75);min-height:52px;line-height:1.7;font-style:italic;}
+
+/* ── S8 FUN EXAMPLES ── */
+#s8{background:#2D1B4E;color:white;}
+#s8 h2{color:white;}
+#s8 .slide-label{color:rgba(255,255,255,0.45);}
+.fun-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;margin-top:8px;}
+.fun-card{background:rgba(255,255,255,0.07);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;border-top:4px solid;}
+.fun-card .fc-icon{font-size:28px;line-height:1;}
+.fun-card h3{font-size:14px;color:white;margin:0;font-family:'Fira Code',monospace;}
+.fun-card p{font-size:12px;color:rgba(255,255,255,0.55);margin:0;}
+.fun-input{width:100%;padding:8px 12px;border-radius:8px;border:2px solid rgba(255,255,255,0.12);background:#120f24;color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;outline:none;}
+.fun-input:focus{border-color:rgba(255,255,255,0.3);}
+.fun-output{font-family:'Fira Code',monospace;font-size:13px;color:var(--yellow);min-height:42px;padding:6px 0;line-height:1.7;white-space:pre-wrap;}
+
+/* ── S9 QUIZ ── */
+#s9{background:#F5F0FF;}
+#s9 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-inner{max-width:700px;width:100%;}
+.quiz-q{font-size:clamp(15px,2.2vw,20px);font-weight:800;margin-bottom:16px;line-height:1.4;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-opt{padding:14px 18px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Fira Code',monospace;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:44px;font-size:16px;font-weight:800;padding-top:12px;}
+.quiz-nav{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.quiz-code{background:#1e1e2e;color:#cdd6f4;font-family:'Fira Code',monospace;font-size:13px;border-radius:10px;padding:12px 16px;margin:4px 0 10px;white-space:pre;overflow-x:auto;text-align:left;line-height:1.7;}
+.pill-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+
+/* ── S10 ASSIGNMENTS ── */
+#s10{background:#F0FFF8;}
+#s10 .b1{width:280px;height:280px;background:var(--teal);bottom:-70px;right:-70px;}
+.assign-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.assign-tab{padding:7px 16px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;flex-direction:column;gap:12px;}
+.assign-panel.show{display:flex;}
+.assign-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:#e2dcff;border:none;border-radius:var(--radius);padding:16px;resize:none;outline:none;line-height:1.9;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;border-radius:12px;padding:14px;min-height:52px;white-space:pre-wrap;line-height:1.8;}
+.check-output{margin-top:4px;}
+.check-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;}
+.check-row{font-family:'Fira Code',monospace;font-size:12px;padding:5px 10px;border-radius:8px;margin-bottom:3px;line-height:1.5;}
+.check-row.pass{background:#d4edda;color:#155724;}
+.check-row.fail{background:#f8d7da;color:#721c24;}
+
+/* ── S11 CLOSING ── */
+#s11{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s11 .b1{width:400px;height:400px;background:var(--purple);top:-120px;left:-100px;}
+#s11 .b2{width:340px;height:340px;background:var(--teal);bottom:-90px;right:-90px;}
+#s11 h2{color:white;font-size:clamp(28px,4vw,52px);}
+.badge-wrap{background:rgba(255,255,255,0.08);border-radius:20px;padding:18px 30px;display:inline-block;margin:12px 0 18px;}
+.badge-icon{font-size:52px;line-height:1;margin-bottom:4px;}
+.badge-title{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.close-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:900px;margin:0 auto;}
+.close-card{background:rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.close-card .cc-icon{font-size:28px;}
+.close-card h3{font-size:13px;color:white;margin:0;}
+.close-card p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;margin:0;}
+.next-teaser{margin-top:18px;background:rgba(255,255,255,0.06);border-radius:14px;padding:14px 24px;font-size:14px;font-weight:700;color:rgba(255,255,255,0.75);max-width:600px;}
+.next-teaser strong{color:var(--yellow);}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════ SLIDE 1 — TITLE ══════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+
+  <div class="title-tags">
+    <span class="tag tag-blue">Lesson 5</span>
+    <span class="tag tag-purple">6th Grade Python</span>
+    <span class="tag tag-orange">New Concept</span>
+  </div>
+
+  <h1>Stop Repeating Yourself —<br><em>Functions!</em> ⚙️</h1>
+  <p class="title-subtitle">def · parameters · return values · calling functions · coding challenges</p>
+
+  <div class="topic-tags">
+    <span class="tag tag-purple">✦ def</span>
+    <span class="tag tag-teal">✦ parameters</span>
+    <span class="tag tag-yellow">✦ return</span>
+    <span class="tag tag-pink">✦ Quiz</span>
+    <span class="tag tag-orange">✦ Assignments</span>
+  </div>
+
+  <div class="title-callout">
+    💡 <strong>Last time:</strong> We learned for loops, while loops, and lists. Today we build our own reusable code blocks — <strong>functions!</strong>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 2 — RECAP ══════ -->
+<div class="slide" id="s2">
+  <div class="blob b1"></div>
+  <p class="slide-label">Quick Recap — Lesson 4</p>
+  <h2>What we already know 🧠</h2>
+
+  <div class="recap-row">
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <div>
+        <h3 style="color:var(--teal);">🔁 <code>for</code> loop</h3>
+        <p style="color:var(--muted);font-size:13px;">Repeats once for each item in a list.</p>
+      </div>
+      <div class="rc-cb"><span class="kw">for</span> fruit <span class="kw">in</span> fruits:<br>&nbsp;&nbsp;<span class="fn">print</span>(fruit)</div>
+    </div>
+
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <div>
+        <h3 style="color:var(--blue);">🔄 <code>while</code> loop</h3>
+        <p style="color:var(--muted);font-size:13px;">Keeps going as long as something is True.</p>
+      </div>
+      <div class="rc-cb">count = <span class="fn" style="color:var(--cyan);">0</span><br><span class="kw">while</span> count &lt; <span style="color:var(--cyan);">5</span>:<br>&nbsp;&nbsp;count += <span style="color:var(--cyan);">1</span></div>
+    </div>
+
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <div>
+        <h3 style="color:var(--purple);">📋 Lists</h3>
+        <p style="color:var(--muted);font-size:13px;">Store multiple items in one variable.</p>
+      </div>
+      <div class="rc-cb">pets = [<span class="st">"cat"</span>, <span class="st">"dog"</span>]<br>pets.<span class="fn">append</span>(<span class="st">"fish"</span>)<br><span class="fn">print</span>(pets[<span style="color:var(--cyan);">0</span>])</div>
+    </div>
+  </div>
+
+  <div class="recap-callout">
+    🚀 Today we learn <strong>functions</strong> — write code once, use it anywhere!
+  </div>
+</div>
+
+<!-- ══════ SLIDE 3 — WHAT IS A FUNCTION ══════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <p class="slide-label">Functions</p>
+  <h2>What is a Function? 🍕 Think: Vending Machine</h2>
+
+  <div class="s3-layout">
+    <div class="s3-left">
+      <div class="s3-compare-label" style="color:var(--red);">❌ WITHOUT a function (repetition!)</div>
+      <div class="code-block" style="font-size:12px;line-height:1.7;">
+        <span class="fn">print</span>(<span class="st">"Hello, Alice 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Bob 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Priya 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Carlos 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Mei 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Omar 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Ava 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Leo 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Zara 👋"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Jake 👋"</span>)
+      </div>
+
+      <div class="s3-compare-label" style="color:var(--teal);margin-top:4px;">✅ WITH a function (clean &amp; reusable!)</div>
+      <div class="code-block" style="font-size:12px;line-height:1.7;">
+        <span class="kw">def</span> <span class="fn">greet</span>(name):<br>
+        &nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Hello, "</span> + name + <span class="st">" 👋"</span>)<br><br>
+        <span class="fn">greet</span>(<span class="st">"Alice"</span>)<br>
+        <span class="fn">greet</span>(<span class="st">"Bob"</span>)<br>
+        <span class="fn">greet</span>(<span class="st">"Priya"</span>)
+      </div>
+    </div>
+
+    <div class="s3-right">
+      <div class="machine-wrap">
+        <p style="font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">⚙️ How Functions Work</p>
+
+        <div class="machine-box machine-in">
+          📥 INPUT<br>
+          <span style="font-size:12px;font-weight:600;opacity:.8;">name = "Alice"</span>
+        </div>
+        <div class="machine-arrow">▼</div>
+
+        <div class="machine-box machine-fn">
+          ⚙️ FUNCTION<br>
+          <span style="font-family:'Fira Code',monospace;font-size:12px;">greet(name)</span>
+        </div>
+        <div class="machine-arrow">▼</div>
+
+        <div class="machine-box machine-out">
+          📤 OUTPUT<br>
+          <span style="font-size:12px;font-weight:600;opacity:.85;">Hello, Alice 👋</span>
+        </div>
+
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6;">Like a vending machine 🎰<br>put in a coin → get a snack!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 4 — SYNTAX ══════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <p class="slide-label">Functions — Syntax</p>
+  <h2>How to write a function 🐍</h2>
+
+  <div class="s4-layout">
+    <div class="s4-left">
+      <div class="code-block">
+        <span class="kw">def</span> <span class="fn">function_name</span>(parameter):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># indented code goes here</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Doing something!"</span>)
+      </div>
+
+      <div style="background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);font-size:13px;line-height:1.8;">
+        🎉 <strong>Full Example:</strong>
+      </div>
+      <div class="code-block">
+        <span class="kw">def</span> <span class="fn">celebrate</span>(name):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"🎉 Happy Birthday,"</span> + name + <span class="st">"!"</span>)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"🎂 Hope it's awesome!"</span>)<br><br>
+        <span class="cm"># Calling the function:</span><br>
+        <span class="fn">celebrate</span>(<span class="st">"Priya"</span>)<br>
+        <span class="fn">celebrate</span>(<span class="st">"Marcus"</span>)
+      </div>
+    </div>
+
+    <div class="s4-right">
+      <p style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Breaking it down 🔍</p>
+      <div class="syntax-grid">
+        <div class="syn-card" style="background:#F0E8FF;">
+          <h4 style="color:var(--purple);">🔑 <code>def</code></h4>
+          <p>Short for "define". Tells Python you're creating a function.</p>
+        </div>
+        <div class="syn-card" style="background:#EEF7FF;">
+          <h4 style="color:var(--blue);">📛 function_name</h4>
+          <p>Use lowercase + underscores. Make it describe what it does!</p>
+        </div>
+        <div class="syn-card" style="background:#E8FBF4;">
+          <h4 style="color:#0F6E56;">🧪 parameter</h4>
+          <p>The "ingredient" you pass in. Like name in greet(name).</p>
+        </div>
+        <div class="syn-card" style="background:#FFF3E0;">
+          <h4 style="color:var(--orange);">📐 : + indent</h4>
+          <p>Colon starts the body. Everything inside must be indented 4 spaces!</p>
+        </div>
+      </div>
+
+      <div style="background:var(--purple);border-radius:14px;padding:14px 16px;color:white;font-size:13px;margin-top:6px;line-height:1.7;">
+        💡 <strong>Tip:</strong> Just writing <code style="background:rgba(255,255,255,0.2);color:white;">def celebrate()</code> doesn't run it! You have to <strong>call</strong> it by writing <code style="background:rgba(255,255,255,0.2);color:white;">celebrate("Alex")</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 5 — RETURN VALUES ══════ -->
+<div class="slide" id="s5">
+  <div class="blob b1"></div>
+  <p class="slide-label">Functions — Return Values</p>
+  <h2>Getting something back with <code>return</code> 📦</h2>
+
+  <div class="s5-layout">
+    <div class="s5-left">
+      <div class="code-block">
+        <span class="kw">def</span> <span class="fn">add_tax</span>(price):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;total = price * <span class="nu">1.08</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> total<br><br>
+        <span class="cm"># Storing the returned value:</span><br>
+        my_total = <span class="fn">add_tax</span>(<span class="nu">10.00</span>)<br>
+        <span class="fn">print</span>(<span class="st">"You owe: $"</span>, my_total)<br>
+        <span class="cm"># Output: You owe: $ 10.8</span>
+      </div>
+
+      <div class="uber-callout">
+        🚗 <strong>Real Life:</strong> The Uber app calls <code style="color:var(--teal);background:rgba(255,255,255,0.1);">calculate_fare()</code>, it <strong style="color:var(--yellow);">returns</strong> your price, and shows it on screen. No return = no price shown!
+      </div>
+
+      <div class="code-block" style="font-size:12px;line-height:1.7;">
+        <span class="kw">def</span> <span class="fn">double</span>(n):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> n * <span class="nu">2</span><br><br>
+        result = <span class="fn">double</span>(<span class="nu">5</span>)<br>
+        <span class="fn">print</span>(result)&nbsp;&nbsp;<span class="cm"># 10</span><br>
+        <span class="fn">print</span>(<span class="fn">double</span>(<span class="nu">7</span>))&nbsp;<span class="cm"># 14</span>
+      </div>
+    </div>
+
+    <div class="s5-right">
+      <p style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">print() vs return 📊</p>
+      <table class="return-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th><code style="color:var(--teal);">print()</code></th>
+            <th><code style="color:var(--purple);">return</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>What it does</td>
+            <td>Shows text on screen</td>
+            <td>Sends value back to caller</td>
+          </tr>
+          <tr>
+            <td>Analogy</td>
+            <td>Shouting the answer 📢</td>
+            <td>Handing over a note 📝</td>
+          </tr>
+          <tr>
+            <td>Can store?</td>
+            <td>❌ No</td>
+            <td>✅ Yes! x = func()</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);margin-top:8px;">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:6px;">🧠 <strong>Remember:</strong></p>
+        <ul style="font-size:13px;padding-left:18px;line-height:2;color:var(--text);">
+          <li><strong>print()</strong> = show on screen, can't save it</li>
+          <li><strong>return</strong> = send back to where it was called</li>
+          <li>You can use both in the same function!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 6 — PARAMETERS ══════ -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <p class="slide-label">Functions — Parameters</p>
+  <h2>Giving functions ingredients 🧪</h2>
+
+  <div class="param-cards">
+    <div class="param-card" style="background:white;border-top:4px solid var(--blue);">
+      <h3 style="color:var(--blue);">0️⃣ No Parameters</h3>
+      <p>Runs the same every time. No customization!</p>
+      <div class="param-cb">
+        <span class="kw">def</span> <span class="fn">ring_bell</span>():<br>
+        &nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"🔔 DING!"</span>)<br><br>
+        <span class="fn">ring_bell</span>()<br>
+        <span class="fn">ring_bell</span>()<br>
+        <span class="cm"># Always says DING!</span>
+      </div>
+    </div>
+
+    <div class="param-card" style="background:white;border-top:4px solid var(--pink);">
+      <h3 style="color:var(--pink);">1️⃣ One Parameter</h3>
+      <p>Customize with one piece of info!</p>
+      <div class="param-cb">
+        <span class="kw">def</span> <span class="fn">roast</span>(name):<br>
+        &nbsp;&nbsp;<span class="fn">print</span>(name + <span class="st">" types with</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">&nbsp;one finger 🐌"</span>)<br><br>
+        <span class="fn">roast</span>(<span class="st">"Alex"</span>)<br>
+        <span class="fn">roast</span>(<span class="st">"Jordan"</span>)
+      </div>
+    </div>
+
+    <div class="param-card" style="background:white;border-top:4px solid var(--purple);">
+      <h3 style="color:var(--purple);">2️⃣ Multiple Params</h3>
+      <p>Pass in multiple ingredients!</p>
+      <div class="param-cb">
+        <span class="kw">def</span> <span class="fn">add</span>(a, b):<br>
+        &nbsp;&nbsp;<span class="kw">return</span> a + b<br><br>
+        <span class="fn">print</span>(<span class="fn">add</span>(<span class="nu">3</span>, <span class="nu">5</span>))<br>
+        <span class="cm"># 8</span><br>
+        <span class="fn">print</span>(<span class="fn">add</span>(<span class="nu">10</span>, <span class="nu">20</span>))<br>
+        <span class="cm"># 30</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-callout">
+    🎮 Think of it like a video game: <code>spawn_enemy('dragon', 100)</code> — the function needs <strong>name</strong> AND <strong>health points</strong>. Two parameters! The dragon spawns with exactly those values!
+  </div>
+</div>
+
+<!-- ══════ SLIDE 7 — INTERACTIVE VM ══════ -->
+<div class="slide" id="s7">
+  <p class="slide-label" style="color:rgba(255,255,255,0.45);">Interactive — Functions</p>
+  <h2>⚙️ Watch a Function Run Step by Step</h2>
+
+  <div class="vm-wrap">
+    <div class="vm-machine">
+      <div class="vm-robot">🤖</div>
+      <div class="vm-label">Function Machine</div>
+      <div class="vm-screen" id="vm-screen">👆 Type your name and press the button to watch the function run!</div>
+      <div class="vm-input-row">
+        <label style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;">Your Name</label>
+        <input class="vm-input" id="vm-input" type="text" placeholder="Type your name..." />
+      </div>
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);width:100%;text-align:center;" onclick="runVM()">▶ Call greet()</button>
+    </div>
+
+    <div class="vm-code">
+      <div class="vm-code-label">Python Code</div>
+      <div class="fn-line" id="vl0"><span class="kw">def</span> <span class="fn">greet</span>(name):</div>
+      <div class="fn-line" id="vl1">&nbsp;&nbsp;&nbsp;&nbsp;message = <span class="st">"Hello, "</span> + name + <span class="st">" 👋"</span></div>
+      <div class="fn-line" id="vl2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(message)</div>
+      <div class="fn-line" id="vl3">greet(<span class="st">"<span id="vl3-name">???</span>"</span>)</div>
+      <div id="vm-explain">Click the button above to step through each line! 👆</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 8 — FUN EXAMPLES ══════ -->
+<div class="slide" id="s8">
+  <p class="slide-label">Functions — Fun Examples</p>
+  <h2>Try these functions! 🎮</h2>
+
+  <div class="fun-grid">
+    <!-- Roast -->
+    <div class="fun-card" style="border-color:var(--pink);">
+      <div class="fc-icon">😈</div>
+      <h3>roast_friend(name)</h3>
+      <p>Enter a friend's name and get a hilarious (but friendly!) roast!</p>
+      <input class="fun-input" id="roast-in" type="text" placeholder="Friend's name..." />
+      <button class="pill-btn" style="background:var(--pink);color:white;" onclick="doRoast()">🔥 Roast!</button>
+      <div class="fun-output" id="roast-out"></div>
+    </div>
+
+    <!-- Superpower -->
+    <div class="fun-card" style="border-color:var(--purple);">
+      <div class="fc-icon">🦸</div>
+      <h3>get_superpower(hero)</h3>
+      <p>Type a hero name and discover their random superpower!</p>
+      <input class="fun-input" id="hero-in" type="text" placeholder="Hero name..." />
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="doHero()">⚡ Assign Power!</button>
+      <div class="fun-output" id="hero-out"></div>
+    </div>
+
+    <!-- Hype Song -->
+    <div class="fun-card" style="border-color:var(--yellow);">
+      <div class="fc-icon">🎵</div>
+      <h3>hype_song(title)</h3>
+      <p>Enter a song title and hype it up to the max!</p>
+      <input class="fun-input" id="song-in" type="text" placeholder="Song title..." />
+      <button class="pill-btn" style="background:var(--yellow);color:var(--dark);" onclick="doSong()">🔊 Hype It!</button>
+      <div class="fun-output" id="song-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 9 — QUIZ ══════ -->
+<div class="slide" id="s9">
+  <div class="blob b1"></div>
+  <p class="slide-label">Quiz Time! 🧪</p>
+  <h2>Test Your Knowledge 💡</h2>
+
+  <div class="quiz-inner">
+    <div class="prog-bar"><div class="prog-fill" style="width:0%"></div></div>
+    <div class="quiz-q" id="q-text"></div>
+    <pre class="quiz-code" id="q-code" style="display:none;"></pre>
+    <div class="quiz-opts">
+      <button class="quiz-opt" id="qo0"></button>
+      <button class="quiz-opt" id="qo1"></button>
+      <button class="quiz-opt" id="qo2"></button>
+      <button class="quiz-opt" id="qo3"></button>
+    </div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" id="q-prev" style="background:#888;color:white;" onclick="prevQ()" disabled>← Previous</button>
+      <button class="pill-btn" id="q-next" style="background:var(--purple);color:white;" onclick="nextQ()">Next Question →</button>
+      <span class="q-ctr">1 / 8</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 10 — ASSIGNMENTS ══════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <p class="slide-label">Coding Assignments 💻</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <h2 style="margin:0;">Your Turn to Build! 🛠️</h2>
+    <button class="pill-btn" onclick="saveMyWork()" style="background:var(--teal);color:#fff;font-size:13px;">💾 Save My Work</button>
+  </div>
+
+  <div class="assign-tabs">
+    <button class="assign-tab active" onclick="showTab('ap1',this)">1 — Say Hello 🟢</button>
+    <button class="assign-tab" onclick="showTab('ap2',this)">2 — Pizza Cost 🟡</button>
+    <button class="assign-tab" onclick="showTab('ap3',this)">3 — Grade Checker 🟠</button>
+    <button class="assign-tab" onclick="showTab('ap4',this)">4 — Password Strength 🔴</button>
+  </div>
+
+  <!-- Panel 1 -->
+  <div class="assign-panel show" id="ap1">
+    <div class="assign-meta">
+      <span class="tag tag-teal">Easy 🟢</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Write <code>say_hello(name)</code> that prints a welcome message</span>
+    </div>
+    <textarea class="assign-editor" id="ed-ap1" rows="8">def say_hello(name):
+    # Print: Hey [name]! Let's code!
+    pass
+
+say_hello("Alex")
+say_hello("Priya")</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runCode('ap1')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('ap1')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-ap1">(Output will appear here...)</div>
+    <div class="check-output" id="chk-ap1"></div>
+  </div>
+
+  <!-- Panel 2 -->
+  <div class="assign-panel" id="ap2">
+    <div class="assign-meta">
+      <span class="tag tag-yellow">Medium 🟡</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Write <code>pizza_cost(slices, price_per_slice)</code> that returns total cost</span>
+    </div>
+    <textarea class="assign-editor" id="ed-ap2" rows="8">def pizza_cost(slices, price_per_slice):
+    pass
+
+total = pizza_cost(4, 2.50)
+print("Total: $", total)
+print("Large order:", pizza_cost(8, 3.00))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--yellow);color:var(--dark);" onclick="runCode('ap2')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('ap2')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-ap2">(Output will appear here...)</div>
+    <div class="check-output" id="chk-ap2"></div>
+  </div>
+
+  <!-- Panel 3 -->
+  <div class="assign-panel" id="ap3">
+    <div class="assign-meta">
+      <span class="tag tag-orange">Hard 🟠</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);">Write <code>letter_grade(score)</code> returning A/B/C/D/F, then loop over a list</span>
+    </div>
+    <textarea class="assign-editor" id="ed-ap3" rows="10">scores = [95, 83, 71, 58, 90]
+for s in scores:
+    print(s, "->", letter_grade(s))</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--orange);color:white;" onclick="runCode('ap3')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('ap3')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-ap3">(Output will appear here...)</div>
+    <div class="check-output" id="chk-ap3"></div>
+  </div>
+
+  <!-- Panel 4 -->
+  <div class="assign-panel" id="ap4">
+    <div class="assign-meta">
+      <span class="tag tag-pink">Challenge 🔴</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted);"><code>is_strong(password)</code> — True if length &ge; 8 AND contains a digit</span>
+    </div>
+    <textarea class="assign-editor" id="ed-ap4" rows="10">print(is_strong("abc"))        # False
+print(is_strong("hello123"))   # True
+print(is_strong("secure99"))   # True
+print(is_strong("short1"))     # False</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="pill-btn" style="background:var(--red);color:white;" onclick="runCode('ap4')">▶ Run Code</button>
+      <button class="pill-btn" style="background:var(--purple);color:white;" onclick="checkAnswer('ap4')">🔍 Check My Answer</button>
+    </div>
+    <div class="assign-output" id="out-ap4">(Output will appear here...)</div>
+    <div class="check-output" id="chk-ap4"></div>
+  </div>
+</div>
+
+<!-- ══════ SLIDE 11 — CLOSING ══════ -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+
+  <h2>🏆 Functions Unlocked!</h2>
+
+  <div class="badge-wrap">
+    <div class="badge-icon">⚙️</div>
+    <div class="badge-title">Functions Master — Lesson 5 Complete!</div>
+  </div>
+
+  <div class="close-grid">
+    <div class="close-card">
+      <div class="cc-icon">🔑</div>
+      <h3>def keyword</h3>
+      <p>Use <code style="color:var(--yellow);background:rgba(255,255,255,0.1);">def</code> to create your own custom functions!</p>
+    </div>
+    <div class="close-card">
+      <div class="cc-icon">📦</div>
+      <h3>return values</h3>
+      <p>Use <code style="color:var(--teal);background:rgba(255,255,255,0.1);">return</code> to send data back from a function!</p>
+    </div>
+    <div class="close-card">
+      <div class="cc-icon">🧪</div>
+      <h3>parameters</h3>
+      <p>Pass ingredients into your function to customize what it does!</p>
+    </div>
+    <div class="close-card">
+      <div class="cc-icon">📞</div>
+      <h3>calling functions</h3>
+      <p>Write <code style="color:var(--orange);background:rgba(255,255,255,0.1);">name()</code> to actually run your function!</p>
+    </div>
+  </div>
+
+  <div class="next-teaser">
+    🔡 <strong>Up next: String Methods</strong> — give your text superpowers! Learn <code style="color:var(--teal);background:rgba(255,255,255,0.1);">.upper()</code>, <code style="color:var(--teal);background:rgba(255,255,255,0.1);">.split()</code>, <code style="color:var(--teal);background:rgba(255,255,255,0.1);">.replace()</code> and more! 🔡
+  </div>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- ══════ NAV ══════ -->
+<nav class="nav">
+  <button class="prev">←</button>
+  <div class="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <span class="slide-counter">1 / 11</span>
+  <button class="next">→</button>
+</nav>
+
+<script>
+/* ══════ NAVIGATION ══════ */
+const slides=document.querySelectorAll('.slide');
+const dots=document.querySelectorAll('.dot');
+let cur=0;
+function goTo(n){
+  slides[cur].classList.remove('active');slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),350);
+  cur=n;slides[cur].classList.add('active');
+  dots.forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.querySelector('.slide-counter').textContent=(cur+1)+' / '+slides.length;
+}
+document.querySelector('.prev').onclick=()=>cur>0&&goTo(cur-1);
+document.querySelector('.next').onclick=()=>cur<slides.length-1&&goTo(cur+1);
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;
+  if(tag==='TEXTAREA'||tag==='INPUT')return;
+  if(e.key==='ArrowRight'||e.key===' ')cur<slides.length-1&&goTo(cur+1);
+  if(e.key==='ArrowLeft')cur>0&&goTo(cur-1);
+});
+dots.forEach((d,i)=>d.onclick=()=>goTo(i));
+
+/* ══════ VM INTERACTIVE (Slide 7) ══════ */
+function runVM(){
+  const name=document.getElementById('vm-input').value||'Alex';
+  document.getElementById('vl3-name').textContent=name;
+  const steps=[
+    {line:'vl0',screen:'📖 Reading the function definition...', explain:'Python sees the def keyword and registers the function greet() in memory.'},
+    {line:'vl1',screen:'⚙️ Running: message = "Hello, '+name+' 👋"', explain:'The parameter name = "'+name+'". Now we build the message string.'},
+    {line:'vl2',screen:'📤 Output: Hello, '+name+' 👋', explain:'print() displays the message. The function is done!'},
+    {line:'vl3',screen:'✅ greet("'+name+'") complete!', explain:'The function call is finished. You could call greet() again with a different name!'},
+  ];
+  [0,1,2,3].forEach(i=>{document.getElementById('vl'+i).classList.remove('active');});
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      [0,1,2,3].forEach(j=>document.getElementById('vl'+j).classList.remove('active'));
+      document.getElementById(s.line).classList.add('active');
+      document.getElementById('vm-screen').textContent=s.screen;
+      document.getElementById('vm-explain').textContent=s.explain;
+    },i*800);
+  });
+}
+
+/* ══════ FUN EXAMPLES (Slide 8) ══════ */
+const ROASTS=['types with one finger 🐌','uses Comic Sans unironically 💀','still uses Internet Explorer 😬','thinks Python is just a snake 🐍','drinks milk with pizza 🤢','calls the TV remote the "channel changer" 📺'];
+const POWERS=['🦅 Super Speed','🔥 Fire Breathing','🧊 Ice Control','🕸️ Web Slinging','⚡ Lightning Bolts','🌊 Water Bending','🌀 Time Travel','👁️ Mind Reading'];
+function doRoast(){
+  const n=document.getElementById('roast-in').value.trim()||'Your friend';
+  document.getElementById('roast-out').textContent=n+' '+ROASTS[Math.floor(Math.random()*ROASTS.length)];
+}
+function doHero(){
+  const n=document.getElementById('hero-in').value.trim()||'Hero';
+  document.getElementById('hero-out').textContent=n+' gets: '+POWERS[Math.floor(Math.random()*POWERS.length)];
+}
+function doSong(){
+  const t=document.getElementById('song-in').value.trim()||'Your Song';
+  document.getElementById('song-out').textContent='🔥🔥 NOW PLAYING: '+t.toUpperCase()+' 🔥🔥\n♪ ♫ ♪ ♫ ♪ ♫';
+}
+
+/* ══════ QUIZ (Slide 9) ══════ */
+const QUIZ=[
+  {q:'What keyword do you use to define a function in Python?',opts:['function','define','def','make'],ans:2},
+  {q:"What does the 'return' statement do?",opts:['Prints the result to screen','Sends a value back to the caller','Repeats the function','Ends the program'],ans:1},
+  {q:'What is a parameter?',opts:['A type of loop','The output of a function','A value you pass INTO a function','The name of the function'],ans:2},
+  {q:'When do the lines inside a function run?',opts:['As soon as the file loads','Only when you call the function','Every time a loop runs','When Python starts'],ans:1},
+  {q:'Which line correctly calls a function named greet with the argument "Alex"?',opts:['def greet("Alex")','greet["Alex"]','greet("Alex")','call greet("Alex")'],ans:2},
+  {q:'What does this code print?',code:'def double(x):\n    return x * 2\n\nprint(double(5))',opts:['2','5','10','double(5)'],ans:2},
+  {q:'What does a function return if it has no return statement?',opts:['0','An empty string','Nothing — it crashes','None'],ans:3},
+  {q:'Which of these correctly defines a function with TWO parameters?',opts:['def add(a b):','def add(a, b):','function add(a, b):','def add[a, b]:'],ans:1},
+];
+let qIdx=0,score=0;
+const answers=new Array(QUIZ.length).fill(null);
+function renderQ(){
+  const q=QUIZ[qIdx];
+  document.getElementById('q-text').textContent=q.q;
+  const codeEl=document.getElementById('q-code');
+  if(q.code){codeEl.textContent=q.code;codeEl.style.display='block';}
+  else{codeEl.style.display='none';}
+  document.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.textContent=q.opts[i];
+    b.className='quiz-opt';
+    b.disabled=false;
+    b.onclick=()=>checkAns(i);
+  });
+  if(answers[qIdx]!==null){
+    const chosen=answers[qIdx];
+    document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+    document.querySelectorAll('.quiz-opt')[chosen].classList.add(chosen===q.ans?'correct':'wrong');
+    if(chosen!==q.ans)document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent=chosen===q.ans?'✅ Correct! Great job!':'❌ Not quite — the answer was: '+q.opts[q.ans];
+  } else {
+    document.getElementById('q-fb').textContent='';
+  }
+  document.querySelector('.q-ctr').textContent=(qIdx+1)+' / '+QUIZ.length;
+  document.querySelector('.prog-fill').style.width=((qIdx/QUIZ.length)*100)+'%';
+  document.getElementById('q-prev').disabled=qIdx===0;
+}
+function checkAns(i){
+  if(answers[qIdx]!==null)return;
+  const q=QUIZ[qIdx];
+  answers[qIdx]=i;
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  if(i===q.ans){
+    document.querySelectorAll('.quiz-opt')[i].classList.add('correct');
+    score++;
+    document.getElementById('q-fb').textContent='✅ Correct! Great job!';
+  } else {
+    document.querySelectorAll('.quiz-opt')[i].classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent='❌ Not quite — the answer was: '+q.opts[q.ans];
+  }
+}
+function prevQ(){if(qIdx>0){qIdx--;renderQ();}}
+function nextQ(){
+  if(qIdx<QUIZ.length-1){
+    qIdx++;
+    renderQ();
+  } else {
+    document.getElementById('q-text').textContent='🎉 Quiz complete! You scored '+score+' / '+QUIZ.length+'!';
+    document.getElementById('q-code').style.display='none';
+    document.querySelectorAll('.quiz-opt').forEach(b=>{b.style.display='none';});
+    document.getElementById('q-fb').textContent=score===QUIZ.length?'🏆 Perfect score! Functions master!':'💪 Keep practicing — you\'ve got this!';
+    document.querySelector('.prog-fill').style.width='100%';
+    document.getElementById('q-prev').style.display='none';
+    document.getElementById('q-next').textContent='Restart Quiz 🔄';
+    document.getElementById('q-next').onclick=()=>{
+      qIdx=0;score=0;answers.fill(null);
+      document.querySelectorAll('.quiz-opt').forEach(b=>{b.style.display='';});
+      document.getElementById('q-next').textContent='Next Question →';
+      document.getElementById('q-next').onclick=nextQ;
+      document.getElementById('q-prev').style.display='';
+      renderQ();
+    };
+  }
+}
+renderQ();
+
+/* ══════ ASSIGNMENT TABS ══════ */
+function showTab(id,btn){
+  document.querySelectorAll('.assign-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+/* ══════ CODE RUNNER ══════ */
+function runCode(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const out = document.getElementById('out-' + id);
+  out.textContent = '';
+  out.style.color = 'var(--teal)';
+  Sk.configure({
+    output: t => { out.textContent += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      if (!out.textContent) out.textContent = '(No output — did you forget print()?)';
+    })
+    .catch(err => {
+      out.textContent = 'Error: ' + err.toString();
+      out.style.color = 'var(--red)';
+    });
+}
+
+
+const TESTS = {
+  'ap1': ["Hey Alex! Let's code!", "Hey Priya! Let's code!"],
+  'ap2': ["Total: $ 10.0", "Large order: 24.0"],
+  'ap3': ["95 -> A", "83 -> B", "71 -> C", "58 -> F", "90 -> A"],
+  'ap4': ["False", "True", "True", "False"],
+};
+
+function checkAnswer(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const expected = TESTS[id];
+  const chk = document.getElementById('chk-' + id);
+  chk.innerHTML = '<div class="check-label">CHECKING...</div>';
+  let captured = '';
+  Sk.configure({
+    output: t => { captured += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      const lines = captured.split('\n').filter(l => l !== '');
+      let html = '<div class="check-label">RESULTS:</div>';
+      let allPass = true;
+      expected.forEach((exp, i) => {
+        const got = lines[i] !== undefined ? lines[i] : '(no output)';
+        const pass = got === exp;
+        if (!pass) allPass = false;
+        html += `<div class="check-row ${pass?'pass':'fail'}">${pass?'✅':'❌'} Line ${i+1}: <strong>${exp}</strong>${pass?'':` — got: <strong>${got}</strong>`}</div>`;
+      });
+      if (lines.length > expected.length) {
+        allPass = false;
+        for (let i = expected.length; i < lines.length; i++) {
+          html += `<div class="check-row fail">❌ Extra line ${i+1}: <strong>${lines[i]}</strong></div>`;
+        }
+      }
+      if (allPass) html += '<div class="check-row pass" style="margin-top:6px;font-weight:700;">🎉 All correct! Great work!</div>';
+      chk.innerHTML = html;
+    })
+    .catch(err => {
+      chk.innerHTML = `<div class="check-row fail">❌ Error: ${err.toString()}</div>`;
+    });
+}
+
+// localStorage auto-save
+(function(){
+  const P='l5-';
+  document.querySelectorAll('.assign-editor').forEach(t=>{
+    const saved=localStorage.getItem(P+t.id);
+    if(saved!==null)t.value=saved;
+    t.addEventListener('input',()=>localStorage.setItem(P+t.id,t.value));
+  });
+})();
+
+function saveMyWork(){
+  const clone=document.documentElement.cloneNode(true);
+  document.querySelectorAll('.assign-editor').forEach((t,i)=>{
+    clone.querySelectorAll('.assign-editor')[i].textContent=t.value;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>'+clone.outerHTML],{type:'text/html'}));
+  a.download='lesson5_functions_mywork.html';
+  a.click();
+}
+</script>
+</body>
+</html>

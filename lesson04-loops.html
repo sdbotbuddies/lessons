@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 2 – Lists, elif & Loops</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* SLIDE SYSTEM */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 90px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* NAV */
+.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav .slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.nav .dots{display:flex;gap:5px;}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.nav .dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* TYPOGRAPHY */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(28px,4.5vw,56px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(20px,2.8vw,36px);font-weight:900;line-height:1.2;margin-bottom:14px;}
+h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.6vw,16px);line-height:1.6;color:var(--text);}
+
+/* UTILITIES */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:9px 20px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:16px 20px;font-size:clamp(12px,1.4vw,14px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.code-block .hl{background:rgba(255,217,61,.12);border-radius:4px;display:block;}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── S1 TITLE ── */
+#s1{background:linear-gradient(135deg,#E8F5FF 0%,#F0E8FF 60%,#FFE8F5 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--blue);top:-120px;right:-100px;}
+#s1 .b2{width:320px;height:320px;background:var(--pink);bottom:-80px;left:-80px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+
+/* ── S2 RECAP ── */
+#s2{background:#F8F4FF;}
+.recap-row{display:flex;gap:14px;margin-top:8px;}
+.recap-chip{flex:1;background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:5px solid;}
+
+/* ── S3 ELIF CONCEPT ── */
+#s3{background:#FFF8F0;}
+#s3 .b1{width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;}
+.chain-row{display:flex;align-items:center;gap:0;flex:1;margin-top:8px;}
+.chain-box{flex:1;border-radius:var(--radius);padding:14px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.chain-arrow{font-size:22px;color:var(--muted);flex-shrink:0;padding:0 2px;}
+
+/* ── S4 ELIF EXAMPLES ── */
+#s4{background:#F5F0FF;}
+#s4 .b1{width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;}
+
+/* ── S5 ELIF SYNTAX ── */
+#s5{background:#1A1333;color:white;}
+#s5 h2,#s5 .slide-label{color:rgba(255,255,255,0.9);}
+#s5 .slide-label{opacity:.5;}
+
+/* ── S6 ELIF INTERACTIVE ── */
+#s6{background:#1A1333;color:white;}
+#s6 h2{color:white;}#s6 .slide-label{opacity:.5;}
+.grade-layout{display:flex;gap:20px;flex:1;margin-top:8px;}
+.grade-left{display:flex;flex-direction:column;gap:12px;min-width:220px;}
+.grade-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.grade-slider-wrap{background:rgba(255,255,255,0.07);border-radius:14px;padding:16px;}
+.grade-slider{width:100%;accent-color:var(--yellow);height:6px;border-radius:3px;cursor:pointer;}
+.grade-display{font-size:52px;font-weight:900;text-align:center;line-height:1;margin:6px 0;}
+.grade-letter{font-size:28px;font-weight:900;padding:6px 18px;border-radius:12px;display:inline-block;margin-top:4px;}
+.grade-flow{background:#120f24;border-radius:14px;padding:14px 16px;flex:1;font-family:'Fira Code',monospace;font-size:13px;line-height:2;}
+.gf-line{padding:3px 6px;border-radius:6px;transition:background .3s,color .3s;color:rgba(255,255,255,0.35);}
+.gf-line.on{color:white;background:rgba(255,255,255,0.07);}
+.gf-kw{color:var(--yellow);}
+.gf-val{color:var(--cyan);}
+.grade-msg{background:rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;font-size:14px;font-style:italic;color:rgba(255,255,255,0.75);min-height:44px;}
+
+/* ── S7 LOOPS INTRO ── */
+#s7{background:linear-gradient(135deg,#E8FBF4 0%,#E8F4FF 100%);}
+#s7 .b1{width:320px;height:320px;background:var(--teal);top:-80px;right:-80px;}
+.loop-concept{display:flex;gap:16px;flex:1;margin-top:8px;align-items:stretch;}
+.loop-card{flex:1;border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:10px;}
+.loop-icon-wrap{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+
+/* ── S8 FOR LOOP ── */
+#s8{background:#FFFBF0;}
+#s8 .b1{width:280px;height:280px;background:var(--orange);bottom:-60px;right:-60px;}
+
+/* ── S9 FOR LOOP INTERACTIVE ── */
+#s9{background:#1A1333;color:white;}
+#s9 h2{color:white;}#s9 .slide-label{opacity:.5;}
+.for-layout{display:flex;gap:20px;flex:1;margin-top:8px;}
+.for-left{flex:1;display:flex;flex-direction:column;gap:12px;}
+.for-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.for-items{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:rgba(255,255,255,0.06);border-radius:14px;min-height:72px;align-items:flex-start;align-content:flex-start;}
+.for-item{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;transition:background .3s,color .3s,transform .3s;}
+.for-item.visited{transform:scale(1.08);}
+.for-output{background:#120f24;border-radius:14px;padding:14px;flex:1;font-family:'Fira Code',monospace;font-size:13px;line-height:1.8;overflow-y:auto;min-height:80px;}
+.for-output-line{color:var(--teal);opacity:0;transition:opacity .4s;}
+.for-output-line.show{opacity:1;}
+.for-btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ── S10 WHILE LOOP ── */
+#s10{background:#F0FFF8;}
+#s10 .b1{width:280px;height:280px;background:var(--teal);top:-60px;left:-60px;}
+
+/* ── S11 WHILE INTERACTIVE ── */
+#s11{background:#1A1333;color:white;}
+#s11 h2{color:white;}#s11 .slide-label{opacity:.5;}
+.while-layout{display:flex;gap:20px;flex:1;margin-top:8px;}
+.while-left{flex:1;display:flex;flex-direction:column;gap:12px;}
+.while-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.while-vis{background:rgba(255,255,255,0.06);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.while-bar-wrap{height:28px;background:#120f24;border-radius:8px;overflow:hidden;position:relative;}
+.while-bar{height:100%;border-radius:8px;transition:width .5s ease;display:flex;align-items:center;padding-left:10px;font-size:12px;font-weight:700;color:white;}
+.while-counter{font-size:38px;font-weight:900;text-align:center;padding:8px;}
+.while-status{font-size:13px;text-align:center;color:rgba(255,255,255,0.6);font-style:italic;}
+.while-log{background:#120f24;border-radius:14px;padding:14px;flex:1;font-family:'Fira Code',monospace;font-size:12px;line-height:1.9;max-height:180px;overflow-y:auto;}
+
+/* ── LIST SLIDES ── */
+#sL1{background:linear-gradient(135deg,#E8F5FF 0%,#FFF8E1 100%);}
+#sL1 .b1{width:300px;height:300px;background:var(--blue);top:-80px;right:-80px;}
+.list-analogy-row{display:flex;gap:14px;margin-top:8px;}
+.list-analogy-card{flex:1;background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;border-top:4px solid;}
+.list-slots{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.list-slot{min-width:44px;padding:8px 10px;border-radius:10px;text-align:center;font-size:13px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.list-idx{font-size:10px;font-weight:700;opacity:.55;}
+#sL2{background:#1A1333;color:white;}
+#sL2 h2{color:white;}#sL2 .slide-label{opacity:.5;}
+.list-inter-layout{display:flex;gap:20px;flex:1;margin-top:8px;}
+.list-inter-left{flex:1;display:flex;flex-direction:column;gap:12px;}
+.list-inter-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.list-vis{background:rgba(255,255,255,0.06);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.list-vis-slots{display:flex;gap:8px;flex-wrap:wrap;}
+.list-vis-slot{flex:1;min-width:52px;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center;transition:background .3s,border-color .3s,transform .3s;cursor:pointer;}
+.list-vis-slot:hover{border-color:var(--yellow);transform:translateY(-3px);}
+.list-vis-slot.highlight{border-color:var(--teal);background:rgba(0,201,167,0.18);}
+.list-vis-slot .sv{font-size:16px;font-weight:800;color:white;}
+.list-vis-slot .si{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.list-op-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.list-output{background:#120f24;border-radius:12px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:13px;color:var(--teal);min-height:48px;line-height:1.8;flex:1;}
+
+/* ── S12 COMPARISON ── */
+#s12{background:#FFF0F8;}
+#s12 .b1{width:300px;height:300px;background:var(--pink);top:-70px;right:-70px;}
+.comp-table{width:100%;border-collapse:separate;border-spacing:0 8px;}
+.comp-table th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px 2px;}
+.comp-table td{padding:11px 14px;background:white;font-size:14px;}
+.comp-table tr td:first-child{border-radius:10px 0 0 10px;font-weight:700;}
+.comp-table tr td:last-child{border-radius:0 10px 10px 0;}
+.comp-table tr:hover td{background:#FFF0F8;}
+
+/* ── S13 QUIZ ── */
+#s13{background:#F5F0FF;}
+#s13 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-q{font-size:clamp(15px,2.2vw,20px);font-weight:800;margin-bottom:16px;line-height:1.4;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-opt{padding:14px 18px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:44px;font-size:16px;font-weight:800;padding-top:12px;display:flex;align-items:center;gap:10px;}
+.quiz-nav{display:flex;align-items:center;gap:14px;margin-top:12px;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+
+/* ── S14 ASSIGNMENTS ── */
+#s14{background:#F0FFF8;}
+#s14 .b1{width:280px;height:280px;background:var(--teal);bottom:-70px;right:-70px;}
+.assign-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.assign-tab{padding:7px 16px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;}
+.assign-panel.show{display:flex;flex-direction:column;gap:12px;}
+.assign-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.diff-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:#e2dcff;border:none;border-radius:var(--radius);padding:16px;resize:none;outline:none;line-height:1.9;}
+.assign-run-btn{align-self:flex-start;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;border-radius:12px;padding:14px;min-height:52px;white-space:pre-wrap;line-height:1.8;}
+
+/* ── S15 FINAL ── */
+#s15{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s15 .b1{width:380px;height:380px;background:var(--blue);top:-100px;left:-100px;}
+#s15 .b2{width:320px;height:320px;background:var(--pink);bottom:-80px;right:-80px;}
+#s15 h2{color:white;font-size:clamp(24px,3.5vw,44px);}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;width:100%;max-width:820px;}
+.final-card{border-radius:var(--radius);padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.final-card h3{font-size:14px;color:white;}
+.final-card p{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <span class="tag tag-blue">Lesson 2</span>
+    <span class="tag tag-purple">6th Grade Python</span>
+    <span class="tag tag-teal">Continuation</span>
+  </div>
+  <h1>More Decisions<br>& <em>Loops!</em> 🔄</h1>
+  <p style="font-size:clamp(15px,2vw,20px);color:var(--muted);margin-top:14px;font-weight:600;">elif chains · for loops · while loops · quizzes · coding assignments</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;">
+    <span class="tag tag-orange">✦ elif</span>
+    <span class="tag tag-teal">✦ for loop</span>
+    <span class="tag tag-lime">✦ while loop</span>
+    <span class="tag tag-pink">✦ Quiz</span>
+    <span class="tag tag-purple">✦ Assignments</span>
+  </div>
+  <div style="margin-top:28px;background:white;border-radius:14px;padding:14px 20px;box-shadow:var(--shadow);display:inline-flex;gap:12px;align-items:center;max-width:560px;">
+    <span style="font-size:22px;">💡</span>
+    <p style="font-size:14px;"><strong>Last time:</strong> We learned if-else, comparison operators, flowcharts, and indentation. Today we go further!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — QUICK RECAP
+══════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-label">Quick Recap — Lesson 1</div>
+  <h2>What we already know 🧠</h2>
+  <div class="recap-row">
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <h3>if / else</h3>
+      <p>A question with two paths — YES or NO.</p>
+      <div class="code-block" style="margin-top:8px;font-size:12px;padding:10px 14px;">
+        <span class="kw">if</span> is_raining:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">grab_umbrella</span>()<br>
+        <span class="kw">else</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">leave_it_home</span>()
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <h3>Comparison operators</h3>
+      <p>Compare two values: <code>&gt;</code> <code>&lt;</code> <code>==</code> <code>!=</code> <code>&gt;=</code> <code>&lt;=</code></p>
+      <div class="code-block" style="margin-top:8px;font-size:12px;padding:10px 14px;">
+        score <span class="kw">&gt;=</span> <span class="nu">60</span>&nbsp;&nbsp;<span class="cm"># True or False</span><br>
+        name <span class="kw">==</span> <span class="st">"Alex"</span>&nbsp;&nbsp;<span class="cm"># True or False</span>
+      </div>
+    </div>
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <h3>Indentation</h3>
+      <p>Indented lines belong to the if/else. No indent = always runs.</p>
+      <div style="background:#F5F0FF;border-radius:10px;padding:10px;margin-top:8px;font-size:13px;">
+        📐 Think of it like an essay outline — indented items belong to their heading!
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--yellow);border-radius:14px;padding:12px 20px;margin-top:14px;display:flex;gap:10px;align-items:center;">
+    <span style="font-size:20px;">🚀</span>
+    <p style="font-size:14px;color:var(--dark);"><strong>Today</strong> we'll add <strong>elif</strong> for multiple choices, and learn <strong>loops</strong> that repeat actions automatically!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — WHAT IS ELIF
+══════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">Elif — Else If</div>
+  <h2>When you have MORE than 2 choices 🌡️</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">if-else only handles YES or NO. But what if there are 3, 4, or more options?</p>
+  <div class="chain-row">
+    <div class="chain-box" style="background:#FFF0F0;border:2px solid var(--red);">
+      <div style="font-size:28px;">❓</div>
+      <strong style="font-size:13px;color:var(--red);">if</strong>
+      <p style="font-size:12px;color:var(--muted);">First question — is it true?</p>
+    </div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-box" style="background:#FFF8E1;border:2px solid var(--orange);">
+      <div style="font-size:28px;">🤔</div>
+      <strong style="font-size:13px;color:var(--orange);">elif</strong>
+      <p style="font-size:12px;color:var(--muted);">Else-If: check another condition</p>
+    </div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-box" style="background:#FFF8E1;border:2px solid var(--yellow);">
+      <div style="font-size:28px;">🤔</div>
+      <strong style="font-size:13px;color:#997700);">elif</strong>
+      <p style="font-size:12px;color:var(--muted);">You can have as many elifs as you need!</p>
+    </div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-box" style="background:#E8FBF4;border:2px solid var(--teal);">
+      <div style="font-size:28px;">✅</div>
+      <strong style="font-size:13px;color:var(--teal);">else</strong>
+      <p style="font-size:12px;color:var(--muted);">Catch-all — none of the above matched</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);border-left:5px solid var(--orange);">
+      <h3>🌡️ Real-life example: Weather clothing</h3>
+      <p style="font-size:13px;margin-top:6px;">Below 40° → wear a heavy coat<br>
+      40–60° → wear a jacket<br>
+      60–80° → wear a t-shirt<br>
+      Above 80° → wear shorts!</p>
+    </div>
+    <div style="flex:1;min-width:200px;background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);border-left:5px solid var(--purple);">
+      <h3>🎮 Real-life example: Game score rank</h3>
+      <p style="font-size:13px;margin-top:6px;">Score 0–99 → Bronze<br>
+      Score 100–499 → Silver<br>
+      Score 500–999 → Gold<br>
+      Score 1000+ → Legend!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — ELIF EXAMPLES
+══════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">elif — Real Life Examples</div>
+  <h2>elif in everyday decisions 🗓️</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;">
+    <div>
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;border-top:4px solid var(--orange);">
+        <div style="font-size:22px;margin-bottom:8px;">🌡️ Temperature Check</div>
+        <div style="font-size:13px;line-height:2;font-weight:600;">
+          <span style="color:var(--blue);">If</span> temp &lt; 40 → Heavy coat 🧥<br>
+          <span style="color:var(--orange);">Elif</span> temp &lt; 60 → Light jacket 🧣<br>
+          <span style="color:var(--orange);">Elif</span> temp &lt; 80 → T-shirt 👕<br>
+          <span style="color:var(--teal);">Else</span> → Shorts &amp; sunscreen 🩳
+        </div>
+      </div>
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--pink);">
+        <div style="font-size:22px;margin-bottom:8px;">🎟️ Theme Park Ride</div>
+        <div style="font-size:13px;line-height:2;font-weight:600;">
+          <span style="color:var(--blue);">If</span> height &lt; 48" → Kiddie rides only 🎠<br>
+          <span style="color:var(--orange);">Elif</span> height &lt; 54" → Most rides ✅<br>
+          <span style="color:var(--orange);">Elif</span> height &lt; 60" → All rides 🎢<br>
+          <span style="color:var(--teal);">Else</span> → VIP tall-person pass 👑
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;border-top:4px solid var(--purple);">
+        <div style="font-size:22px;margin-bottom:8px;">⏰ Time of Day Greeting</div>
+        <div style="font-size:13px;line-height:2;font-weight:600;">
+          <span style="color:var(--blue);">If</span> hour &lt; 12 → "Good morning!" 🌅<br>
+          <span style="color:var(--orange);">Elif</span> hour &lt; 17 → "Good afternoon!" ☀️<br>
+          <span style="color:var(--orange);">Elif</span> hour &lt; 21 → "Good evening!" 🌆<br>
+          <span style="color:var(--teal);">Else</span> → "Go to bed!" 😴
+        </div>
+      </div>
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-top:4px solid var(--teal);">
+        <div style="font-size:22px;margin-bottom:8px;">🚦 Speed Check</div>
+        <div style="font-size:13px;line-height:2;font-weight:600;">
+          <span style="color:var(--blue);">If</span> speed &gt; 80 → "Way too fast!" 🚨<br>
+          <span style="color:var(--orange);">Elif</span> speed &gt; 65 → "Slow down!" ⚠️<br>
+          <span style="color:var(--orange);">Elif</span> speed &gt; 55 → "Good speed" 👍<br>
+          <span style="color:var(--teal);">Else</span> → "Speed up a little" 🐢
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — ELIF SYNTAX
+══════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-label">elif — Syntax</div>
+  <h2>How to write elif in Python 🐍</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:20px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="code-block">
+<span class="cm"># Grading system example</span>
+<span class="kw">score</span> = <span class="nu">78</span>
+
+<span class="kw">if</span> score &gt;= <span class="nu">90</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"A — Excellent! 🌟"</span>)
+<span class="kw">elif</span> score &gt;= <span class="nu">80</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"B — Great job! 👍"</span>)
+<span class="kw">elif</span> score &gt;= <span class="nu">70</span>:
+<span class="hl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"C — Good effort 😊"</span>)</span>
+<span class="kw">elif</span> score &gt;= <span class="nu">60</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"D — Keep trying 💪"</span>)
+<span class="kw">else</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"F — Let's review 📖"</span>)
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:12px 16px;">
+        <p style="font-size:13px;color:var(--dark);"><strong>Score is 78</strong> → Python checks each condition top to bottom. 78 &lt; 90, 78 &lt; 80, but 78 &gt;= 70 ✅ → prints "C — Good effort" then STOPS checking.</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:rgba(255,255,255,0.07);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">The Rules</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">1️⃣</span>
+          <p style="font-size:14px;">Always starts with <code>if</code> — you must have exactly ONE <code>if</code> at the top.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">2️⃣</span>
+          <p style="font-size:14px;"><code>elif</code> goes in the middle — you can have as many as you need!</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">3️⃣</span>
+          <p style="font-size:14px;"><code>else</code> is always LAST — the catch-all when nothing matched.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">4️⃣</span>
+          <p style="font-size:14px;">Python checks top to bottom and <strong>stops at the first match!</strong></p>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.07);border-radius:var(--radius);padding:16px;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Structure</div>
+        <div style="font-family:'Fira Code',monospace;font-size:13px;line-height:2.2;">
+          <span style="color:var(--yellow);">if</span> <span style="color:var(--cyan);">condition1</span>:  <span style="color:#6e65a0;"># checked first</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+          <span style="color:var(--orange);">elif</span> <span style="color:var(--cyan);">condition2</span>: <span style="color:#6e65a0;"># only if first failed</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+          <span style="color:var(--orange);">elif</span> <span style="color:var(--cyan);">condition3</span>: <span style="color:#6e65a0;"># only if both failed</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+          <span style="color:var(--teal);">else</span>:           <span style="color:#6e65a0;"># nothing matched</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — GRADE INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="slide-label">Interactive — elif</div>
+  <h2>Grade Calculator 🎓</h2>
+  <div class="grade-layout">
+    <div class="grade-left">
+      <div class="grade-slider-wrap">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Drag to set score</div>
+        <input type="range" min="0" max="100" value="78" class="grade-slider" id="grade-slider" oninput="updateGrade()">
+        <div class="grade-display" id="grade-num">78</div>
+        <div style="text-align:center;"><span class="grade-letter" id="grade-letter" style="background:var(--orange);">C</span></div>
+      </div>
+      <div class="grade-msg" id="grade-msg">Good effort! 😊</div>
+    </div>
+    <div class="grade-right">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Python code running</div>
+      <div class="grade-flow" id="grade-flow">
+        <div class="gf-line" id="gf0"><span class="gf-kw">if</span> score &gt;= <span class="gf-val">90</span>:&nbsp;&nbsp;&nbsp;<span style="color:#6e65a0;"># A</span></div>
+        <div class="gf-line" id="gf1">&nbsp;&nbsp;&nbsp;&nbsp;print(<span style="color:var(--orange);">"A — Excellent!"</span>)</div>
+        <div class="gf-line" id="gf2"><span class="gf-kw">elif</span> score &gt;= <span class="gf-val">80</span>:&nbsp;<span style="color:#6e65a0;"># B</span></div>
+        <div class="gf-line" id="gf3">&nbsp;&nbsp;&nbsp;&nbsp;print(<span style="color:var(--orange);">"B — Great job!"</span>)</div>
+        <div class="gf-line" id="gf4"><span class="gf-kw">elif</span> score &gt;= <span class="gf-val">70</span>:&nbsp;<span style="color:#6e65a0;"># C</span></div>
+        <div class="gf-line" id="gf5">&nbsp;&nbsp;&nbsp;&nbsp;print(<span style="color:var(--orange);">"C — Good effort!"</span>)</div>
+        <div class="gf-line" id="gf6"><span class="gf-kw">elif</span> score &gt;= <span class="gf-val">60</span>:&nbsp;<span style="color:#6e65a0;"># D</span></div>
+        <div class="gf-line" id="gf7">&nbsp;&nbsp;&nbsp;&nbsp;print(<span style="color:var(--orange);">"D — Keep trying!"</span>)</div>
+        <div class="gf-line" id="gf8"><span class="gf-kw">else</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6e65a0;"># F</span></div>
+        <div class="gf-line" id="gf9">&nbsp;&nbsp;&nbsp;&nbsp;print(<span style="color:var(--orange);">"F — Let's review!"</span>)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE L1 — WHAT IS A LIST?
+══════════════════════════════════════════ -->
+<div class="slide" id="sL1">
+  <div class="blob b1"></div>
+  <div class="slide-label">Python Lists</div>
+  <h2>What is a List? 📋</h2>
+  <p style="color:var(--muted);margin-bottom:12px;">So far each variable holds <strong>one thing</strong>. A list lets one variable hold <strong>many things</strong> — in order!</p>
+  <div class="list-analogy-row">
+    <div class="list-analogy-card" style="border-color:var(--blue);">
+      <div style="font-size:22px;">🎒</div>
+      <h3>Real life: A backpack</h3>
+      <p style="font-size:13px;">Your backpack holds many items in pockets. A list is like a backpack — one name, many items inside, each in its own numbered slot.</p>
+      <div class="list-slots">
+        <div class="list-slot" style="background:#E8F4FF;border:2px solid var(--blue);"><span style="font-size:16px;">📓</span><span class="list-idx">slot 0</span></div>
+        <div class="list-slot" style="background:#E8F4FF;border:2px solid var(--blue);"><span style="font-size:16px;">✏️</span><span class="list-idx">slot 1</span></div>
+        <div class="list-slot" style="background:#E8F4FF;border:2px solid var(--blue);"><span style="font-size:16px;">📐</span><span class="list-idx">slot 2</span></div>
+        <div class="list-slot" style="background:#E8F4FF;border:2px solid var(--blue);"><span style="font-size:16px;">🖊️</span><span class="list-idx">slot 3</span></div>
+      </div>
+    </div>
+    <div class="list-analogy-card" style="border-color:var(--orange);">
+      <div style="font-size:22px;">🚌</div>
+      <h3>Real life: Seats on a bus</h3>
+      <p style="font-size:13px;">Every seat has a number. Seat 0 is first, seat 1 is next. You can ask "Who is in seat 2?" Python lists work exactly the same — each item has a numbered position.</p>
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px;margin-top:6px;font-size:13px;font-weight:700;">
+        ⚠️ Counting starts at <strong>0</strong>, not 1! Slot 0 is the first item.
+      </div>
+    </div>
+    <div class="list-analogy-card" style="border-color:var(--teal);">
+      <div style="font-size:22px;">🐍</div>
+      <h3>In Python</h3>
+      <div class="code-block" style="font-size:12px;padding:12px 14px;margin-top:4px;">
+<span class="cm"># Create a list with [ ]</span>
+fruits = [<span class="st">"apple"</span>, <span class="st">"mango"</span>, <span class="st">"grape"</span>]
+
+<span class="cm"># Access items by index</span>
+<span class="fn">print</span>(fruits[<span class="nu">0</span>])  <span class="cm"># apple</span>
+<span class="fn">print</span>(fruits[<span class="nu">1</span>])  <span class="cm"># mango</span>
+<span class="fn">print</span>(fruits[<span class="nu">2</span>])  <span class="cm"># grape</span>
+
+<span class="cm"># How many items?</span>
+<span class="fn">print</span>(<span class="fn">len</span>(fruits)) <span class="cm"># 3</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:180px;background:white;border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid var(--purple);">
+      <h3>✏️ Changing items</h3>
+      <p style="font-size:13px;">You can replace any item: <code>fruits[0] = "banana"</code> — like swapping what's in a backpack pocket.</p>
+    </div>
+    <div style="flex:1;min-width:180px;background:white;border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid var(--pink);">
+      <h3>➕ Adding items</h3>
+      <p style="font-size:13px;"><code>fruits.append("kiwi")</code> — like tossing a new item into the backpack at the end.</p>
+    </div>
+    <div style="flex:1;min-width:180px;background:white;border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid var(--teal);">
+      <h3>📏 Length</h3>
+      <p style="font-size:13px;"><code>len(fruits)</code> tells you how many items are in the list — like counting the pockets in your bag.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE L2 — LIST INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="sL2">
+  <div class="slide-label">Interactive — Lists</div>
+  <h2>Build & Explore a List! 🛠️</h2>
+  <div class="list-inter-layout">
+    <div class="list-inter-left">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Your list (click a slot to select it)</div>
+      <div class="list-vis">
+        <div class="list-vis-slots" id="lv-slots"></div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);">Selected: <span id="lv-selected" style="color:var(--yellow);font-weight:800;">none</span></div>
+      </div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Operations</div>
+      <div class="list-op-btns">
+        <button class="pill-btn" style="background:var(--teal);color:var(--dark);font-size:13px;" onclick="lvAppend()">➕ append()</button>
+        <button class="pill-btn" style="background:var(--orange);color:white;font-size:13px;" onclick="lvChange()">✏️ Change item</button>
+        <button class="pill-btn" style="background:var(--red);color:white;font-size:13px;" onclick="lvRemove()">🗑️ remove last</button>
+        <button class="pill-btn" style="background:rgba(255,255,255,0.1);color:white;font-size:13px;" onclick="lvLen()">📏 len()</button>
+        <button class="pill-btn" style="background:rgba(255,255,255,0.1);color:white;font-size:13px;" onclick="lvReset()">↺ Reset</button>
+      </div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Output</div>
+      <div class="list-output" id="lv-output">👆 Click an operation above to see what happens!</div>
+    </div>
+    <div class="list-inter-right">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Python code — updates live as you click!</div>
+      <div class="code-block" style="font-size:12px;flex:1;line-height:2;" id="lv-code">
+        <div id="lv-line-list"></div>
+        <div id="lv-line-op" style="margin-top:8px;"></div>
+        <div id="lv-line-result" style="margin-top:2px;"></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.8);">💡 <strong style="color:white;">Lists + Loops = Power combo!</strong> On the next slides you'll use lists with for loops to automatically do something with every item — no manual work needed!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — LOOPS INTRO
+══════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="blob b1"></div>
+  <div class="slide-label">Loops</div>
+  <h2>Why do we need loops? 🔄</h2>
+  <p style="color:var(--muted);margin-bottom:14px;">Imagine you have to print 100 student names. Without loops, you'd write 100 lines of code. With a loop — just 3 lines!</p>
+  <div class="loop-concept">
+    <div class="loop-card" style="background:white;border:2px solid var(--blue);box-shadow:var(--shadow);">
+      <div class="loop-icon-wrap" style="background:#E8F4FF;font-size:28px;">😩</div>
+      <h3>Without a loop</h3>
+      <div class="code-block" style="font-size:11px;padding:10px 14px;margin-top:4px;">
+        <span class="fn">print</span>(<span class="st">"Hello, Alex"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Beth"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Hello, Carlos"</span>)<br>
+        <span class="cm"># ...97 more lines 😩</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:28px;padding:0 4px;">→</div>
+    <div class="loop-card" style="background:#E8FBF4;border:2px solid var(--teal);box-shadow:var(--shadow);">
+      <div class="loop-icon-wrap" style="background:#C0F0E4;font-size:28px;">🎉</div>
+      <h3>With a loop</h3>
+      <div class="code-block" style="font-size:11px;padding:10px 14px;margin-top:4px;">
+        <span class="kw">for</span> name <span class="kw">in</span> students:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Hello, "</span> + name)<br>
+        <span class="cm"># Done! Works for 100 names! 🎉</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:14px;">
+    <div style="flex:1;background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);border-left:5px solid var(--teal);">
+      <h3>🔁 for loop</h3>
+      <p style="font-size:13px;margin-top:4px;">Repeats for <strong>each item in a list</strong>. You know upfront how many times it will run. Like going through each item on a checklist.</p>
+    </div>
+    <div style="flex:1;background:white;border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);border-left:5px solid var(--lime);">
+      <h3>🔃 while loop</h3>
+      <p style="font-size:13px;margin-top:4px;">Repeats <strong>as long as a condition is true</strong>. You might not know in advance how many times it'll run. Like waiting until the bus arrives.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — FOR LOOP
+══════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="blob b1"></div>
+  <div class="slide-label">for Loop</div>
+  <h2>The for loop — going through a list 📋</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);">
+        <h3 style="margin-bottom:10px;">Real-life for loops</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🎒</span><p style="font-size:13px;"><strong>Checking a backpack:</strong> For each item in your school supplies list, check if you packed it.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🎄</span><p style="font-size:13px;"><strong>Decorating a tree:</strong> For each ornament in the box, hang it on the tree.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">📧</span><p style="font-size:13px;"><strong>Sending invites:</strong> For each friend on your list, send them a birthday invite.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🧺</span><p style="font-size:13px;"><strong>Washing dishes:</strong> For each dish in the sink, wash and rinse it.</p></div>
+        </div>
+      </div>
+      <div style="background:#FFF8E1;border-radius:14px;padding:14px;border:2px solid var(--yellow);">
+        <p style="font-size:13px;"><strong>Key idea:</strong> A for loop visits <em>each item</em> in a collection one by one, does something with it, then moves to the next — until the list is finished!</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="code-block">
+<span class="cm"># Print each pizza topping</span>
+toppings = [<span class="st">"cheese"</span>, <span class="st">"pepperoni"</span>, <span class="st">"mushroom"</span>]
+
+<span class="kw">for</span> topping <span class="kw">in</span> toppings:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Adding:"</span>, topping)
+
+<span class="cm"># Output:</span>
+<span class="cm"># Adding: cheese</span>
+<span class="cm"># Adding: pepperoni</span>
+<span class="cm"># Adding: mushroom</span>
+      </div>
+      <div class="code-block">
+<span class="cm"># Count from 1 to 5 using range()</span>
+<span class="kw">for</span> number <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1</span>, <span class="nu">6</span>):
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Count:"</span>, number)
+
+<span class="cm"># Output: Count: 1, 2, 3, 4, 5</span>
+<span class="cm"># range(1, 6) means 1 up to but NOT including 6</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — FOR LOOP INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-label">Interactive — for Loop</div>
+  <h2>Watch the for loop in action! 🍕</h2>
+  <div class="for-layout">
+    <div class="for-left">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Pick a list to loop through</div>
+      <select id="for-pick" onchange="setupFor()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none;">
+        <option value="pizza">🍕 Pizza toppings</option>
+        <option value="students">👩‍🎓 Students in class</option>
+        <option value="planets">🪐 Planets</option>
+        <option value="numbers">🔢 Numbers 1–6</option>
+      </select>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Items in the list</div>
+      <div class="for-items" id="for-items"></div>
+      <div class="for-btn-row">
+        <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runFor()">▶ Run Loop</button>
+        <button class="pill-btn" style="background:rgba(255,255,255,0.1);color:white;" onclick="resetFor()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="for-right">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Code</div>
+      <div class="code-block" style="font-size:13px;">
+        <span class="kw">for</span> <span id="for-var" style="color:var(--cyan);">item</span> <span class="kw">in</span> <span id="for-list-name" style="color:var(--orange);">my_list</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span id="for-print-val" style="color:var(--orange);">item</span>)
+      </div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Output</div>
+      <div class="for-output" id="for-output"><span style="color:rgba(255,255,255,0.25);font-style:italic;">Press Run Loop to see output...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — WHILE LOOP
+══════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <div class="slide-label">while Loop</div>
+  <h2>The while loop — keep going until done! ⏳</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);">
+        <h3 style="margin-bottom:10px;">Real-life while loops</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🚌</span><p style="font-size:13px;"><strong>Waiting for a bus:</strong> While the bus hasn't arrived, keep waiting.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🎮</span><p style="font-size:13px;"><strong>Playing a game:</strong> While you still have lives, keep playing.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">🍝</span><p style="font-size:13px;"><strong>Boiling pasta:</strong> While the pasta isn't soft, keep cooking.</p></div>
+          <div style="display:flex;gap:10px;align-items:center;"><span style="font-size:18px;">💰</span><p style="font-size:13px;"><strong>Saving money:</strong> While savings &lt; $100, keep saving allowance.</p></div>
+        </div>
+      </div>
+      <div style="background:#E8FBF4;border-radius:14px;padding:14px;border:2px solid var(--teal);">
+        <p style="font-size:13px;"><strong>⚠️ Warning:</strong> If the condition never becomes False, the loop runs forever — this is called an <strong>infinite loop!</strong> Always make sure something changes inside the loop to eventually stop it.</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="code-block">
+<span class="cm"># Countdown to launch! 🚀</span>
+countdown = <span class="nu">5</span>
+
+<span class="kw">while</span> countdown &gt; <span class="nu">0</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(countdown, <span class="st">"..."</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;countdown = countdown - <span class="nu">1</span>
+
+<span class="fn">print</span>(<span class="st">"🚀 Blast off!"</span>)
+<span class="cm"># Output: 5... 4... 3... 2... 1... Blast off!</span>
+      </div>
+      <div class="code-block">
+<span class="cm"># Save up $10 of allowance 💰</span>
+savings = <span class="nu">0</span>
+
+<span class="kw">while</span> savings &lt; <span class="nu">10</span>:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Saved $"</span>, savings)
+&nbsp;&nbsp;&nbsp;&nbsp;savings = savings + <span class="nu">2</span>
+
+<span class="fn">print</span>(<span class="st">"🎉 Goal reached! $"</span>, savings)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 11 — WHILE INTERACTIVE
+══════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="slide-label">Interactive — while Loop</div>
+  <h2>🚀 Countdown Simulator</h2>
+  <div class="while-layout">
+    <div class="while-left">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Set starting countdown</div>
+      <select id="wh-start" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none;">
+        <option value="5">Start from 5</option>
+        <option value="8">Start from 8</option>
+        <option value="10">Start from 10</option>
+      </select>
+      <div class="code-block" style="font-size:12px;padding:12px 16px;">
+        countdown = <span style="color:var(--cyan);" id="wh-code-start">5</span><br><br>
+        <span class="kw">while</span> countdown &gt; <span style="color:var(--cyan);">0</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(countdown)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;countdown -= <span style="color:var(--cyan);">1</span><br><br>
+        <span class="fn">print</span>(<span class="st">"🚀 Blast off!"</span>)
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="pill-btn" style="background:var(--teal);color:var(--dark);" onclick="runWhile()">▶ Run</button>
+        <button class="pill-btn" style="background:rgba(255,255,255,0.1);color:white;" onclick="resetWhile()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="while-right">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Visualisation</div>
+      <div class="while-vis">
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">countdown value</div>
+        <div class="while-bar-wrap"><div class="while-bar" id="wh-bar" style="width:100%;background:var(--teal);"></div></div>
+        <div class="while-counter" id="wh-counter">5</div>
+        <div class="while-status" id="wh-status">Ready to run...</div>
+      </div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Output log</div>
+      <div class="while-log" id="wh-log"><span style="color:rgba(255,255,255,0.25);font-style:italic;">Press Run to start countdown...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 12 — FOR vs WHILE
+══════════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="blob b1"></div>
+  <div class="slide-label">for vs while</div>
+  <h2>Which loop should I use? 🤔</h2>
+  <table class="comp-table" style="margin-top:8px;">
+    <thead><tr><th></th><th>🔁 for loop</th><th>🔃 while loop</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Use when...</td>
+        <td>You know <strong>how many times</strong> to repeat</td>
+        <td>You repeat <strong>until a condition</strong> is met</td>
+      </tr>
+      <tr>
+        <td>Runs...</td>
+        <td>Once for each item in a list</td>
+        <td>As long as condition is True</td>
+      </tr>
+      <tr>
+        <td>Real life</td>
+        <td>Check each item on a grocery list 🛒</td>
+        <td>Wait until the popcorn stops popping 🍿</td>
+      </tr>
+      <tr>
+        <td>Real life</td>
+        <td>Wish happy birthday to each friend 🎂</td>
+        <td>Keep guessing until you get the right answer 🎯</td>
+      </tr>
+      <tr>
+        <td>Real life</td>
+        <td>Stamp each envelope in a pile 📬</td>
+        <td>Eat until you're full 🍽️</td>
+      </tr>
+      <tr>
+        <td>Watch out for...</td>
+        <td>Going out of range (past the list end)</td>
+        <td><strong>Infinite loops!</strong> Always update your variable ⚠️</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="background:white;border-radius:14px;padding:12px 20px;margin-top:12px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;">
+    <span style="font-size:20px;">💡</span>
+    <p style="font-size:14px;"><strong>Quick rule:</strong> If you have a list → use <code>for</code>. If you're waiting for something to happen → use <code>while</code>.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 13 — QUIZ
+══════════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="blob b1"></div>
+  <div class="slide-label">Quiz Time! 🧪</div>
+  <h2>Test Your Knowledge 💡</h2>
+  <div class="prog-bar"><div class="prog-fill" id="qprog" style="width:0%"></div></div>
+  <div id="quiz-area">
+    <div class="quiz-q" id="q-text"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <span class="q-ctr" id="q-ctr"></span>
+      <button class="pill-btn" style="background:var(--dark);color:white;display:none;" id="q-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-done" style="display:none;text-align:center;padding-top:10px;">
+    <div style="font-size:52px;margin-bottom:12px;">🎉</div>
+    <h3 style="font-size:22px;margin-bottom:6px;">Quiz complete!</h3>
+    <p id="quiz-score" style="font-size:17px;color:var(--muted);margin-bottom:18px;"></p>
+    <button class="pill-btn" style="background:var(--purple);color:white;" onclick="resetQuiz()">Try again 🔄</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 14 — ASSIGNMENTS
+══════════════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="blob b1"></div>
+  <div class="slide-label">Coding Assignments 💻</div>
+  <h2>Practice Time! ✏️</h2>
+  <div class="assign-tabs">
+    <button class="assign-tab active" onclick="showAssign('a1',this)">1 — Grade Checker</button>
+    <button class="assign-tab" onclick="showAssign('a2',this)">2 — Fruit Loop</button>
+    <button class="assign-tab" onclick="showAssign('a3',this)">3 — Fibonacci</button>
+    <button class="assign-tab" onclick="showAssign('a4',this)">4 — Temperature</button>
+  </div>
+
+  <div class="assign-panel show" id="a1">
+    <div class="assign-meta">
+      <span class="tag tag-teal">elif</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤○○ Medium</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> A student scored <strong>82</strong> on their test. Write an elif chain that prints: A (90+), B (80+), C (70+), D (60+), or F. Replace the score to test it!</p>
+    <textarea class="assign-editor" id="ed-a1" rows="7"># Write your grade checker here!
+</textarea>
+    <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a1')">▶ Run My Code</button>
+    <div class="assign-output" id="out-a1">Output will appear here...</div>
+  </div>
+
+  <div class="assign-panel" id="a2">
+    <div class="assign-meta">
+      <span class="tag tag-orange">for loop</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤○○○ Easy</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Loop through the list of fruits and print each one with a message like "I love mangoes!" Add your own favourite fruit to the list!</p>
+    <textarea class="assign-editor" id="ed-a2" rows="7"># Write your fruit loop here!
+</textarea>
+    <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a2')">▶ Run My Code</button>
+    <div class="assign-output" id="out-a2">Output will appear here...</div>
+  </div>
+
+  <div class="assign-panel" id="a3">
+    <div class="assign-meta">
+      <span class="tag tag-lime">while loop</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Challenge</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> The Fibonacci sequence adds the two previous numbers together: 1, 1, 2, 3, 5, 8, 13… Use a while loop to keep printing the next Fibonacci number until it goes over 100. Can you spot the pattern? 🐚</p>
+    <textarea class="assign-editor" id="ed-a3" rows="9"># Write your Fibonacci sequence here!
+</textarea>
+    <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a3')">▶ Run My Code</button>
+    <div class="assign-output" id="out-a3">Output will appear here...</div>
+  </div>
+
+  <div class="assign-panel" id="a4">
+    <div class="assign-meta">
+      <span class="tag tag-purple">elif + for</span>
+      <span style="font-size:12px;font-weight:700;color:var(--muted);">⬤⬤⬤○ Challenge</span>
+    </div>
+    <p style="font-size:13px;"><strong>Task:</strong> Loop through the temperatures list and for each one, print what to wear. Use elif: below 40 → coat, below 65 → jacket, else → t-shirt!</p>
+    <textarea class="assign-editor" id="ed-a4" rows="9"># Write your temperature checker here!
+</textarea>
+    <button class="pill-btn assign-run-btn" style="background:var(--teal);color:var(--dark);" onclick="runAssign('a4')">▶ Run My Code</button>
+    <div class="assign-output" id="out-a4">Output will appear here...</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 15 — FINAL RECAP
+══════════════════════════════════════════ -->
+<div class="slide" id="s15">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <h2>Amazing work today! 🌟</h2>
+  <div class="final-grid">
+    <div class="final-card" style="background:rgba(255,140,66,0.15);border:2px solid var(--orange);">
+      <div style="font-size:36px;">🔀</div>
+      <h3>elif</h3>
+      <p>Chain multiple conditions. Python checks top to bottom and stops at the first match.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,201,167,0.12);border:2px solid var(--teal);">
+      <div style="font-size:36px;">🔁</div>
+      <h3>for loop</h3>
+      <p>Visit each item in a list. Great when you know the list or use range().</p>
+    </div>
+    <div class="final-card" style="background:rgba(168,224,99,0.18);border:2px solid var(--lime);">
+      <div style="font-size:36px;">🔃</div>
+      <h3>while loop</h3>
+      <p>Keep going as long as a condition is True. Always update your variable!</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;justify-content:center;max-width:820px;">
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:14px 20px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Next lesson:</strong> Functions — giving names to your own blocks of code, and calling them whenever you need them!</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:14px 20px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Keep practicing:</strong> Open the assignment slide and try to complete all 4 coding challenges!</p>
+    </div>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);margin-top:18px;font-size:13px;">Arrow keys to navigate · Press F for fullscreen</p>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button onclick="nav(-1)">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="ctr">1 / 15</span>
+  <button onclick="nav(1)">→</button>
+</div>
+
+<script>
+// ── SLIDE ENGINE ──────────────────────────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+let cur = 0;
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),400);
+  cur=(n+slides.length)%slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent=(cur+1)+' / '+slides.length;
+}
+function nav(d){goTo(cur+d);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+
+// ── GRADE SLIDER (slide 6) ────────────────────────────────────────────────────
+function updateGrade(){
+  const s=+document.getElementById('grade-slider').value;
+  document.getElementById('grade-num').textContent=s;
+  let letter,color,msg,lines=[];
+  if(s>=90){letter='A';color='#00C9A7';msg='Excellent work! 🌟';lines=[0,1];}
+  else if(s>=80){letter='B';color='#0081CF';msg='Great job! 👍';lines=[0,2,3];}
+  else if(s>=70){letter='C';color='#FF8C42';msg='Good effort! 😊';lines=[0,2,4,5];}
+  else if(s>=60){letter='D';color='#FF6B9D';msg='Keep trying! 💪';lines=[0,2,4,6,7];}
+  else{letter='F';color='#E84040';msg="Let's review together 📖";lines=[0,2,4,6,8,9];}
+  const gl=document.getElementById('grade-letter');
+  gl.textContent=letter;gl.style.background=color;
+  document.getElementById('grade-msg').textContent=msg;
+  for(let i=0;i<10;i++) document.getElementById('gf'+i).classList.toggle('on',lines.includes(i));
+}
+updateGrade();
+document.getElementById('grade-slider').oninput=updateGrade;
+
+// ── LIST INTERACTIVE (slide L2) ───────────────────────────────────────────────
+const emojis=['🍎','🥭','🍇','🥝','🍊','🍓','🍋','🍒'];
+const names=['apple','mango','grape','kiwi','orange','strawberry','lemon','cherry'];
+let lvList=['apple','mango','grape'];
+let lvSel=-1;
+
+function lvColorFor(name){
+  const cols=['#FFD93D','#FF8C42','#845EC2','#00C9A7','#FF6B9D','#0081CF','#A8E063','#E84040'];
+  return cols[names.indexOf(name)%cols.length]||'#aaa';
+}
+
+function lvRenderCode(opLine, resultLine){
+  // Build the list display line
+  const items = lvList.map(i=>`<span style="color:var(--orange);">"${i}"</span>`).join(', ');
+  document.getElementById('lv-line-list').innerHTML =
+    `<span style="color:rgba(255,255,255,0.45);"># Current list</span><br>` +
+    `fruits = [${items}]`;
+
+  // Operation line (highlighted if provided)
+  if(opLine){
+    document.getElementById('lv-line-op').innerHTML =
+      `<br><span style="color:rgba(255,255,255,0.45);"># Operation performed</span><br>` +
+      `<span style="background:rgba(255,217,61,.18);border-radius:4px;padding:1px 6px;">${opLine}</span>`;
+  } else {
+    document.getElementById('lv-line-op').innerHTML =
+      `<br><span style="color:rgba(255,255,255,0.3);font-style:italic;"># Click a button to perform an operation</span>`;
+  }
+
+  // Result / output line
+  if(resultLine){
+    document.getElementById('lv-line-result').innerHTML =
+      `<br><span style="color:rgba(255,255,255,0.45);"># Result</span><br>` +
+      `<span style="color:var(--teal);">${resultLine}</span>`;
+  } else {
+    document.getElementById('lv-line-result').innerHTML = '';
+  }
+}
+
+function lvRender(opLine, resultLine){
+  const box=document.getElementById('lv-slots');
+  box.innerHTML='';
+  lvList.forEach((item,i)=>{
+    const slot=document.createElement('div');
+    slot.className='list-vis-slot'+(i===lvSel?' highlight':'');
+    const col=lvColorFor(item);
+    slot.style.borderColor = i===lvSel ? 'var(--teal)' : col+'66';
+    slot.innerHTML=`<div class="sv">${emojis[names.indexOf(item)]||'❓'}</div><div style="font-size:11px;color:white;margin:2px 0;font-weight:700;">${item}</div><div class="si">index [${i}]</div>`;
+    slot.onclick=()=>{
+      lvSel=i;
+      const op=`<span style="color:var(--yellow);">print</span>(fruits[<span style="color:var(--cyan);">${i}</span>])`;
+      const res=`→ <span style="color:var(--orange);">"${lvList[i]}"</span>`;
+      lvRender(op, res);
+      document.getElementById('lv-selected').textContent='['+i+'] = "'+lvList[i]+'"';
+      lvOut('fruits['+i+'] → "'+lvList[i]+'"');
+    };
+    box.appendChild(slot);
+  });
+  if(lvList.length===0){
+    box.innerHTML='<span style="color:rgba(255,255,255,0.3);font-size:13px;font-style:italic;">List is empty!</span>';
+  }
+  lvRenderCode(opLine, resultLine);
+}
+
+function lvOut(msg){document.getElementById('lv-output').textContent=msg;}
+
+function lvAppend(){
+  const unused=names.filter(n=>!lvList.includes(n));
+  if(unused.length===0){lvOut('List already has all fruits!');return;}
+  const next=unused[0];
+  lvList.push(next);
+  const op=`fruits.<span style="color:var(--teal);">append</span>(<span style="color:var(--orange);">"${next}"</span>)`;
+  const res=`→ fruits now has <span style="color:var(--cyan);">${lvList.length}</span> items`;
+  lvRender(op, res);
+  lvOut('fruits.append("'+next+'") → list now has '+lvList.length+' items');
+}
+
+function lvChange(){
+  if(lvSel<0||lvSel>=lvList.length){lvOut('Click a slot first to select it!');return;}
+  const unused=names.filter(n=>!lvList.includes(n));
+  if(unused.length===0){lvOut('No more fruits to swap in!');return;}
+  const old=lvList[lvSel];
+  lvList[lvSel]=unused[0];
+  const op=`fruits[<span style="color:var(--cyan);">${lvSel}</span>] = <span style="color:var(--orange);">"${unused[0]}"</span>`;
+  const res=`→ replaced <span style="color:rgba(255,255,255,0.4);">"${old}"</span> with <span style="color:var(--orange);">"${unused[0]}"</span>`;
+  lvRender(op, res);
+  lvOut('fruits['+lvSel+'] = "'+unused[0]+'" → replaced "'+old+'"');
+}
+
+function lvRemove(){
+  if(lvList.length===0){lvOut('List is already empty!');return;}
+  const removed=lvList.pop();
+  if(lvSel>=lvList.length) lvSel=-1;
+  const op=`fruits.<span style="color:var(--red);">pop</span>()`;
+  const res=`→ removed <span style="color:var(--orange);">"${removed}"</span>. Length now: <span style="color:var(--cyan);">${lvList.length}</span>`;
+  lvRender(op, res);
+  document.getElementById('lv-selected').textContent=lvSel>=0?'['+lvSel+'] = "'+lvList[lvSel]+'"':'none';
+  lvOut('fruits.pop() → removed "'+removed+'". Length now: '+lvList.length);
+}
+
+function lvLen(){
+  const op=`<span style="color:var(--yellow);">print</span>(<span style="color:var(--teal);">len</span>(fruits))`;
+  const res=`→ <span style="color:var(--cyan);">${lvList.length}</span>`;
+  lvRender(op, res);
+  lvOut('len(fruits) → '+lvList.length+' items in the list');
+}
+
+function lvReset(){
+  lvList=['apple','mango','grape'];lvSel=-1;
+  lvRender(null, null);
+  document.getElementById('lv-selected').textContent='none';
+  lvOut('👆 Click an operation above to see what happens!');
+}
+lvRender(null, null);
+const forData={
+  pizza:{items:['🧀 cheese','🍖 pepperoni','🍄 mushroom','🫑 peppers','🫒 olives'],varName:'topping',listName:'toppings',colors:['#FFD93D','#FF8C42','#845EC2','#00C9A7','#FF6B9D']},
+  students:{items:['👩 Alex','👦 Ben','👧 Cara','👨 Dan','👩 Eva'],varName:'student',listName:'students',colors:['#0081CF','#FF6B9D','#00C9A7','#845EC2','#FFD93D']},
+  planets:{items:['🪐 Mercury','♀️ Venus','🌍 Earth','🔴 Mars','🟠 Jupiter'],varName:'planet',listName:'planets',colors:['#FF8C42','#FFD93D','#00C9A7','#E84040','#FF8C42']},
+  numbers:{items:['1️⃣ 1','2️⃣ 2','3️⃣ 3','4️⃣ 4','5️⃣ 5','6️⃣ 6'],varName:'number',listName:'range(1, 7)',colors:['#0081CF','#845EC2','#00C9A7','#FF6B9D','#FFD93D','#FF8C42']},
+};
+let forRunning=false;
+function setupFor(){
+  const k=document.getElementById('for-pick').value;
+  const d=forData[k];
+  document.getElementById('for-var').textContent=d.varName;
+  document.getElementById('for-list-name').textContent=d.listName;
+  document.getElementById('for-print-val').textContent=d.varName;
+  const box=document.getElementById('for-items');
+  box.innerHTML='';
+  d.items.forEach((item,i)=>{
+    const el=document.createElement('div');
+    el.className='for-item';
+    el.id='fi'+i;
+    el.style.background=d.colors[i]+'33';
+    el.style.border='2px solid '+d.colors[i];
+    el.style.color='white';
+    el.textContent=item;
+    box.appendChild(el);
+  });
+  document.getElementById('for-output').innerHTML='<span style="color:rgba(255,255,255,0.25);font-style:italic;">Press Run Loop to see output...</span>';
+}
+function runFor(){
+  if(forRunning) return;
+  forRunning=true;
+  const k=document.getElementById('for-pick').value;
+  const d=forData[k];
+  const out=document.getElementById('for-output');
+  out.innerHTML='';
+  d.items.forEach((item,i)=>{
+    document.getElementById('fi'+i).classList.remove('visited');
+    document.getElementById('fi'+i).style.opacity='0.3';
+  });
+  d.items.forEach((item,i)=>{
+    setTimeout(()=>{
+      d.items.forEach((_,j)=>{document.getElementById('fi'+j).style.opacity=j===i?'1':'0.3';});
+      document.getElementById('fi'+i).classList.add('visited');
+      document.getElementById('fi'+i).style.background=d.colors[i];
+      const line=document.createElement('div');
+      line.className='for-output-line';
+      line.innerHTML='<span style="color:rgba(255,255,255,0.4);">→ </span>'+item.replace(/^\S+\s/,'');
+      out.appendChild(line);
+      setTimeout(()=>line.classList.add('show'),50);
+      if(i===d.items.length-1){
+        setTimeout(()=>{
+          const done=document.createElement('div');
+          done.className='for-output-line show';
+          done.innerHTML='<span style="color:var(--yellow);">✅ Loop finished!</span>';
+          out.appendChild(done);
+          d.items.forEach((_,j)=>{document.getElementById('fi'+j).style.opacity='1';});
+          forRunning=false;
+        },400);
+      }
+    },i*600);
+  });
+}
+function resetFor(){
+  forRunning=false;
+  const k=document.getElementById('for-pick').value;
+  const d=forData[k];
+  d.items.forEach((_,i)=>{
+    const el=document.getElementById('fi'+i);
+    el.classList.remove('visited');
+    el.style.opacity='1';
+    el.style.background=d.colors[i]+'33';
+  });
+  document.getElementById('for-output').innerHTML='<span style="color:rgba(255,255,255,0.25);font-style:italic;">Press Run Loop to see output...</span>';
+}
+setupFor();
+
+// ── WHILE LOOP (slide 11) ─────────────────────────────────────────────────────
+let whTimer=null,whRunning=false;
+function runWhile(){
+  if(whRunning) return;
+  whRunning=true;
+  const start=+document.getElementById('wh-start').value;
+  document.getElementById('wh-code-start').textContent=start;
+  const log=document.getElementById('wh-log');
+  log.innerHTML='';
+  let count=start,step=0;
+  const total=start;
+  function tick(){
+    if(count>0){
+      document.getElementById('wh-counter').textContent=count;
+      document.getElementById('wh-bar').style.width=(count/total*100)+'%';
+      document.getElementById('wh-bar').style.background=count>total*0.6?'var(--teal)':count>total*0.3?'var(--yellow)':'var(--red)';
+      document.getElementById('wh-status').textContent='while '+count+' > 0 → TRUE, keep going...';
+      const line=document.createElement('div');
+      line.textContent='print('+count+') → '+count+'...';
+      line.style.color='var(--teal)';
+      log.appendChild(line);
+      log.scrollTop=log.scrollHeight;
+      count--;step++;
+      whTimer=setTimeout(tick,600);
+    } else {
+      document.getElementById('wh-counter').textContent='🚀';
+      document.getElementById('wh-bar').style.width='0%';
+      document.getElementById('wh-status').textContent='while 0 > 0 → FALSE. Loop stops!';
+      const line=document.createElement('div');
+      line.innerHTML='<span style="color:var(--yellow);">🚀 Blast off! Loop ran '+total+' times.</span>';
+      log.appendChild(line);
+      log.scrollTop=log.scrollHeight;
+      whRunning=false;
+    }
+  }
+  tick();
+}
+function resetWhile(){
+  clearTimeout(whTimer);whRunning=false;
+  const start=+document.getElementById('wh-start').value;
+  document.getElementById('wh-counter').textContent=start;
+  document.getElementById('wh-bar').style.width='100%';
+  document.getElementById('wh-bar').style.background='var(--teal)';
+  document.getElementById('wh-status').textContent='Ready to run...';
+  document.getElementById('wh-log').innerHTML='<span style="color:rgba(255,255,255,0.25);font-style:italic;">Press Run to start countdown...</span>';
+  document.getElementById('wh-code-start').textContent=start;
+}
+document.getElementById('wh-start').onchange=resetWhile;
+
+// ── QUIZ (slide 13) ───────────────────────────────────────────────────────────
+const questions=[
+  {q:'What keyword do you use between if and else when you need a third option?',opts:['orif','elseif','elif','ifelseif'],ans:2},
+  {q:'In Python, elif stands for...',opts:['else if','extra if','end if','every if'],ans:0},
+  {q:'Which loop is BEST for going through each fruit in a list?',opts:['while loop','for loop','if loop','elif loop'],ans:1},
+  {q:'What is an infinite loop?',opts:['A loop that runs exactly 10 times','A loop that never stops because the condition stays True','A loop that skips some items','A loop with no body'],ans:1},
+  {q:'What does range(1, 5) produce?',opts:['1, 2, 3, 4, 5','1, 2, 3, 4','0, 1, 2, 3, 4','2, 3, 4, 5'],ans:1},
+  {q:'Which loop should you use when you DON\'T know how many times it will repeat?',opts:['for loop','while loop','elif loop','range loop'],ans:1},
+  {q:'What will this print?  for n in [1,2,3]:  print(n)',opts:['1  (only once)','1 2 3 on separate lines','123 all at once','Nothing'],ans:1},
+  {q:'In a chain of if / elif / elif / else — what happens after Python finds a True condition?',opts:['It checks all the remaining elifs too','It runs all branches','It stops and skips the rest','It starts over from the top'],ans:2},
+];
+let qIdx=0,score=0,answered=false;
+function renderQ(){
+  const q=questions[qIdx];
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-ctr').textContent='Question '+(qIdx+1)+' of '+questions.length;
+  document.getElementById('qprog').style.width=(qIdx/questions.length*100)+'%';
+  document.getElementById('q-fb').textContent='';
+  document.getElementById('q-next').style.display='none';
+  answered=false;
+  const opts=document.getElementById('q-opts');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-opt';btn.textContent=opt;
+    btn.onclick=()=>answer(i,btn);
+    opts.appendChild(btn);
+  });
+}
+function answer(i,btn){
+  if(answered) return;
+  answered=true;
+  const correct=questions[qIdx].ans;
+  document.querySelectorAll('.quiz-opt').forEach((b,idx)=>{
+    if(idx===correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled=true;
+  });
+  const fb=document.getElementById('q-fb');
+  if(i===correct){score++;fb.innerHTML='🎉 Correct!';}
+  else fb.innerHTML='❌ Not quite — the green answer is correct!';
+  document.getElementById('q-next').style.display='inline-block';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=questions.length){
+    document.getElementById('quiz-area').style.display='none';
+    document.getElementById('quiz-done').style.display='block';
+    document.getElementById('qprog').style.width='100%';
+    const pct=Math.round(score/questions.length*100);
+    document.getElementById('quiz-score').textContent=`You got ${score} out of ${questions.length} (${pct}%) ${pct>=87?'🌟 Outstanding!':pct>=62?'👍 Well done!':'💪 Keep practicing!'}`;
+  } else renderQ();
+}
+function resetQuiz(){qIdx=0;score=0;document.getElementById('quiz-area').style.display='block';document.getElementById('quiz-done').style.display='none';renderQ();}
+renderQ();
+
+// ── ASSIGNMENTS (slide 14) ────────────────────────────────────────────────────
+function showAssign(id,btn){
+  document.querySelectorAll('.assign-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+// Simple Python-subset interpreter
+function runAssign(id){
+  const code=document.getElementById('ed-'+id).value;
+  const out=document.getElementById('out-'+id);
+  const lines=[];
+  try{
+    // Sanitise
+    if(/import|exec|eval|open|fetch|window|document|XMLHttp/i.test(code)){
+      out.textContent='⚠️ Only basic Python (print, if, elif, else, for, while) is supported here.';return;
+    }
+    // Translate Python subset → JS
+    let js=code
+      .replace(/print\(([^)]+)\)/g,(m,a)=>{
+        // handle string concat and mixed args
+        const args=a.split(',').map(s=>s.trim());
+        return `__out.push(String(${args.join('+')}))`;
+      })
+      .replace(/\belif\b/g,'} else if')
+      .replace(/\belse\b\s*:/g,'} else {')
+      .replace(/\bif\b (.+):/g,'if($1){')
+      .replace(/\bfor\b (\w+) in range\((\d+),\s*(\d+)\):/g,'for(let $1=$2;$1<$3;$1++){')
+      .replace(/\bfor\b (\w+) in (\w+):/g,'for(let $1 of $2){')
+      .replace(/\bwhile\b (.+):/g,'while($1){')
+      // indent-based block closing: add } for dedent
+      ;
+    // Process indentation to add closing braces
+    const rawLines=code.split('\n');
+    const jsLines=[];
+    const indentStack=[0];
+    rawLines.forEach(line=>{
+      if(line.trim()===''||line.trim().startsWith('#')){jsLines.push('');return;}
+      const indent=line.match(/^(\s*)/)[1].length;
+      while(indent<indentStack[indentStack.length-1]){indentStack.pop();jsLines.push('__close}');}
+      if(indent>indentStack[indentStack.length-1]) indentStack.push(indent);
+      jsLines.push(line.trim());
+    });
+    while(indentStack.length>1){indentStack.pop();jsLines.push('__close}');}
+
+    let jsCode=jsLines.join('\n')
+      .replace(/print\(([^)]+)\)/g,(m,a)=>{
+        const args=a.replace(/"/g,"'").split(',').map(s=>s.trim());
+        return `__out.push([${args.join(',')}].join(' '))`;
+      })
+      .replace(/\belif\b (.+)/g,'} else if($1){')
+      .replace(/\belse\b\s*\{/g,'} else {')
+      .replace(/^if (.+)\{/gm,'if($1){')
+      .replace(/^if (.+):/gm,'if($1){')
+      .replace(/\bfor\b (\w+) in range\((\d+),\s*(\d+)\)/g,'for(let $1=$2;$1<$3;$1++)')
+      .replace(/\bfor\b (\w+) in (\[.+?\])/g,'for(let $1 of $2)')
+      .replace(/\bfor\b (\w+) in (\w+)/g,'for(let $1 of $2)')
+      .replace(/\bwhile\b (.+)/g,'while($1)')
+      .replace(/\b(\w+) = (\w+) \+ (\d+)/g,'$1 = $1 + $3')
+      .replace(/\b(\w+) \+= (\d+)/g,'$1 += $2')
+      .replace(/\b(\w+) -= (\d+)/g,'$1 -= $2')
+      .replace(/__close}/g,'}')
+      .replace(/True/g,'true').replace(/False/g,'false')
+      ;
+    // Declare variables found
+    const vars=(code.match(/^(\w+)\s*=/gm)||[]).map(v=>v.replace(/\s*=/,'').trim()).filter(v=>!['if','elif','else','for','while','in','print'].includes(v));
+    const decls=[...new Set(vars)].map(v=>`let ${v};`).join('\n');
+
+    const fn=new Function('__out',decls+'\n'+jsCode+'\nreturn __out;');
+    const result=fn([]);
+    out.textContent=result.length?result.join('\n'):'(No output — did you forget print?)';
+    out.style.color='var(--teal)';
+  } catch(e){
+    out.textContent='Hmm, there might be an error in the code. Check your indentation and spelling!\n'+e.message;
+    out.style.color='var(--red)';
+  }
+}
+</script>
+</body>
+</html>

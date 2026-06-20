@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lesson 7 – Dictionaries</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ── SLIDE SYSTEM ── */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 90px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);overflow-y:auto;}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;}
+.dots{display:flex;gap:5px;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* ── TYPOGRAPHY ── */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(28px,4.5vw,56px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(20px,2.8vw,36px);font-weight:900;line-height:1.2;margin-bottom:14px;}
+h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.6vw,16px);line-height:1.6;}
+
+/* ── UTILITIES ── */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.tag-cyan{background:var(--cyan);color:var(--dark);}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:9px 20px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:16px 20px;font-size:clamp(12px,1.4vw,14px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── QUIZ ── */
+.quiz-q{font-size:clamp(15px,2.2vw,20px);font-weight:800;margin-bottom:16px;line-height:1.4;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-opt{padding:14px 18px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Fira Code',monospace;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--orange);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:44px;font-size:16px;font-weight:800;padding-top:12px;}
+.quiz-nav{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.quiz-code{background:#1e1e2e;color:#cdd6f4;font-family:'Fira Code',monospace;font-size:13px;border-radius:10px;padding:12px 16px;margin:4px 0 10px;white-space:pre;overflow-x:auto;text-align:left;line-height:1.7;}
+.pill-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#ffe0cc;border-radius:3px;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--orange);border-radius:3px;transition:width .4s;}
+
+/* ── ASSIGNMENTS ── */
+.assign-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.assign-tab{padding:7px 16px;border-radius:999px;border:2px solid #ccc;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.assign-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+.assign-panel{display:none;flex-direction:column;gap:12px;}
+.assign-panel.show{display:flex;}
+.assign-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.assign-editor{width:100%;font-family:'Fira Code',monospace;font-size:13px;background:var(--dark);color:#e2dcff;border:none;border-radius:var(--radius);padding:16px;resize:none;outline:none;line-height:1.9;}
+.assign-output{background:var(--dark);color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;border-radius:12px;padding:14px;min-height:52px;white-space:pre-wrap;line-height:1.8;}
+.check-output{margin-top:4px;}
+.check-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;}
+.check-row{font-family:'Fira Code',monospace;font-size:12px;padding:5px 10px;border-radius:8px;margin-bottom:3px;line-height:1.5;}
+.check-row.pass{background:#d4edda;color:#155724;}
+.check-row.fail{background:#f8d7da;color:#721c24;}
+
+/* ── INVENTORY (S8) ── */
+#s8{background:#1A1333;color:white;}
+#s8 h2{color:white;}
+#s8 .slide-label{color:rgba(255,255,255,0.5);}
+.inv-wrap{display:flex;gap:20px;flex:1;margin-top:8px;}
+.inv-left{flex:1;display:flex;flex-direction:column;gap:12px;}
+.inv-right{flex:1;display:flex;flex-direction:column;gap:12px;}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.inv-slot{background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.inv-slot:hover{border-color:var(--orange);transform:translateY(-3px);background:rgba(255,140,66,.1);}
+.inv-slot.has-item{border-color:var(--teal);background:rgba(0,201,167,.1);}
+.inv-count{position:absolute;top:5px;right:7px;background:var(--orange);color:white;border-radius:999px;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.inv-code{background:#120f24;border-radius:14px;padding:16px 20px;flex:1;font-family:'Fira Code',monospace;font-size:13px;line-height:2.2;overflow-y:auto;}
+
+/* ── FUN EXAMPLES (S9) ── */
+#s9{background:#1A1333;color:white;}
+#s9 h2{color:white;}
+#s9 .slide-label{color:rgba(255,255,255,0.5);}
+.fun-row{display:flex;gap:16px;flex:1;margin-top:8px;}
+.fun-card{flex:1;background:rgba(255,255,255,0.07);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;}
+.fun-card h3{color:white;font-size:15px;margin:0;}
+.fun-input{width:100%;padding:8px 12px;border-radius:8px;border:none;background:#120f24;color:var(--teal);font-family:'Fira Code',monospace;font-size:13px;outline:none;margin-bottom:4px;}
+.fun-output{font-family:'Nunito',monospace;font-size:13px;color:var(--yellow);min-height:36px;line-height:1.6;font-weight:700;}
+
+/* ── CONTACTS APP MOCKUP ── */
+.contacts-app{background:#1A1333;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:210px;flex-shrink:0;}
+.contacts-header{background:var(--blue);padding:10px 14px;color:white;font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px;}
+.contact-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.contact-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:white;flex-shrink:0;}
+.contact-name{color:white;font-weight:700;font-size:12px;}
+.contact-num{color:rgba(255,255,255,0.5);font-family:'Fira Code',monospace;font-size:10px;}
+
+/* ── CLOSE SLIDE (S12) ── */
+#s12{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s12 h1{color:white;}
+#s12 p{color:rgba(255,255,255,0.75);}
+.mastery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.mastery-card{background:rgba(255,255,255,0.07);border-radius:14px;padding:14px 10px;text-align:center;border:2px solid rgba(255,255,255,0.1);}
+.mastery-card .icon{font-size:28px;margin-bottom:6px;}
+.mastery-card h3{color:white;font-size:12px;margin:0;}
+
+/* ── COMPARISON TABLE ── */
+.compare-table{width:100%;border-collapse:collapse;font-size:13px;}
+.compare-table th{background:var(--dark);color:white;padding:9px 12px;text-align:left;font-weight:800;font-size:12px;}
+.compare-table td{padding:9px 12px;border-bottom:1px solid #eee;font-weight:600;}
+.compare-table tr:nth-child(even) td{background:#faf8ff;}
+.compare-table td:first-child{font-weight:800;color:var(--purple);}
+
+/* ── CALLOUT BOXES ── */
+.callout{border-radius:12px;padding:12px 16px;font-weight:700;font-size:13px;line-height:1.5;}
+.callout-blue{background:#E3F0FF;border-left:4px solid var(--blue);color:#0057a0;}
+.callout-orange{background:#FFF3E8;border-left:4px solid var(--orange);color:#b85c1a;}
+.callout-teal{background:#E3FAF5;border-left:4px solid var(--teal);color:#007a63;}
+.callout-red{background:#FFF0F0;border-left:4px solid var(--red);color:#a32d2d;}
+.callout-yellow{background:#FFFBE6;border-left:4px solid var(--yellow);color:#8a6a00;}
+
+/* ── KEY-VALUE LABEL BADGES ── */
+.kv-label{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:2px 6px;margin-left:6px;letter-spacing:.04em;vertical-align:middle;}
+.kv-key{background:#FFE0C8;color:#b85c1a;}
+.kv-val{background:#D4F5EE;color:#007a63;}
+.kv-brace{background:#EDE8FF;color:#5a3fa8;}
+.kv-colon{background:#FFF3B0;color:#8a6a00;}
+.kv-comma{background:#F5F5F5;color:#555;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+</head>
+<body>
+
+<div class="deck">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 1 — TITLE                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide active" id="s1" style="background:linear-gradient(135deg,#FFF0E8 0%,#E8F4FF 60%,#FFF8E1 100%);justify-content:center;">
+  <div class="blob b1" style="width:420px;height:420px;background:var(--orange);top:-120px;right:-100px;"></div>
+  <div class="blob b2" style="width:340px;height:340px;background:var(--blue);bottom:-90px;left:-90px;"></div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+    <span class="tag tag-orange">Lesson 7</span>
+    <span class="tag tag-blue">6th Grade Python</span>
+    <span class="tag tag-teal">Data Superpowers</span>
+  </div>
+
+  <h1 style="margin-bottom:16px;">Level Up Your Data —<br><em style="color:var(--orange);font-style:normal;">Dictionaries!</em> 📚</h1>
+
+  <p style="font-size:clamp(14px,1.8vw,20px);font-weight:700;color:var(--muted);margin-bottom:24px;">
+    key: value &nbsp;·&nbsp; create &nbsp;·&nbsp; access &nbsp;·&nbsp; update &nbsp;·&nbsp; loop &nbsp;·&nbsp; real projects
+  </p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
+    <span class="tag tag-orange">✦ {} dict</span>
+    <span class="tag tag-blue">✦ key: value</span>
+    <span class="tag tag-teal">✦ .items()</span>
+    <span class="tag tag-purple">✦ Quiz</span>
+    <span class="tag tag-pink">✦ Assignments</span>
+  </div>
+
+  <div class="callout callout-yellow" style="max-width:620px;">
+    💡 <strong>Last time: String methods</strong> — <code>.upper()</code>, <code>.lower()</code>, <code>.split()</code>.<br>
+    Today we organize data like a pro!
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 2 — RECAP                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s2" style="background:#FFF5F0;">
+  <div class="blob" style="width:300px;height:300px;background:var(--orange);top:-80px;right:-80px;"></div>
+  <div class="slide-label">Quick Recap — Lessons 5 &amp; 6</div>
+  <h2>What we already know 🧠</h2>
+
+  <div class="grid2" style="margin-bottom:18px;">
+    <div class="card" style="border-left:5px solid var(--purple);">
+      <div style="font-size:26px;margin-bottom:6px;">🔧</div>
+      <div style="font-size:18px;font-weight:900;font-family:'Fira Code',monospace;color:var(--purple);margin-bottom:4px;">def / return</div>
+      <p style="color:var(--muted);font-size:13px;">Define your own reusable functions</p>
+      <div class="code-block" style="margin-top:8px;padding:10px 14px;font-size:12px;">
+        <span class="kw">def</span> <span class="fn">greet</span>(name):<br>
+        &nbsp;&nbsp;<span class="kw">return</span> <span class="st">"Hello, "</span> + name
+      </div>
+    </div>
+    <div class="card" style="border-left:5px solid var(--blue);">
+      <div style="font-size:26px;margin-bottom:6px;">📦</div>
+      <div style="font-size:18px;font-weight:900;font-family:'Fira Code',monospace;color:var(--blue);margin-bottom:4px;">parameters</div>
+      <p style="color:var(--muted);font-size:13px;">Pass values into your functions</p>
+      <div class="code-block" style="margin-top:8px;padding:10px 14px;font-size:12px;">
+        <span class="fn">greet</span>(<span class="st">"Alex"</span>)<br>
+        <span class="cm"># → "Hello, Alex"</span>
+      </div>
+    </div>
+    <div class="card" style="border-left:5px solid var(--teal);">
+      <div style="font-size:26px;margin-bottom:6px;">🔡</div>
+      <div style="font-size:18px;font-weight:900;font-family:'Fira Code',monospace;color:var(--teal);margin-bottom:4px;">.upper() / .lower()</div>
+      <p style="color:var(--muted);font-size:13px;">Change letter case</p>
+      <div class="code-block" style="margin-top:8px;padding:10px 14px;font-size:12px;">
+        <span class="st">"hello"</span>.<span class="fn">upper</span>()<br>
+        <span class="cm"># → "HELLO"</span>
+      </div>
+    </div>
+    <div class="card" style="border-left:5px solid var(--orange);">
+      <div style="font-size:26px;margin-bottom:6px;">✂️</div>
+      <div style="font-size:18px;font-weight:900;font-family:'Fira Code',monospace;color:var(--orange);margin-bottom:4px;">.split() / .replace()</div>
+      <p style="color:var(--muted);font-size:13px;">Break apart and edit strings</p>
+      <div class="code-block" style="margin-top:8px;padding:10px 14px;font-size:12px;">
+        <span class="st">"a b c"</span>.<span class="fn">split</span>()<br>
+        <span class="cm"># → ["a","b","c"]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    🚀 Today we learn <strong>dictionaries</strong> — label your data with names instead of numbers!
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 3 — WHAT IS A DICTIONARY?                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s3" style="background:#F0F8FF;">
+  <div class="blob" style="width:350px;height:350px;background:var(--blue);top:-100px;right:-80px;"></div>
+  <div class="blob" style="width:240px;height:240px;background:var(--orange);bottom:-60px;left:-60px;"></div>
+  <div class="slide-label">Dictionaries</div>
+  <h2>What is a Dictionary? 📱 Think: Contacts App</h2>
+
+  <div class="grid3" style="margin-bottom:16px;">
+    <div class="card" style="border-top:4px solid var(--yellow);">
+      <div style="font-size:28px;margin-bottom:8px;">📖</div>
+      <h3 style="color:var(--orange);">Real Dictionary</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">word → definition</p>
+      <div class="code-block" style="padding:10px 12px;font-size:12px;line-height:1.8;">
+        <span class="st">"Python"</span><br>
+        &nbsp;→ <span class="st">"a programming language"</span>
+      </div>
+    </div>
+    <div class="card" style="border-top:4px solid var(--blue);">
+      <div style="font-size:28px;margin-bottom:8px;">📱</div>
+      <h3 style="color:var(--blue);">Contacts App</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">name → phone number</p>
+      <div class="code-block" style="padding:10px 12px;font-size:12px;line-height:1.8;">
+        <span class="st">"Alex"</span><br>
+        &nbsp;→ <span class="st">"555-0101"</span>
+      </div>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal);">
+      <div style="font-size:28px;margin-bottom:8px;">🐍</div>
+      <h3 style="color:var(--teal);">Python Dict</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">key → value</p>
+      <div class="code-block" style="padding:10px 12px;font-size:12px;line-height:1.8;">
+        <span class="st">"Alex"</span>: <span class="st">"555-0101"</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:20px;align-items:flex-start;flex:1;">
+    <div class="contacts-app">
+      <div class="contacts-header">📱 Contacts</div>
+      <div class="contact-row">
+        <div class="contact-avatar" style="background:var(--blue);">A</div>
+        <div>
+          <div class="contact-name">Alex</div>
+          <div class="contact-num">555-0101</div>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-avatar" style="background:var(--purple);">S</div>
+        <div>
+          <div class="contact-name">Sam</div>
+          <div class="contact-num">555-0102</div>
+        </div>
+      </div>
+      <div class="contact-row" style="border-bottom:none;">
+        <div class="contact-avatar" style="background:var(--orange);">P</div>
+        <div>
+          <div class="contact-name">Priya</div>
+          <div class="contact-num">555-0103</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;">
+      <p style="font-weight:800;font-size:13px;color:var(--muted);margin-bottom:8px;">THE SAME DATA IN PYTHON:</p>
+      <div class="code-block" style="font-size:14px;line-height:2.1;">
+        <span class="fn">contacts</span> = {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"Alex"</span>: &nbsp;<span class="st">"555-0101"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"Sam"</span>: &nbsp;&nbsp;<span class="st">"555-0102"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"Priya"</span>: <span class="st">"555-0103"</span><br>
+        }
+      </div>
+      <div class="callout callout-orange" style="margin-top:12px;font-size:13px;">
+        🔑 Each <strong>key</strong> (name) maps to a <strong>value</strong> (phone). You look up by name — not by a number!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 4 — CREATE & ACCESS                                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s4" style="background:#FFF8F0;">
+  <div class="blob" style="width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;"></div>
+  <div class="slide-label">Dictionaries — Create &amp; Access</div>
+  <h2>Making and using a dictionary 🔑</h2>
+
+  <div class="grid2" style="flex:1;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="code-block" style="font-size:13.5px;line-height:2.1;">
+        <span class="cm"># Create a dictionary</span><br>
+        <span class="fn">student</span> = {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"name"</span>&nbsp;: <span class="st">"Alex"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"grade"</span>: <span class="nu">6</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="st">"score"</span>: <span class="nu">95</span><br>
+        }
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);margin-bottom:8px;">ANATOMY OF A DICTIONARY:</p>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-family:'Fira Code',monospace;">
+          <div><code style="background:#EDE8FF;color:#5a3fa8;">{ }</code> <span style="font-family:'Nunito',sans-serif;font-weight:700;">= dictionary container</span></div>
+          <div><code style="background:#FFE0C8;color:#b85c1a;">"name"</code> <span style="font-family:'Nunito',sans-serif;font-weight:700;">= key (always a string)</span></div>
+          <div><code style="background:#D4F5EE;color:#007a63;">"Alex"</code> <span style="font-family:'Nunito',sans-serif;font-weight:700;">= value (any type!)</span></div>
+          <div><code style="background:#FFF3B0;color:#8a6a00;">:</code> <span style="font-family:'Nunito',sans-serif;font-weight:700;">= connects key to value</span></div>
+          <div><code style="background:#F5F5F5;color:#555;">,</code> <span style="font-family:'Nunito',sans-serif;font-weight:700;">= separates pairs</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <p style="font-weight:800;font-size:13px;color:var(--muted);">ACCESSING VALUES:</p>
+      <div class="code-block" style="font-size:13.5px;line-height:2.1;">
+        <span class="fn">print</span>(student[<span class="st">"name"</span>])&nbsp;&nbsp; <span class="cm"># Alex</span><br>
+        <span class="fn">print</span>(student[<span class="st">"grade"</span>]) <span class="cm"># 6</span><br>
+        <span class="fn">print</span>(student[<span class="st">"score"</span>]) <span class="cm"># 95</span>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#FFF3E8,#FFE8D0);border-left:4px solid var(--orange);">
+        <div style="font-size:22px;margin-bottom:6px;">📦</div>
+        <p style="font-weight:800;font-size:14px;">Think of keys like labels on a box</p>
+        <p style="font-size:13px;color:var(--muted);">You look up by <strong>name</strong>, not by number!<br>student["score"] not student[2]</p>
+      </div>
+      <div class="callout callout-red">
+        ⚠️ <strong>KeyError!</strong> If you use a key that doesn't exist — Python will crash!<br>
+        <span style="font-family:'Fira Code',monospace;font-size:12px;">student["age"]</span> → <strong>KeyError: 'age'</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5 — ADD, UPDATE, DELETE                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s5" style="background:#F5F0FF;">
+  <div class="blob" style="width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;"></div>
+  <div class="slide-label">Dictionaries — Modify</div>
+  <h2>Changing your dictionary 🔧</h2>
+
+  <div class="grid3" style="flex:1;">
+    <!-- ADD -->
+    <div class="card" style="border-top:5px solid var(--teal);display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:32px;">➕</div>
+      <h3 style="color:var(--teal);">ADD NEW KEY</h3>
+      <div class="code-block" style="font-size:12px;line-height:1.9;padding:12px 14px;">
+        contacts[<span class="st">"Jordan"</span>]<br>
+        &nbsp;&nbsp;= <span class="st">"555-0104"</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);">Like adding a new contact!</div>
+      <div style="background:#E3FAF5;border-radius:10px;padding:10px;font-size:11px;font-family:'Fira Code',monospace;color:#007a63;line-height:1.8;">
+        {<br>
+        &nbsp;"Alex": "555-0101",<br>
+        &nbsp;"Sam": "555-0102",<br>
+        &nbsp;<strong>"Jordan": "555-0104"</strong> ✅<br>
+        }
+      </div>
+    </div>
+
+    <!-- UPDATE -->
+    <div class="card" style="border-top:5px solid var(--orange);display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:32px;">✏️</div>
+      <h3 style="color:var(--orange);">UPDATE EXISTING</h3>
+      <div class="code-block" style="font-size:12px;line-height:1.9;padding:12px 14px;">
+        contacts[<span class="st">"Alex"</span>]<br>
+        &nbsp;&nbsp;= <span class="st">"555-9999"</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);">Like editing a contact number!</div>
+      <div style="background:#FFF3E8;border-radius:10px;padding:10px;font-size:11px;font-family:'Fira Code',monospace;color:#b85c1a;line-height:1.8;">
+        {<br>
+        &nbsp;<strong>"Alex": "555-9999"</strong> ✏️<br>
+        &nbsp;"Sam": "555-0102",<br>
+        &nbsp;"Priya": "555-0103"<br>
+        }
+      </div>
+    </div>
+
+    <!-- DELETE -->
+    <div class="card" style="border-top:5px solid var(--red);display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:32px;">🗑️</div>
+      <h3 style="color:var(--red);">DELETE</h3>
+      <div class="code-block" style="font-size:12px;line-height:1.9;padding:12px 14px;">
+        <span class="kw">del</span> contacts[<span class="st">"Sam"</span>]
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);">Like deleting a contact!</div>
+      <div style="background:#FFF0F0;border-radius:10px;padding:10px;font-size:11px;font-family:'Fira Code',monospace;color:#a32d2d;line-height:1.8;">
+        {<br>
+        &nbsp;"Alex": "555-0101",<br>
+        &nbsp;<s style="opacity:.5;">"Sam": "555-0102"</s> 🗑️<br>
+        &nbsp;"Priya": "555-0103"<br>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue" style="margin-top:14px;">
+    💡 <strong>Same syntax for add &amp; update!</strong> If the key exists → update it. If it doesn't → create it!<br>
+    <code>dict["key"] = value</code> works both ways!
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6 — LOOPING                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s6" style="background:#F0FFF8;">
+  <div class="blob" style="width:300px;height:300px;background:var(--teal);top:-80px;right:-80px;"></div>
+  <div class="slide-label">Dictionaries — Loops</div>
+  <h2>Going through every item 🔄</h2>
+
+  <div class="grid2" style="flex:1;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="border-left:5px solid var(--teal);">
+        <p style="font-weight:800;font-size:13px;color:var(--muted);margin-bottom:10px;">THE MAGIC LOOP PATTERN:</p>
+        <div class="code-block" style="font-size:14px;line-height:2.1;">
+          <span class="kw">for</span> <span style="color:var(--orange);">key</span>, <span style="color:var(--cyan);">value</span> <span class="kw">in</span> mydict.<span class="fn">items</span>():
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <span style="background:#FFE0C8;border-radius:8px;padding:4px 10px;font-weight:800;font-size:12px;font-family:'Fira Code',monospace;color:#b85c1a;">key</span>
+          <span style="font-weight:700;font-size:13px;">= the label (e.g. "Math")</span>
+        </div>
+        <div style="margin-top:6px;display:flex;gap:8px;align-items:center;">
+          <span style="background:#D4F5EE;border-radius:8px;padding:4px 10px;font-weight:800;font-size:12px;font-family:'Fira Code',monospace;color:#007a63;">value</span>
+          <span style="font-weight:700;font-size:13px;">= the data (e.g. 88)</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);">STEP BY STEP — WHAT HAPPENS:</p>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="background:white;border-radius:10px;padding:8px 12px;font-size:12px;border-left:4px solid var(--orange);font-family:'Fira Code',monospace;">
+            Loop 1: subject=<span style="color:var(--orange);">"Math"</span>, score=<span style="color:var(--cyan);">88</span> → ✅ Pass
+          </div>
+          <div style="background:white;border-radius:10px;padding:8px 12px;font-size:12px;border-left:4px solid var(--blue);font-family:'Fira Code',monospace;">
+            Loop 2: subject=<span style="color:var(--orange);">"English"</span>, score=<span style="color:var(--cyan);">72</span> → ✅ Pass
+          </div>
+          <div style="background:white;border-radius:10px;padding:8px 12px;font-size:12px;border-left:4px solid var(--red);font-family:'Fira Code',monospace;">
+            Loop 3: subject=<span style="color:var(--orange);">"Science"</span>, score=<span style="color:var(--cyan);">55</span> → ❌ Fail
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <p style="font-weight:800;font-size:13px;color:var(--muted);">FULL EXAMPLE — GRADEBOOK:</p>
+      <div class="code-block" style="font-size:13px;line-height:2.0;flex:1;">
+        grades = {<br>
+        &nbsp;&nbsp;<span class="st">"Math"</span>: <span class="nu">88</span>,<br>
+        &nbsp;&nbsp;<span class="st">"English"</span>: <span class="nu">72</span>,<br>
+        &nbsp;&nbsp;<span class="st">"Science"</span>: <span class="nu">55</span><br>
+        }<br><br>
+        <span class="kw">for</span> subject, score <span class="kw">in</span> grades.<span class="fn">items</span>():<br>
+        &nbsp;&nbsp;<span class="kw">if</span> score &gt;= <span class="nu">60</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(subject, <span class="st">"✅ Pass"</span>)<br>
+        &nbsp;&nbsp;<span class="kw">else</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(subject, <span class="st">"❌ Fail"</span>)
+      </div>
+      <div class="callout callout-teal">
+        ✨ <code>.items()</code> gives you <strong>BOTH</strong> the key AND value each loop — use two variables!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 7 — DICTS VS LISTS                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s7" style="background:#FFFBF0;">
+  <div class="blob" style="width:260px;height:260px;background:var(--yellow);top:-70px;right:-70px;"></div>
+  <div class="slide-label">Dicts vs Lists</div>
+  <h2>Which one should I use? 🤔</h2>
+
+  <div class="grid2" style="flex:1;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <table class="compare-table">
+        <tr>
+          <th>Feature</th>
+          <th style="color:var(--blue);">📋 Lists</th>
+          <th style="color:var(--orange);">📖 Dictionaries</th>
+        </tr>
+        <tr>
+          <td>Access by</td>
+          <td>Index [0], [1]</td>
+          <td>Key ["name"]</td>
+        </tr>
+        <tr>
+          <td>When you know</td>
+          <td>Position/order</td>
+          <td>Labels/names</td>
+        </tr>
+        <tr>
+          <td>Example</td>
+          <td>Shopping list</td>
+          <td>Student profile</td>
+        </tr>
+        <tr>
+          <td>Add item</td>
+          <td>.append(item)</td>
+          <td>dict["key"] = val</td>
+        </tr>
+        <tr>
+          <td>Best for</td>
+          <td>Ordered things</td>
+          <td>Labeled data</td>
+        </tr>
+      </table>
+
+      <div style="display:flex;gap:10px;">
+        <div class="card" style="flex:1;border-top:4px solid var(--blue);text-align:center;padding:12px;">
+          <div style="font-size:22px;">📋</div>
+          <div style="font-weight:900;font-size:13px;color:var(--blue);">LIST</div>
+          <div class="code-block" style="font-size:11px;padding:8px 10px;margin-top:6px;line-height:1.8;">
+            scores = [<span class="nu">88</span>, <span class="nu">72</span>, <span class="nu">95</span>]<br>
+            scores[<span class="nu">0</span>]  <span class="cm"># 88</span>
+          </div>
+        </div>
+        <div class="card" style="flex:1;border-top:4px solid var(--orange);text-align:center;padding:12px;">
+          <div style="font-size:22px;">📖</div>
+          <div style="font-weight:900;font-size:13px;color:var(--orange);">DICT</div>
+          <div class="code-block" style="font-size:11px;padding:8px 10px;margin-top:6px;line-height:1.8;">
+            player = {<span class="st">"hp"</span>: <span class="nu">100</span>}<br>
+            player[<span class="st">"hp"</span>]  <span class="cm"># 100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p style="font-weight:800;font-size:14px;color:var(--muted);">WHICH SHOULD I PICK? 🎯</p>
+
+      <div class="card" style="border-left:5px solid var(--blue);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <span style="font-size:24px;">🏆</span>
+          <p style="font-weight:800;font-size:14px;">"Store a list of high scores"</p>
+        </div>
+        <div class="code-block" style="font-size:12px;padding:10px 12px;line-height:1.8;">
+          high_scores = [<span class="nu">910</span>, <span class="nu">850</span>, <span class="nu">720</span>]
+        </div>
+        <div style="margin-top:8px;" class="callout callout-blue">✅ <strong>List!</strong> You just need the scores in order</div>
+      </div>
+
+      <div class="card" style="border-left:5px solid var(--orange);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <span style="font-size:24px;">🎮</span>
+          <p style="font-weight:800;font-size:14px;">"Store a player's name, level, and health"</p>
+        </div>
+        <div class="code-block" style="font-size:12px;padding:10px 12px;line-height:1.8;">
+          player = {<span class="st">"name"</span>: <span class="st">"Alex"</span>, <span class="st">"level"</span>: <span class="nu">5</span>, <span class="st">"hp"</span>: <span class="nu">100</span>}
+        </div>
+        <div style="margin-top:8px;" class="callout callout-orange">✅ <strong>Dictionary!</strong> Each piece of data has a label</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 8 — INTERACTIVE INVENTORY                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-label" style="color:rgba(255,255,255,0.5);">Interactive — Inventory</div>
+  <h2>🎮 Build Your Game Inventory!</h2>
+
+  <div class="inv-wrap">
+    <div class="inv-left">
+      <p style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;">Click items to add them! (Click again at 3 to remove)</p>
+      <div class="inv-grid" id="inv-grid"></div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5);font-weight:700;">
+        ✦ Click once = add 1 &nbsp;·&nbsp; Click to max 3 &nbsp;·&nbsp; Click at 3 = remove
+      </div>
+    </div>
+    <div class="inv-right">
+      <p style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;">Live Python code — updates as you click! 🐍</p>
+      <div class="inv-code" id="inv-code"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 9 — FUN EXAMPLES                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-label" style="color:rgba(255,255,255,0.5);">Fun Examples 🎉</div>
+  <h2>Dictionaries in the real world!</h2>
+
+  <div class="fun-row">
+    <!-- MEME TRANSLATOR -->
+    <div class="fun-card">
+      <h3>🗣️ Meme Translator</h3>
+      <p style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:700;">Type a word — get the Gen Z version!</p>
+      <p style="color:rgba(255,255,255,0.4);font-size:11px;">Try: happy, sad, good, bad, cool, okay, great, fire, boring</p>
+      <input class="fun-input" id="meme-in" placeholder="Type a word..." oninput="doMeme()">
+      <div style="background:#120f24;border-radius:10px;padding:10px 12px;min-height:50px;">
+        <div class="fun-output" id="meme-out">Start typing above 👆</div>
+      </div>
+      <div style="font-size:11px;font-family:'Fira Code',monospace;color:rgba(255,255,255,0.25);line-height:1.8;">
+        meme_dict = {<br>
+        &nbsp;&nbsp;"happy": "main character energy 🌟",<br>
+        &nbsp;&nbsp;"cool": "slay bestie ✨", ...<br>
+        }
+      </div>
+    </div>
+
+    <!-- HOGWARTS SORTER -->
+    <div class="fun-card">
+      <h3>⚡ Hogwarts Sorter</h3>
+      <p style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:700;">Type a trait — find your house!</p>
+      <p style="color:rgba(255,255,255,0.4);font-size:11px;">Try: brave, clever, loyal, ambitious</p>
+      <input class="fun-input" id="house-in" placeholder="Type a trait..." oninput="doHogwarts()">
+      <div style="background:#120f24;border-radius:10px;padding:10px 12px;min-height:50px;">
+        <div class="fun-output" id="house-out">Start typing above 👆</div>
+      </div>
+      <div style="font-size:11px;font-family:'Fira Code',monospace;color:rgba(255,255,255,0.25);line-height:1.8;">
+        houses = {<br>
+        &nbsp;&nbsp;"brave": "🦁 Gryffindor",<br>
+        &nbsp;&nbsp;"clever": "🦅 Ravenclaw", ...<br>
+        }
+      </div>
+    </div>
+
+    <!-- ROBLOX LEADERBOARD -->
+    <div class="fun-card">
+      <h3>🏆 Roblox Leaderboard</h3>
+      <p style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:700;">A dictionary of player → score!</p>
+      <div id="rb-board" style="flex:1;"></div>
+      <div id="rb-event" style="font-size:12px;color:var(--teal);font-weight:700;min-height:20px;text-align:center;"></div>
+      <button onclick="addRbScore()" class="pill-btn" style="background:var(--orange);color:white;width:100%;margin-top:4px;">
+        ⚡ Add Random Score!
+      </button>
+      <div style="font-size:11px;font-family:'Fira Code',monospace;color:rgba(255,255,255,0.25);line-height:1.8;">
+        scores = {"ProGamer99": 850, ...}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 10 — QUIZ                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s10" style="background:#FFF5F0;">
+  <div class="blob" style="width:300px;height:300px;background:var(--orange);top:-80px;right:-80px;"></div>
+  <div class="slide-label">Quiz Time!</div>
+  <h2>Test Your Dictionary Skills 🧠</h2>
+
+  <div class="card" style="flex:1;display:flex;flex-direction:column;max-width:680px;width:100%;">
+    <div class="prog-bar"><div class="prog-fill" id="qpf" style="width:0%"></div></div>
+    <div class="quiz-q" id="q-text"></div>
+    <pre class="quiz-code" id="q-code" style="display:none;"></pre>
+    <div class="quiz-opts" id="q-opts">
+      <button class="quiz-opt" id="qo0"></button>
+      <button class="quiz-opt" id="qo1"></button>
+      <button class="quiz-opt" id="qo2"></button>
+      <button class="quiz-opt" id="qo3"></button>
+    </div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" id="q-prev" style="background:#888;color:white;" onclick="prevQ()" disabled>← Previous</button>
+      <button class="pill-btn" id="q-next" onclick="nextQ()" style="background:var(--orange);color:white;">Next Question →</button>
+      <span class="q-ctr" id="q-ctr">1 / 8</span>
+      <div style="flex:1;"></div>
+      <div id="q-score" style="font-weight:800;font-size:14px;color:var(--purple);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 11 — ASSIGNMENTS                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s11" style="background:#F8F4FF;">
+  <div class="slide-label">Assignments</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <h2 style="margin:0;">Practice Time! 💪</h2>
+    <button class="pill-btn" onclick="saveMyWork()" style="background:var(--teal);color:#fff;font-size:13px;">💾 Save My Work</button>
+  </div>
+
+  <div class="assign-tabs">
+    <button class="assign-tab active" onclick="showTab('a1',this)">1 — Friend Ages 🟢</button>
+    <button class="assign-tab" onclick="showTab('a2',this)">2 — Gradebook 🟡</button>
+    <button class="assign-tab" onclick="showTab('a3',this)">3 — Emoji Translator 🟠</button>
+    <button class="assign-tab" onclick="showTab('a4',this)">4 — Word Counter 🔴</button>
+  </div>
+
+  <!-- ASSIGNMENT 1 -->
+  <div class="assign-panel show" id="a1">
+    <div class="assign-meta">
+      <span class="tag tag-teal">Easy 🟢</span>
+      <span style="font-weight:700;font-size:13px;color:var(--muted);">Loop through a dictionary and print each friend's age</span>
+    </div>
+    <div class="grid2" style="gap:12px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <textarea class="assign-editor" id="ed-a1" rows="10">def print_ages(friends):
+    # Loop through friends using .items() and print each name and age
+    pass
+
+friends = {"Alex": 12, "Sam": 13, "Priya": 11, "Jordan": 12}
+print_ages(friends)</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="pill-btn" onclick="runCode('a1')" style="background:var(--teal);color:var(--dark);">▶ Run Code</button>
+          <button class="pill-btn" onclick="checkAnswer('a1')" style="background:var(--purple);color:white;">🔍 Check My Answer</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);">OUTPUT:</p>
+        <div class="assign-output" id="out-a1">(Your output will appear here)</div>
+        <div class="check-output" id="chk-a1"></div>
+        <div class="callout callout-teal" style="font-size:12px;">
+          💡 <strong>Expected:</strong><br>Alex is 12 years old<br>Sam is 13 years old<br>...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENT 2 -->
+  <div class="assign-panel" id="a2">
+    <div class="assign-meta">
+      <span class="tag tag-yellow" style="color:var(--dark);">Medium 🟡</span>
+      <span style="font-weight:700;font-size:13px;color:var(--muted);">Print Pass (>= 60) or Fail for each subject</span>
+    </div>
+    <div class="grid2" style="gap:12px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <textarea class="assign-editor" id="ed-a2" rows="10">def check_grades(grades):
+    pass
+
+grades = {"Math": 88, "English": 72, "Science": 55, "Art": 95, "History": 63}
+check_grades(grades)</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="pill-btn" onclick="runCode('a2')" style="background:var(--teal);color:var(--dark);">▶ Run Code</button>
+          <button class="pill-btn" onclick="checkAnswer('a2')" style="background:var(--purple);color:white;">🔍 Check My Answer</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);">OUTPUT:</p>
+        <div class="assign-output" id="out-a2">(Your output will appear here)</div>
+        <div class="check-output" id="chk-a2"></div>
+        <div class="callout callout-yellow" style="font-size:12px;">
+          💡 <strong>Expected format:</strong><br>Math: Pass<br>English: Pass<br>Science: Fail<br>...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENT 3 -->
+  <div class="assign-panel" id="a3">
+    <div class="assign-meta">
+      <span class="tag tag-orange">Hard 🟠</span>
+      <span style="font-weight:700;font-size:13px;color:var(--muted);">Translate words to emojis using a dictionary!</span>
+    </div>
+    <div class="grid2" style="gap:12px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <textarea class="assign-editor" id="ed-a3" rows="12">emoji_dict = {
+    "happy": "😄", "sad": "😢",
+    "fire": "🔥", "cool": "😎",
+    "love": "❤️", "star": "⭐"
+}
+
+sentence = "I feel happy and cool today fire"</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="pill-btn" onclick="runCode('a3')" style="background:var(--teal);color:var(--dark);">▶ Run Code</button>
+          <button class="pill-btn" onclick="checkAnswer('a3')" style="background:var(--purple);color:white;">🔍 Check My Answer</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);">OUTPUT:</p>
+        <div class="assign-output" id="out-a3">(Your output will appear here)</div>
+        <div class="check-output" id="chk-a3"></div>
+        <div class="callout callout-orange" style="font-size:12px;">
+          💡 <strong>Hint:</strong> Use <code>if word in emoji_dict:</code><br>
+          Build a result list, then <code>print(" ".join(result))</code><br>
+          <strong>Expected:</strong> I feel 😄 and 😎 today 🔥
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENT 4 -->
+  <div class="assign-panel" id="a4">
+    <div class="assign-meta">
+      <span class="tag tag-pink">Challenge 🔴</span>
+      <span style="font-weight:700;font-size:13px;color:var(--muted);">Count word occurrences, find the most common word!</span>
+    </div>
+    <div class="grid2" style="gap:12px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <textarea class="assign-editor" id="ed-a4" rows="13">sentence = "the cat sat on the mat the cat sat"</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="pill-btn" onclick="runCode('a4')" style="background:var(--teal);color:var(--dark);">▶ Run Code</button>
+          <button class="pill-btn" onclick="checkAnswer('a4')" style="background:var(--purple);color:white;">🔍 Check My Answer</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <p style="font-weight:800;font-size:12px;color:var(--muted);">OUTPUT:</p>
+        <div class="assign-output" id="out-a4">(Your output will appear here)</div>
+        <div class="check-output" id="chk-a4"></div>
+        <div class="callout callout-blue" style="font-size:12px;">
+          💡 <strong>Hint:</strong> Check with <code>if word in word_count:</code><br>
+          Count all words, then print the most-used one.<br>
+          <strong>Expected output:</strong> the
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 12 — CLOSING                                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="blob" style="width:400px;height:400px;background:var(--orange);top:-120px;right:-100px;opacity:.12;"></div>
+  <div class="blob" style="width:320px;height:320px;background:var(--blue);bottom:-80px;left:-80px;opacity:.12;"></div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:0;">
+    <div style="font-size:52px;margin-bottom:8px;">🏆</div>
+    <h1 style="color:white;margin-bottom:8px;text-align:center;">Data Master Unlocked!</h1>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:22px;font-size:15px;font-weight:700;">You conquered Dictionaries — here's what you learned today:</p>
+
+    <div class="mastery-grid" style="width:100%;max-width:680px;">
+      <div class="mastery-card">
+        <div class="icon">🏗️</div>
+        <h3>Create Dict</h3>
+        <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;font-family:'Fira Code',monospace;">d = {"key": val}</p>
+      </div>
+      <div class="mastery-card">
+        <div class="icon">🔑</div>
+        <h3>Access Values</h3>
+        <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;font-family:'Fira Code',monospace;">d["key"]</p>
+      </div>
+      <div class="mastery-card">
+        <div class="icon">🔧</div>
+        <h3>Modify Dict</h3>
+        <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;font-family:'Fira Code',monospace;">add · update · del</p>
+      </div>
+      <div class="mastery-card">
+        <div class="icon">🔄</div>
+        <h3>Loop Items</h3>
+        <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;font-family:'Fira Code',monospace;">for k,v in d.items()</p>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:16px 28px;margin-bottom:20px;max-width:680px;width:100%;text-align:center;">
+      <p style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Your Python Journey So Far</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Variables</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Conditions</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Lists</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Loops</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Functions</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">Strings</span>
+        <span style="color:rgba(255,255,255,0.3);font-weight:700;">→</span>
+        <span class="tag" style="background:var(--orange);color:white;">Dictionaries ✅</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <p style="color:var(--yellow);font-weight:900;font-size:16px;margin-bottom:4px;">Up next: Mini Projects 🚀</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:700;">Combine everything you know to build something awesome!</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<nav class="nav">
+  <button class="prev">←</button>
+  <div class="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <span class="slide-counter">1 / 12</span>
+  <button class="next">→</button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════════════════ */
+/* NAVIGATION                                                  */
+/* ═══════════════════════════════════════════════════════════ */
+const slides=document.querySelectorAll('.slide');
+const dots=document.querySelectorAll('.dot');
+let cur=0;
+function goTo(n){
+  slides[cur].classList.remove('active');slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),350);
+  cur=n;slides[cur].classList.add('active');
+  dots.forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.querySelector('.slide-counter').textContent=(cur+1)+' / '+slides.length;
+}
+document.querySelector('.prev').onclick=()=>cur>0&&goTo(cur-1);
+document.querySelector('.next').onclick=()=>cur<slides.length-1&&goTo(cur+1);
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;
+  if(tag==='TEXTAREA'||tag==='INPUT')return;
+  if(e.key==='ArrowRight'||e.key===' ')cur<slides.length-1&&goTo(cur+1);
+  if(e.key==='ArrowLeft')cur>0&&goTo(cur-1);
+});
+dots.forEach((d,i)=>d.onclick=()=>goTo(i));
+
+/* ═══════════════════════════════════════════════════════════ */
+/* INVENTORY (SLIDE 8)                                         */
+/* ═══════════════════════════════════════════════════════════ */
+const ITEMS=[
+  {e:'⚔️',n:'Sword'},{e:'🛡️',n:'Shield'},{e:'🧪',n:'Potion'},
+  {e:'🍎',n:'Apple'},{e:'🏹',n:'Arrow'},{e:'🗝️',n:'Key'},
+  {e:'💎',n:'Gem'},{e:'📖',n:'Book'}
+];
+let inventory={};
+function buildInvGrid(){
+  const g=document.getElementById('inv-grid');
+  if(!g)return;
+  g.innerHTML=ITEMS.map(item=>`
+    <div class="inv-slot ${inventory[item.n]?'has-item':''}" onclick="toggleItem('${item.n}')">
+      <div style="font-size:28px;">${item.e}</div>
+      <div style="font-size:11px;margin-top:4px;font-weight:700;color:rgba(255,255,255,0.8);">${item.n}</div>
+      ${inventory[item.n]?`<div class="inv-count">${inventory[item.n]}</div>`:''}
+    </div>`).join('');
+}
+function toggleItem(name){
+  inventory[name]=(inventory[name]||0)+1;
+  if(inventory[name]>3)delete inventory[name];
+  buildInvGrid();
+  updateInvCode();
+}
+function updateInvCode(){
+  const el=document.getElementById('inv-code');
+  if(!el)return;
+  const entries=Object.entries(inventory);
+  const lines=entries.length
+    ?entries.map(([k,v])=>`  <span style="color:var(--orange);">"${k}"</span>: <span style="color:var(--cyan);">${v}</span>`).join(',\n')
+    :'  <span style="color:#6e65a0;font-style:italic;"># inventory is empty!</span>';
+  const total=Object.values(inventory).reduce((a,b)=>a+b,0);
+  el.innerHTML=`<span style="color:var(--yellow);">inventory</span> = {\n${lines}\n}\n\n<span style="color:#6e65a0;font-style:italic;"># Total items: ${total}</span>`;
+}
+buildInvGrid();updateInvCode();
+
+/* ═══════════════════════════════════════════════════════════ */
+/* FUN EXAMPLES (SLIDE 9)                                      */
+/* ═══════════════════════════════════════════════════════════ */
+const MEMES={
+  "happy":"it's giving main character energy 🌟",
+  "sad":"it's lowkey not it 😔",
+  "good":"absolutely bussin 🔥",
+  "bad":"that's a no from me 💀",
+  "cool":"slay bestie ✨",
+  "okay":"it's giving mid 😐",
+  "great":"this hits different 💅",
+  "fire":"no cap that's fire 🔥",
+  "boring":"it's mid fr fr 😑"
+};
+const HOUSES={
+  "brave":"🦁 Gryffindor — brave, daring, nerves of steel!",
+  "clever":"🦅 Ravenclaw — wisdom, learning, sharp mind!",
+  "loyal":"🦡 Hufflepuff — loyal, patient, true friend!",
+  "ambitious":"🐍 Slytherin — ambitious, resourceful, cunning!"
+};
+let rbStats={"ProGamer99":850,"PixelKing":720,"NinjaCodr":910,"StarBlast":680,"CodeWizard":795};
+
+function doMeme(){
+  const w=(document.getElementById('meme-in').value||'').toLowerCase().trim();
+  const result=MEMES[w];
+  document.getElementById('meme-out').textContent=result||'Word not found! Try: happy, sad, good, bad, cool, okay, great';
+}
+function doHogwarts(){
+  const t=(document.getElementById('house-in').value||'').toLowerCase().trim();
+  const result=HOUSES[t];
+  document.getElementById('house-out').textContent=result||'Hmm, the Sorting Hat is confused... Try: brave, clever, loyal, or ambitious!';
+}
+function renderLeaderboard(){
+  const sorted=Object.entries(rbStats).sort((a,b)=>b[1]-a[1]);
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  document.getElementById('rb-board').innerHTML=sorted.map(([p,s],i)=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${i===0?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)'};border-radius:8px;margin-bottom:6px;">
+      <span style="font-weight:700;color:white;font-size:13px;">${medals[i]||'·'} ${p}</span>
+      <span style="color:var(--yellow);font-weight:800;font-size:13px;">${s} pts</span>
+    </div>`).join('');
+}
+function addRbScore(){
+  const players=Object.keys(rbStats);
+  const p=players[Math.floor(Math.random()*players.length)];
+  const pts=Math.floor(Math.random()*100)+10;
+  rbStats[p]+=pts;
+  document.getElementById('rb-event').textContent=`+${pts} pts for ${p}! 🎮`;
+  renderLeaderboard();
+}
+renderLeaderboard();
+
+/* ═══════════════════════════════════════════════════════════ */
+/* QUIZ (SLIDE 10)                                             */
+/* ═══════════════════════════════════════════════════════════ */
+const QUIZ=[
+  {q:'How do you access a value in a Python dictionary?',opts:['dict(key)','dict[0]','dict["key"]','dict.key'],ans:2},
+  {q:'What symbol do you use to create a dictionary?',opts:['[ ] square brackets','( ) parentheses','{ } curly braces','< > angle brackets'],ans:2},
+  {q:'How do you add a new key "color" with value "blue" to dictionary d?',opts:['d.add("color","blue")','d["color"] = "blue"','d.color = "blue"','d.insert("color","blue")'],ans:1},
+  {q:'What does dict.items() give you in a for loop?',opts:['Only the keys','Only the values','Both keys AND values as pairs','The length of the dict'],ans:2},
+  {q:'How do you delete the key "age" from dictionary d?',opts:['d.remove("age")','delete d["age"]','del d["age"]','d.delete("age")'],ans:2},
+  {q:'What does len({"a": 1, "b": 2, "c": 3}) return?',opts:['6','1','3','0'],ans:2},
+  {q:'What happens if you try to access a key that does not exist in a dictionary?',opts:['It returns 0','It returns None','You get a KeyError','Python skips it'],ans:2},
+  {q:'Which code correctly checks if the key "name" exists in dictionary d?',opts:['d["name"] exists','d.has("name")','"name" in d','d.contains("name")'],ans:2},
+];
+let qIdx=0,score=0;
+const answers=new Array(QUIZ.length).fill(null);
+function renderQ(){
+  const q=QUIZ[qIdx];
+  document.getElementById('q-text').textContent=q.q;
+  const codeEl=document.getElementById('q-code');
+  if(q.code){codeEl.textContent=q.code;codeEl.style.display='block';}
+  else{codeEl.style.display='none';}
+  document.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.textContent=q.opts[i];
+    b.className='quiz-opt';
+    b.disabled=false;
+    b.onclick=()=>checkAns(i);
+  });
+  if(answers[qIdx]!==null){
+    const chosen=answers[qIdx];
+    document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+    document.querySelectorAll('.quiz-opt')[chosen].classList.add(chosen===q.ans?'correct':'wrong');
+    if(chosen!==q.ans)document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent=chosen===q.ans?'✅ Correct! Amazing! 🎉':'❌ Not quite — the answer was: '+q.opts[q.ans];
+    document.getElementById('q-fb').style.color=chosen===q.ans?'var(--teal)':'var(--red)';
+  } else {
+    document.getElementById('q-fb').textContent='';
+  }
+  document.getElementById('q-ctr').textContent=(qIdx+1)+' / '+QUIZ.length;
+  document.getElementById('qpf').style.width=((qIdx/QUIZ.length)*100)+'%';
+  document.getElementById('q-score').textContent='';
+  document.getElementById('q-prev').disabled=qIdx===0;
+}
+function checkAns(i){
+  if(answers[qIdx]!==null)return;
+  const q=QUIZ[qIdx];
+  answers[qIdx]=i;
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  if(i===q.ans){
+    document.querySelectorAll('.quiz-opt')[i].classList.add('correct');
+    score++;
+    document.getElementById('q-fb').textContent='✅ Correct! Amazing! 🎉';
+    document.getElementById('q-fb').style.color='var(--teal)';
+  } else {
+    document.querySelectorAll('.quiz-opt')[i].classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    document.getElementById('q-fb').textContent='❌ Not quite — the answer was: '+q.opts[q.ans];
+    document.getElementById('q-fb').style.color='var(--red)';
+  }
+}
+function prevQ(){if(qIdx>0){qIdx--;renderQ();}}
+function nextQ(){
+  if(qIdx<QUIZ.length-1){
+    qIdx++;renderQ();
+  } else {
+    document.getElementById('q-text').textContent='Quiz complete! 🏆';
+    document.getElementById('q-code').style.display='none';
+    document.getElementById('q-opts').innerHTML='';
+    document.getElementById('q-fb').textContent='';
+    document.getElementById('qpf').style.width='100%';
+    const msg=score===QUIZ.length?'🌟 Perfect score! Dictionary master!':score>=QUIZ.length*0.75?'🎉 Great job! You really know your dicts!':score>=QUIZ.length*0.5?'👍 Good effort! Review the slides and try again!':'💪 Keep practicing — you\'ve got this!';
+    document.getElementById('q-score').innerHTML=`<span style="font-size:20px;font-weight:900;color:var(--orange);">Score: ${score} / ${QUIZ.length}</span><br><span style="font-size:14px;">${msg}</span>`;
+    document.getElementById('q-ctr').textContent='Done!';
+    document.querySelector('.quiz-q').style.fontSize='22px';
+    document.getElementById('q-prev').style.display='none';
+    document.getElementById('q-next').textContent='Restart Quiz 🔄';
+    document.getElementById('q-next').onclick=()=>{
+      qIdx=0;score=0;answers.fill(null);
+      document.getElementById('q-opts').innerHTML='<button class="quiz-opt" id="qo0"></button><button class="quiz-opt" id="qo1"></button><button class="quiz-opt" id="qo2"></button><button class="quiz-opt" id="qo3"></button>';
+      document.querySelectorAll('.quiz-opt').forEach((b,i)=>b.id='qo'+i);
+      document.getElementById('q-next').textContent='Next Question →';
+      document.getElementById('q-next').onclick=nextQ;
+      document.getElementById('q-prev').style.display='';
+      document.querySelector('.quiz-q').style.fontSize='';
+      renderQ();
+    };
+  }
+}
+renderQ();
+
+/* ═══════════════════════════════════════════════════════════ */
+/* ASSIGNMENT TABS                                             */
+/* ═══════════════════════════════════════════════════════════ */
+function showTab(id,btn){
+  document.querySelectorAll('.assign-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.assign-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* PYTHON RUNNER                                               */
+/* ═══════════════════════════════════════════════════════════ */
+function runCode(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const out = document.getElementById('out-' + id);
+  out.textContent = '';
+  out.style.color = 'var(--teal)';
+  Sk.configure({
+    output: t => { out.textContent += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      if (!out.textContent) out.textContent = '(No output — did you forget print()?)';
+    })
+    .catch(err => {
+      out.textContent = 'Error: ' + err.toString();
+      out.style.color = 'var(--red)';
+    });
+}
+
+
+const TESTS = {
+  'a1': ["Alex is 12 years old", "Sam is 13 years old", "Priya is 11 years old", "Jordan is 12 years old"],
+  'a2': ["Math: Pass", "English: Pass", "Science: Fail", "Art: Pass", "History: Pass"],
+  'a3': ["I feel 😄 and 😎 today 🔥"],
+  'a4': ["the"],
+};
+
+function checkAnswer(id) {
+  const code = document.getElementById('ed-' + id).value;
+  const expected = TESTS[id];
+  const chk = document.getElementById('chk-' + id);
+  chk.innerHTML = '<div class="check-label">CHECKING...</div>';
+  let captured = '';
+  Sk.configure({
+    output: t => { captured += t; },
+    read: x => {
+      if (Sk.builtinFiles?.files[x] === undefined) throw 'File not found: ' + x;
+      return Sk.builtinFiles.files[x];
+    }
+  });
+  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
+    .then(() => {
+      const lines = captured.split('\n').filter(l => l !== '');
+      let html = '<div class="check-label">RESULTS:</div>';
+      let allPass = true;
+      expected.forEach((exp, i) => {
+        const got = lines[i] !== undefined ? lines[i] : '(no output)';
+        const pass = got === exp;
+        if (!pass) allPass = false;
+        html += `<div class="check-row ${pass?'pass':'fail'}">${pass?'✅':'❌'} Line ${i+1}: <strong>${exp}</strong>${pass?'':` — got: <strong>${got}</strong>`}</div>`;
+      });
+      if (lines.length > expected.length) {
+        allPass = false;
+        for (let i = expected.length; i < lines.length; i++) {
+          html += `<div class="check-row fail">❌ Extra line ${i+1}: <strong>${lines[i]}</strong></div>`;
+        }
+      }
+      if (allPass) html += '<div class="check-row pass" style="margin-top:6px;font-weight:700;">🎉 All correct! Great work!</div>';
+      chk.innerHTML = html;
+    })
+    .catch(err => {
+      chk.innerHTML = `<div class="check-row fail">❌ Error: ${err.toString()}</div>`;
+    });
+}
+
+// localStorage auto-save
+(function(){
+  const P='l7-';
+  document.querySelectorAll('.assign-editor').forEach(t=>{
+    const saved=localStorage.getItem(P+t.id);
+    if(saved!==null)t.value=saved;
+    t.addEventListener('input',()=>localStorage.setItem(P+t.id,t.value));
+  });
+})();
+
+function saveMyWork(){
+  const clone=document.documentElement.cloneNode(true);
+  document.querySelectorAll('.assign-editor').forEach((t,i)=>{
+    clone.querySelectorAll('.assign-editor')[i].textContent=t.value;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>'+clone.outerHTML],{type:'text/html'}));
+  a.download='lesson7_dictionaries_mywork.html';
+  a.click();
+}
+</script>
+</body>
+</html>

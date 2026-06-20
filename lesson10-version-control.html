@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 – Version Control with Git &amp; GitHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8; --violet:#C77DFF;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ── SLIDE SYSTEM ── */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:32px 52px 88px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav .slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.nav .dots{display:flex;gap:5px;}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.nav .dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* ── TYPOGRAPHY ── */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(26px,4.2vw,52px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(18px,2.6vw,34px);font-weight:900;line-height:1.2;margin-bottom:12px;}
+h3{font-size:15px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.5vw,15px);line-height:1.6;color:var(--text);}
+
+/* ── UTILITIES ── */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.tag-cyan{background:var(--cyan);color:var(--dark);}
+.tag-violet{background:var(--violet);color:#fff;}
+.card{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:8px 18px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+.pill-btn[disabled]{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:14px 18px;font-size:clamp(11px,1.3vw,13px);line-height:1.9;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.recap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;}
+.recap-chip{background:white;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);border-left:4px solid;display:flex;flex-direction:column;gap:6px;}
+
+/* ══ S1 TITLE ══ */
+#s1{background:linear-gradient(135deg,#EEE8FF 0%,#E8F5FF 50%,#E8FFF5 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--purple);top:-110px;right:-90px;}
+#s1 .b2{width:300px;height:300px;background:var(--teal);bottom:-70px;left:-70px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+
+/* ══ S2 HOOK / CHAOS ══ */
+#s2{background:#FFF0F0;}
+#s2 .b1{width:280px;height:280px;background:var(--red);top:-60px;right:-60px;}
+.chaos-card{background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:4px solid var(--red);display:flex;flex-direction:column;gap:8px;}
+.chaos-file{font-family:'Fira Code',monospace;font-size:12px;background:#FFF0F0;border-radius:8px;padding:7px 11px;display:flex;align-items:center;gap:8px;color:var(--dark);}
+.chaos-file.worse{background:#FFE0E0;font-weight:700;color:#A32D2D;}
+.disaster-card{background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:4px solid var(--orange);display:flex;flex-direction:column;gap:10px;}
+.disaster-line{display:flex;gap:8px;align-items:flex-start;font-size:13px;}
+
+/* ══ S3 WHAT IS VC ══ */
+#s3{background:linear-gradient(135deg,#FFFBF0 0%,#FFF0E8 100%);}
+#s3 .b1{width:300px;height:300px;background:var(--orange);top:-70px;right:-70px;}
+.tri-row{display:flex;gap:14px;margin-top:10px;flex:1;}
+.tri-card{flex:1;background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:4px solid;display:flex;flex-direction:column;gap:8px;}
+
+/* ══ S4 WHY IT MATTERS ══ */
+#s4{background:#F5F0FF;}
+#s4 .b1{width:280px;height:280px;background:var(--purple);bottom:-60px;left:-60px;}
+
+/* ══ S5 REAL WORLD ══ */
+#s5{background:linear-gradient(135deg,#F0F8FF 0%,#F0FFF8 100%);}
+#s5 .b1{width:300px;height:300px;background:var(--blue);top:-70px;left:-70px;}
+.world-card{background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:4px solid;display:flex;gap:10px;align-items:flex-start;}
+.world-card .icon{font-size:26px;}
+
+/* ══ S6 GIT VS GITHUB ══ */
+#s6{background:#F5F0FF;}
+#s6 .b1{width:260px;height:260px;background:var(--violet);top:-60px;right:-60px;}
+.vs-table{width:100%;border-collapse:separate;border-spacing:0 8px;}
+.vs-table th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px 4px;}
+.vs-table td{padding:10px 14px;background:white;font-size:13px;vertical-align:top;}
+.vs-table tr td:first-child{border-radius:10px 0 0 10px;font-weight:800;}
+.vs-table tr td:last-child{border-radius:0 10px 10px 0;}
+
+/* ══ S7 HOW GIT WORKS ══ */
+#s7{background:linear-gradient(135deg,#FFFBF0 0%,#F0FFF8 100%);}
+#s7 .b1{width:280px;height:280px;background:var(--teal);bottom:-60px;right:-60px;}
+.flow-row{display:flex;align-items:center;gap:10px;margin:14px 0 16px;}
+.flow-step{flex:1;background:white;border-radius:14px;padding:14px 12px;box-shadow:var(--shadow);text-align:center;border-top:4px solid var(--teal);}
+.flow-arrow{font-size:22px;color:var(--muted);}
+
+/* ══ S8 VOCAB ══ */
+#s8{background:#FFF8E1;}
+#s8 .b1{width:280px;height:280px;background:var(--yellow);top:-60px;left:-60px;}
+
+/* ══ S9 BRANCHES INTERACTIVE ══ */
+#s9{background:var(--dark);color:white;}
+#s9 h2{color:white;}#s9 .slide-label{opacity:.5;}
+.branch-controls{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 16px;}
+.branch-btn{padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all .2s;}
+.branch-btn:hover:not([disabled]){border-color:var(--yellow);background:rgba(255,217,61,0.08);}
+.branch-stage{background:#120f24;border-radius:16px;padding:22px 26px;flex:1;display:flex;flex-direction:column;gap:26px;justify-content:center;}
+.branch-track{display:flex;align-items:center;gap:14px;position:relative;min-height:40px;}
+.branch-track-label{min-width:170px;font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,255,255,0.55);font-weight:700;}
+.branch-line{flex:1;height:2px;background:rgba(255,255,255,0.15);position:relative;display:flex;align-items:center;gap:18px;}
+.commit-dot{width:18px;height:18px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(0,201,167,0.18);flex-shrink:0;position:relative;}
+.commit-dot.feature{background:var(--violet);box-shadow:0 0 0 4px rgba(199,125,255,0.18);}
+.commit-dot.merge{background:var(--yellow);box-shadow:0 0 0 4px rgba(255,217,61,0.18);}
+.commit-dot .tip{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,0.5);white-space:nowrap;font-family:'Nunito',sans-serif;font-weight:700;}
+.branch-msg{font-size:13px;color:var(--yellow);font-weight:700;min-height:20px;text-align:center;}
+
+/* ══ S10 TIME MACHINE ══ */
+#s10{background:#1A1333;color:white;}
+#s10 h2{color:white;}#s10 .slide-label{opacity:.5;}
+.time-layout{display:flex;gap:16px;flex:1;margin-top:8px;}
+.time-list{min-width:240px;display:flex;flex-direction:column;gap:8px;}
+.time-row{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);border-radius:12px;padding:9px 12px;cursor:pointer;transition:all .15s;}
+.time-row:hover{border-color:rgba(255,255,255,0.25);}
+.time-row.active{border-color:var(--yellow);background:rgba(255,217,61,0.08);}
+.time-row .t-msg{font-size:12.5px;font-weight:700;}
+.time-row .t-when{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.time-panel{flex:1;background:#0E0B1E;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+.time-panel .t-code{font-family:'Fira Code',monospace;font-size:12.5px;background:#120f24;border-radius:12px;padding:14px;line-height:1.8;color:#e2dcff;white-space:pre-wrap;min-height:120px;}
+.time-toast{font-size:13px;font-weight:700;color:var(--teal);min-height:20px;}
+
+/* ══ S11 QUIZ ══ */
+#s11{background:#F5F0FF;}
+#s11 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-q{font-size:clamp(14px,2vw,19px);font-weight:800;margin-bottom:14px;line-height:1.4;}
+.quiz-q code{font-size:.85em;color:var(--purple);}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quiz-opt{padding:12px 16px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:50px;font-size:14px;font-weight:700;padding-top:10px;display:flex;align-items:center;gap:8px;line-height:1.4;}
+.quiz-nav{display:flex;align-items:center;gap:12px;margin-top:10px;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:12px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+.diff-badge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.06em;}
+.diff-easy{background:#E8FBF4;color:#0F6E56;}
+.diff-medium{background:#FFF8E1;color:#8B5E00;}
+.diff-hard{background:#FFF0F0;color:#A32D2D;}
+
+/* ══ S12 FINAL ══ */
+#s12{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s12 .b1{width:360px;height:360px;background:var(--purple);top:-100px;left:-100px;}
+#s12 .b2{width:300px;height:300px;background:var(--teal);bottom:-80px;right:-80px;}
+#s12 h2{color:white;font-size:clamp(22px,3.2vw,40px);}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;width:100%;max-width:840px;}
+.final-card{border-radius:var(--radius);padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
+.final-card h3{font-size:13px;color:white;}
+.final-card p{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <span class="tag tag-purple">Lesson 10</span>
+    <span class="tag tag-teal">6th Grade Python</span>
+    <span class="tag tag-yellow">New Topic</span>
+  </div>
+  <h1>Version Control with <em>Git</em> &amp; GitHub 🕰️</h1>
+  <p style="font-size:clamp(14px,1.8vw,19px);color:var(--muted);margin-top:14px;font-weight:600;">A time machine for your code — and the secret tool behind almost every piece of software you use</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+    <span class="tag tag-orange">✦ Why It Matters</span>
+    <span class="tag tag-blue">✦ Real-World Examples</span>
+    <span class="tag tag-lime">✦ Git vs GitHub</span>
+    <span class="tag tag-pink">✦ Branches</span>
+    <span class="tag tag-purple">✦ Quiz</span>
+  </div>
+  <div style="margin-top:26px;background:white;border-radius:14px;padding:13px 18px;box-shadow:var(--shadow);display:inline-flex;gap:12px;align-items:center;max-width:600px;">
+    <span style="font-size:22px;">🚀</span>
+    <p style="font-size:13px;"><strong>Coming next:</strong> after today, we'll get hands-on with VSCode and GitHub and start your very first real coding project!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 2 — THE HOOK / PROBLEM
+══════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="blob b1"></div>
+  <div class="slide-label">The Problem</div>
+  <h2>Has this ever happened to you? 😱</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;">
+    <div class="chaos-card">
+      <h3>📁 The "Final Final" File Chaos</h3>
+      <p style="font-size:12.5px;">You keep every old version "just in case," and your folder slowly turns into this:</p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+        <div class="chaos-file">📄 project.py</div>
+        <div class="chaos-file">📄 project_v2.py</div>
+        <div class="chaos-file">📄 project_v2_FINAL.py</div>
+        <div class="chaos-file worse">📄 project_v2_FINAL_REAL.py</div>
+        <div class="chaos-file worse">📄 project_v2_FINAL_REAL_useTHIS_one.py</div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:2px;">😵 ...which one actually works again?</p>
+    </div>
+    <div class="disaster-card">
+      <h3>👯 The Group Project Disaster</h3>
+      <div class="disaster-line"><span>🤝</span><p>You and a partner both edit the same file overnight.</p></div>
+      <div class="disaster-line"><span>📤</span><p>You email each other the files back and forth.</p></div>
+      <div class="disaster-line"><span>💥</span><p>Whose changes do you keep? Did you just lose two hours of someone's work?</p></div>
+      <div class="disaster-line"><span>😬</span><p>Or worse — your code worked an hour ago, and now it's broken, and you can't remember what you changed!</p></div>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>💡 There's a much better way</strong> — every professional software team in the world uses it. It's called <strong>version control</strong>.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 3 — WHAT IS VERSION CONTROL
+══════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 1 — The Big Idea</div>
+  <h2>What is version control? 🕹️</h2>
+  <div class="tri-row">
+    <div class="tri-card" style="border-color:var(--orange);">
+      <div style="font-size:24px;">🎮</div>
+      <h3>Like saving your game</h3>
+      <p style="font-size:13px;">Every time you hit a checkpoint, you can always reload an earlier save if something goes wrong. Version control gives your code those same save points.</p>
+    </div>
+    <div class="tri-card" style="border-color:var(--blue);">
+      <div style="font-size:24px;">📝</div>
+      <h3>Like Google Docs history</h3>
+      <p style="font-size:13px;">Ever clicked "See version history" in a doc? Version control is that same idea — but built specifically for code, with superpowers added on.</p>
+    </div>
+    <div class="tri-card" style="border-color:var(--purple);">
+      <div style="font-size:24px;">🧪</div>
+      <h3>The real definition</h3>
+      <p style="font-size:13px;">A system that records every change made to a project over time — so you can look back, compare versions, and restore any past version whenever you need to.</p>
+    </div>
+  </div>
+  <div style="margin-top:14px;background:white;border-radius:14px;padding:12px 18px;box-shadow:var(--shadow);">
+    <p style="font-size:13px;"><strong>🐙 Git</strong> is the most popular version control tool in the world. It was actually created in 2005 by <strong>Linus Torvalds</strong> — the same person who created the Linux operating system!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 4 — WHY IT MATTERS
+══════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 1 — Why It Matters</div>
+  <h2>Why every software team relies on it 🎯</h2>
+  <div class="recap-grid">
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <span style="font-size:22px;">📜</span><h3>Tracks every change</h3>
+      <p style="font-size:12px;">See exactly what changed, when, and who changed it</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <span style="font-size:22px;">💾</span><h3>Never lose work</h3>
+      <p style="font-size:12px;">A full backup of every version, automatically</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <span style="font-size:22px;">🤝</span><h3>Team collaboration</h3>
+      <p style="font-size:12px;">Many people can work on the same project without overwriting each other</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--orange);">
+      <span style="font-size:22px;">🧪</span><h3>Safe experimenting</h3>
+      <p style="font-size:12px;">Try a risky new idea on a "branch" without breaking the main project</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--pink);">
+      <span style="font-size:22px;">🐞</span><h3>Faster bug-fixing</h3>
+      <p style="font-size:12px;">Compare versions to see exactly what broke something</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--yellow);">
+      <span style="font-size:22px;">⏪</span><h3>Real time travel</h3>
+      <p style="font-size:12px;">Instantly restore any earlier version of your project</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--cyan);">
+      <span style="font-size:22px;">🌍</span><h3>Works anywhere</h3>
+      <p style="font-size:12px;">Your code is backed up off your computer, not just on it</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--lime);">
+      <span style="font-size:22px;">🏆</span><h3>An industry standard</h3>
+      <p style="font-size:12px;">Every professional developer is expected to know this</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>🎯 Bottom line:</strong> version control turns "I hope this doesn't break anything" into "if it breaks, I'll just go back."</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 5 — REAL WORLD EXAMPLES
+══════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 1 — Real-World Examples</div>
+  <h2>You use version control's results every day 🌍</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;gap:12px;">
+    <div class="world-card" style="border-color:var(--lime);">
+      <span class="icon">🐧</span>
+      <div><h3>Linux</h3><p style="font-size:12.5px;">Built by thousands of volunteers worldwide, coordinated almost entirely through Git — the same tool created by Linux's founder, Linus Torvalds.</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--blue);">
+      <span class="icon">🐍</span>
+      <div><h3>Python itself</h3><p style="font-size:12.5px;">Python's own source code lives in a Git repository on GitHub, where anyone can see every single change ever made to the language.</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--purple);">
+      <span class="icon">🏢</span>
+      <div><h3>Every major tech company</h3><p style="font-size:12.5px;">Google, Microsoft, Amazon, Netflix — all of them use version control internally. It's considered as fundamental as having files and folders.</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--orange);">
+      <span class="icon">🎮</span>
+      <div><h3>Video game studios</h3><p style="font-size:12.5px;">Studios track code AND art assets — characters, levels, sounds — so hundreds of developers don't overwrite each other's work.</p></div>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:white;border-radius:14px;padding:12px 18px;box-shadow:var(--shadow);">
+    <p style="font-size:13px;"><strong>🚀 Fun fact:</strong> NASA publishes some of its real software publicly on GitHub for anyone in the world to study, use, and even contribute to.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 6 — GIT VS GITHUB
+══════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 2 — A Common Mix-Up</div>
+  <h2>Git vs. GitHub — they're not the same thing! 🤔</h2>
+  <table class="vs-table">
+    <tr>
+      <th></th><th>Git 🐙</th><th>GitHub 🌐</th>
+    </tr>
+    <tr>
+      <td>What is it?</td>
+      <td>A program installed on your computer</td>
+      <td>A website that hosts your repositories online</td>
+    </tr>
+    <tr>
+      <td>Works offline?</td>
+      <td>✅ Yes — fully</td>
+      <td>❌ No — it's a cloud service</td>
+    </tr>
+    <tr>
+      <td>What it does</td>
+      <td>Tracks history, creates commits and branches</td>
+      <td>Stores your repos online, lets you collaborate and review</td>
+    </tr>
+    <tr>
+      <td>Created</td>
+      <td>2005, by Linus Torvalds</td>
+      <td>2008 (now owned by Microsoft)</td>
+    </tr>
+    <tr>
+      <td>Alternatives?</td>
+      <td>None really — it's the standard</td>
+      <td>GitLab, Bitbucket also exist</td>
+    </tr>
+  </table>
+  <div style="margin-top:14px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>💡 Analogy:</strong> Git is like Microsoft Word's "Track Changes" feature — the tool that records edits. GitHub is like OneDrive or Google Drive — the place where you store that file and share it with friends.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 7 — HOW GIT WORKS
+══════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 2 — Under the Hood</div>
+  <h2>The three stages of saving your work 📦</h2>
+  <div class="flow-row">
+    <div class="flow-step"><div style="font-size:26px;">✏️</div><h3 style="margin-top:6px;">Working Directory</h3><p style="font-size:12px;">The files on your computer you're actively editing</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="border-top-color:var(--orange);"><div style="font-size:26px;">📋</div><h3 style="margin-top:6px;">Staging Area</h3><p style="font-size:12px;">You choose exactly which changes to include in the next save</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="border-top-color:var(--purple);"><div style="font-size:26px;">📦</div><h3 style="margin-top:6px;">Repository</h3><p style="font-size:12px;">A permanent saved snapshot, called a "commit"</p></div>
+  </div>
+  <p style="font-size:13px;font-weight:800;margin-bottom:8px;">In practice, that looks like three short commands:</p>
+  <div class="code-block" style="font-size:13px;">
+<span class="kw">git</span> <span class="fn">add</span> turtle_square.py        <span class="cm"># move my change to staging</span>
+<span class="kw">git</span> <span class="fn">commit</span> -m <span class="st">"Added a square-drawing function"</span>   <span class="cm"># save a snapshot</span>
+<span class="kw">git</span> <span class="fn">push</span>                          <span class="cm"># send it up to GitHub</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px;">Don't worry about memorizing these yet — we'll practice them together with real code very soon!</p>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 8 — VOCABULARY FLASHCARDS
+══════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 2 — Key Vocabulary</div>
+  <h2>Words you'll hear constantly 🗂️</h2>
+  <div class="recap-grid">
+    <div class="recap-chip" style="border-color:var(--purple);">
+      <span style="font-size:22px;">📦</span><h3>Repository (repo)</h3>
+      <p style="font-size:12px;">A project folder that Git is tracking the history of</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--teal);">
+      <span style="font-size:22px;">📸</span><h3>Commit</h3>
+      <p style="font-size:12px;">A saved snapshot of your project at one point in time</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--violet);">
+      <span style="font-size:22px;">🌿</span><h3>Branch</h3>
+      <p style="font-size:12px;">A separate timeline to try new ideas safely</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--blue);">
+      <span style="font-size:22px;">👯</span><h3>Clone</h3>
+      <p style="font-size:12px;">Downloading your own copy of a repo to your computer</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--orange);">
+      <span style="font-size:22px;">⬆️</span><h3>Push</h3>
+      <p style="font-size:12px;">Sending your saved commits up to GitHub</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--pink);">
+      <span style="font-size:22px;">⬇️</span><h3>Pull</h3>
+      <p style="font-size:12px;">Downloading the latest commits from GitHub</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--lime);">
+      <span style="font-size:22px;">🔀</span><h3>Merge</h3>
+      <p style="font-size:12px;">Combining a branch's changes back into the main project</p>
+    </div>
+    <div class="recap-chip" style="border-color:var(--cyan);">
+      <span style="font-size:22px;">☁️</span><h3>Remote</h3>
+      <p style="font-size:12px;">The online copy of your repo — usually on GitHub</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 9 — BRANCHES INTERACTIVE
+══════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-label">Part 3 — Branches</div>
+  <h2>Try it: create a branch, then merge it 🌿</h2>
+  <div class="branch-controls">
+    <button class="branch-btn" id="bb-create" onclick="branchCreate()">🌿 Create Branch</button>
+    <button class="branch-btn" id="bb-commit" onclick="branchCommit()" disabled>➕ Add Commit on Branch</button>
+    <button class="branch-btn" id="bb-merge" onclick="branchMerge()" disabled>🔀 Merge into Main</button>
+    <button class="branch-btn" id="bb-reset" onclick="branchReset()">↺ Reset Demo</button>
+  </div>
+  <div class="branch-stage">
+    <div class="branch-track">
+      <div class="branch-track-label">main</div>
+      <div class="branch-line" id="main-line"></div>
+    </div>
+    <div class="branch-track" id="feature-track" style="display:none;">
+      <div class="branch-track-label">feature/turtle-game</div>
+      <div class="branch-line" id="feature-line"></div>
+    </div>
+  </div>
+  <div class="branch-msg" id="branch-msg">Click "Create Branch" to start a safe new timeline for an experimental idea.</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10 — TIME MACHINE
+══════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <div class="slide-label">Part 3 — Commit History</div>
+  <h2>Your code's time machine ⏪</h2>
+  <div class="time-layout">
+    <div class="time-list" id="time-list"></div>
+    <div class="time-panel">
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700;">robot.py — preview at this commit:</p>
+      <div class="t-code" id="time-code"></div>
+      <button class="pill-btn" style="background:var(--yellow);color:var(--dark);align-self:flex-start;" onclick="restoreCommit()">⏪ Restore This Version</button>
+      <div class="time-toast" id="time-toast"></div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:8px;">💡 Try this: click commit #4 (the bug!), then click commit #3 and restore it. That's the "time travel" superpower in action.</p>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 11 — QUIZ
+══════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="slide-label">Knowledge Check</div>
+  <h2>Quiz Time! 🧠</h2>
+  <div class="prog-bar"><div class="prog-fill" id="qprog" style="width:0%"></div></div>
+  <div id="quiz-area">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span class="q-ctr" id="q-ctr">Question 1 of 10</span>
+      <span id="q-diff-badge" class="diff-badge diff-easy">🟢 Warm-Up</span>
+    </div>
+    <div class="quiz-q" id="q-text"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" style="background:var(--purple);color:white;display:none;" id="q-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-done" style="display:none;text-align:center;padding:20px;">
+    <div style="font-size:52px;margin-bottom:10px;">🎉</div>
+    <h2 style="color:var(--purple);">Quiz Complete!</h2>
+    <p style="font-size:18px;font-weight:800;margin:12px 0;" id="quiz-score"></p>
+    <button class="pill-btn" style="background:var(--purple);color:white;margin-top:10px;" onclick="resetQuiz()">Try Again 🔄</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 12 — FINAL RECAP
+══════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <h2>You now think like a software engineer! 🌟</h2>
+  <div class="final-grid">
+    <div class="final-card" style="background:rgba(132,94,194,0.15);border:2px solid var(--purple);">
+      <div style="font-size:34px;">🕰️</div>
+      <h3>Version Control</h3>
+      <p>Records every change to a project so you can look back and restore any version.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,201,167,0.12);border:2px solid var(--teal);">
+      <div style="font-size:34px;">📸</div>
+      <h3>Commits</h3>
+      <p>Saved snapshots of your project — your save points.</p>
+    </div>
+    <div class="final-card" style="background:rgba(199,125,255,0.12);border:2px solid var(--violet);">
+      <div style="font-size:34px;">🌿</div>
+      <h3>Branches</h3>
+      <p>Safe parallel timelines for trying new ideas, then merging them back in.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,140,66,0.12);border:2px solid var(--orange);">
+      <div style="font-size:34px;">🐙</div>
+      <h3>Git vs GitHub</h3>
+      <p>Git is the tool on your computer. GitHub is the website that hosts it online.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,129,207,0.12);border:2px solid var(--blue);">
+      <div style="font-size:34px;">🌍</div>
+      <h3>Used Everywhere</h3>
+      <p>Linux, Python, and nearly every tech company rely on it daily.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,217,61,0.14);border:2px solid var(--yellow);">
+      <div style="font-size:34px;">🚀</div>
+      <h3>Up Next</h3>
+      <p>Hands-on with VSCode + GitHub — your first real project repository!</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;justify-content:center;max-width:800px;">
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:12px 18px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">Next time:</strong> we'll install VSCode, connect it to GitHub, and you'll get your own coding space inside our class organization!</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.07);border-radius:14px;padding:12px 18px;flex:1;min-width:200px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);"><strong style="color:white;">First project:</strong> drawing shapes with the turtle library — saved, tracked, and submitted using real Git commits!</p>
+    </div>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);margin-top:14px;font-size:12px;">Arrow keys to navigate · Press F for fullscreen</p>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button onclick="nav(-1)">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="ctr">1 / 12</span>
+  <button onclick="nav(1)">→</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  SLIDE ENGINE
+// ═══════════════════════════════════════════════════════
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+let cur = 0;
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),400);
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent = (cur+1)+' / '+slides.length;
+}
+function nav(d){ goTo(cur+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 9 — BRANCH / MERGE DEMO
+// ═══════════════════════════════════════════════════════
+const mainCommits = ['Initial commit','Added move functions','Added drawing colors'];
+const featureMsgs = ['Tried a hexagon shape','Added rainbow colors','Fixed turning angle bug','Added a spin animation'];
+let branchState = { created:false, commits:0, merged:false };
+
+function renderMainLine(){
+  const line = document.getElementById('main-line');
+  line.innerHTML = '';
+  mainCommits.forEach(msg=>{
+    line.innerHTML += '<div class="commit-dot"><span class="tip">'+msg+'</span></div>';
+  });
+  if(branchState.merged){
+    line.innerHTML += '<div class="commit-dot merge"><span class="tip">Merge commit ✅</span></div>';
+  }
+}
+function renderFeatureLine(){
+  const track = document.getElementById('feature-track');
+  const line = document.getElementById('feature-line');
+  if(!branchState.created){ track.style.display='none'; return; }
+  track.style.display = branchState.merged ? 'none' : 'flex';
+  line.innerHTML = '';
+  for(let i=0;i<branchState.commits;i++){
+    line.innerHTML += '<div class="commit-dot feature"><span class="tip">'+featureMsgs[i % featureMsgs.length]+'</span></div>';
+  }
+  if(branchState.commits===0){
+    line.innerHTML += '<div style="font-size:11px;color:rgba(255,255,255,0.35);">branched off main — no commits yet</div>';
+  }
+}
+function updateBranchButtons(){
+  document.getElementById('bb-create').disabled = branchState.created;
+  document.getElementById('bb-commit').disabled = !branchState.created || branchState.merged;
+  document.getElementById('bb-merge').disabled = !branchState.created || branchState.commits===0 || branchState.merged;
+}
+function branchCreate(){
+  branchState.created = true;
+  document.getElementById('branch-msg').textContent = '🌿 Branch created! You can now experiment without touching main.';
+  renderFeatureLine(); updateBranchButtons();
+}
+function branchCommit(){
+  if(branchState.commits < featureMsgs.length) branchState.commits++;
+  document.getElementById('branch-msg').textContent = '📸 New commit added on the branch: "'+featureMsgs[(branchState.commits-1) % featureMsgs.length]+'"';
+  renderFeatureLine(); updateBranchButtons();
+}
+function branchMerge(){
+  branchState.merged = true;
+  document.getElementById('branch-msg').textContent = '🔀 Merged! The branch\'s work is now safely part of main — and main was never at risk.';
+  renderMainLine(); renderFeatureLine(); updateBranchButtons();
+}
+function branchReset(){
+  branchState = { created:false, commits:0, merged:false };
+  document.getElementById('branch-msg').textContent = 'Click "Create Branch" to start a safe new timeline for an experimental idea.';
+  renderMainLine(); renderFeatureLine(); updateBranchButtons();
+}
+renderMainLine(); renderFeatureLine(); updateBranchButtons();
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 10 — TIME MACHINE DEMO
+// ═══════════════════════════════════════════════════════
+const commitHistory = [
+  { id:1, msg:'Started robot.py', when:'5 commits ago', code:'# robot.py\n# (just getting started)' },
+  { id:2, msg:'Added move_forward() function', when:'4 commits ago', code:'def move_forward(steps):\n    for i in range(steps):\n        print("Moving forward!")' },
+  { id:3, msg:'Added turn_left() function', when:'3 commits ago', code:'def move_forward(steps):\n    for i in range(steps):\n        print("Moving forward!")\n\ndef turn_left():\n    print("Turning left!")' },
+  { id:4, msg:'Oops! Broke the loop 😬', when:'2 commits ago', code:'def move_forward(steps)\n    for i in range steps\n        print("Moving forward!"\n\n# uh oh — missing colons and parens!' },
+  { id:5, msg:'Added victory dance 🕺', when:'just now', code:'def move_forward(steps):\n    for i in range(steps):\n        print("Moving forward!")\n\ndef turn_left():\n    print("Turning left!")\n\ndef victory_dance():\n    print("🕺 Robot dance party!")' },
+];
+let timeIdx = 4;
+function renderTimeList(){
+  const list = document.getElementById('time-list');
+  list.innerHTML = '';
+  commitHistory.slice().reverse().forEach(c=>{
+    const row = document.createElement('div');
+    row.className = 'time-row' + (c.id-1===timeIdx ? ' active' : '');
+    row.innerHTML = '<div class="t-msg">📸 '+c.msg+'</div><div class="t-when">'+c.when+'</div>';
+    row.onclick = () => { timeIdx = c.id-1; document.getElementById('time-toast').textContent=''; renderTimeList(); renderTimeCode(); };
+    list.appendChild(row);
+  });
+}
+function renderTimeCode(){
+  document.getElementById('time-code').textContent = commitHistory[timeIdx].code;
+}
+function restoreCommit(){
+  document.getElementById('time-toast').textContent = '✅ robot.py restored to: "'+commitHistory[timeIdx].msg+'" — crisis averted!';
+}
+renderTimeList(); renderTimeCode();
+
+// ═══════════════════════════════════════════════════════
+//  SLIDE 11 — QUIZ ENGINE
+// ═══════════════════════════════════════════════════════
+const questions = [
+  // EASY
+  { q:'What is "version control" mainly used for?',
+    opts:['Making your code run faster','Tracking changes to files over time so you can go back to earlier versions','Automatically fixing bugs for you','Making your computer faster'], ans:1,
+    diff:'easy', exp:'Version control records every change to a project over time, so you can always look back and restore an earlier version.' },
+  { q:'What is a "commit" in Git?',
+    opts:['A saved snapshot of your project at one point in time','A type of error message','A way to delete your code permanently','A website for sharing code'], ans:0,
+    diff:'easy', exp:'A commit is a saved snapshot — like a save point in a video game — that records the project exactly as it looked at that moment.' },
+  { q:'Which of these is something Git lets you do?',
+    opts:['Permanently delete your code with no backup','Save snapshots of your project and go back to them later','Make your internet connection faster','Translate code into another language'], ans:1,
+    diff:'easy', exp:'Git\'s whole purpose is saving snapshots (commits) of your project so nothing is ever truly lost.' },
+  // MEDIUM
+  { q:'What is the difference between Git and GitHub?',
+    opts:['They are exactly the same thing','Git is the tool that tracks versions on your computer; GitHub is a website that stores and shares repositories online','GitHub is older than Git','Git only works for Python code'], ans:1,
+    diff:'medium', exp:'Git is the offline tool that tracks history. GitHub is the online website (like cloud storage) that hosts your repositories and adds collaboration features.' },
+  { q:'What is a "branch" mainly used for?',
+    opts:['Deleting old code permanently','Trying out a new idea safely, without affecting the main project','Making your code run faster','Sending an email to your teacher'], ans:1,
+    diff:'medium', exp:'A branch is a separate timeline that lets you experiment. If the idea works, you merge it back into main. If not, main was never touched.' },
+  { q:'If two people each download their own copy of the same project, what is that copy usually called?',
+    opts:['A merge','A clone','A push','A branch'], ans:1,
+    diff:'medium', exp:'"Cloning" a repository means downloading your own full copy of it, including its entire history, onto your computer.' },
+  { q:'Which command sends your saved commits up to GitHub?',
+    opts:['git pull','git clone','git push','git branch'], ans:2,
+    diff:'medium', exp:'git push uploads your local commits to the remote repository on GitHub so others (and you, from another computer) can see them.' },
+  // HARD
+  { q:'Your friend made changes on their own branch. To bring those changes into the main project, what do you do?',
+    opts:['Delete the main branch','Merge the branch into main','Clone the branch again','Nothing — it happens automatically'], ans:1,
+    diff:'hard', exp:'Merging combines the changes from one branch into another — usually bringing a finished feature branch back into main.' },
+  { q:'Why is it useful that Git keeps a full history of every commit?',
+    opts:['It makes your file size smaller','You can look back, compare changes, and restore any earlier version if something breaks','It automatically writes your code for you','It deletes variables you no longer need'], ans:1,
+    diff:'hard', exp:'The full history is what makes Git a "time machine" — you can always see what changed and jump back to any earlier, working version.' },
+  { q:'Which statement about GitHub\'s free plan is true?',
+    opts:['It only allows one repository total','It cannot be used for school or learning projects','It includes free private repositories plus a generous amount of free automated build/test minutes','It requires a credit card just to create an account'], ans:2,
+    diff:'hard', exp:'GitHub\'s free plan includes unlimited public and private repositories for individuals and organizations, plus a free monthly allowance of GitHub Actions minutes for automation like autograding.' },
+];
+
+let qIdx=0, score=0, answered=false;
+function renderQ(){
+  const q = questions[qIdx];
+  document.getElementById('q-text').innerHTML = q.q.replace(/\n/g,'<br>');
+  document.getElementById('q-ctr').textContent = 'Question '+(qIdx+1)+' of '+questions.length;
+  document.getElementById('qprog').style.width = (qIdx/questions.length*100)+'%';
+  document.getElementById('q-fb').textContent = '';
+  document.getElementById('q-next').style.display = 'none';
+  answered = false;
+  const badge = document.getElementById('q-diff-badge');
+  badge.className = 'diff-badge diff-'+q.diff;
+  badge.textContent = q.diff==='easy' ? '🟢 Warm-Up' : q.diff==='medium' ? '🟡 Getting Harder' : '🔴 Challenge';
+  const opts = document.getElementById('q-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answer(i, btn);
+    opts.appendChild(btn);
+  });
+}
+function answer(i, btn){
+  if(answered) return;
+  answered = true;
+  const correct = questions[qIdx].ans;
+  document.querySelectorAll('.quiz-opt').forEach((b,idx)=>{
+    if(idx===correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled = true;
+  });
+  const fb = document.getElementById('q-fb');
+  if(i===correct){
+    score++;
+    fb.innerHTML = '🎉 Correct! <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  } else {
+    fb.innerHTML = '❌ Not quite. <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  }
+  document.getElementById('q-next').style.display = 'inline-block';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx >= questions.length){
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('quiz-done').style.display = 'block';
+    document.getElementById('qprog').style.width = '100%';
+    const pct = Math.round(score/questions.length*100);
+    document.getElementById('quiz-score').textContent =
+      `You got ${score} out of ${questions.length} (${pct}%) ${pct>=88?'🌟 Outstanding!':pct>=68?'👍 Well done!':pct>=50?'💪 Keep practicing!':'📖 Review the slides and try again!'}`;
+  } else renderQ();
+}
+function resetQuiz(){
+  qIdx=0; score=0;
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-done').style.display='none';
+  renderQ();
+}
+renderQ();
+</script>
+</body>
+</html>
