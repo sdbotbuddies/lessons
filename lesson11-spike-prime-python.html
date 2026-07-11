@@ -130,7 +130,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 .vs-editor .kw{color:var(--yellow);font-weight:700;} .vs-editor .fn{color:var(--teal);}
 .vs-editor .st{color:var(--orange);} .vs-editor .cm{color:#6e65a0;font-style:italic;}
 .vs-editor .mod{color:var(--pink);} .vs-editor .nu{color:var(--cyan);}
-.vs-run{position:absolute;top:9px;right:12px;background:var(--green);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;box-shadow:0 3px 10px rgba(76,175,80,0.35);}
+.vs-icons{position:absolute;top:7px;right:12px;color:#c7c1de;font-size:15px;font-weight:700;letter-spacing:7px;}
 
 /* ── SLIDE 4 — ANIMATED WORKFLOW ── */
 .wf-scene{position:relative;display:grid;grid-template-columns:1.1fr 1.35fr 1.05fr;align-items:center;gap:8px;height:206px;background:linear-gradient(120deg,#EAF3FF,#EAFBF4);border-radius:18px;padding:10px 20px;box-shadow:inset 0 2px 16px rgba(26,19,51,0.06);overflow:hidden;margin-top:6px;}
@@ -215,6 +215,11 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 /* ══ S6 SETUP STEPS ══ */
 #s6{background:linear-gradient(135deg,#FFFBF0 0%,#FFF0E8 100%);}
 #s6 .b1{width:280px;height:280px;background:var(--orange);bottom:-60px;right:-60px;}
+
+/* ══ S6a VS CODE SCREENSHOT ══ */
+#s6a{background:#F5F0FF;}
+#s6a .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.shot{display:block;margin:2px auto 0;max-width:100%;max-height:52vh;width:auto;border-radius:12px;box-shadow:var(--shadow);border:1px solid rgba(26,19,51,0.14);}
 
 /* ══ S6b PROGRAM SLOTS ══ */
 #s6b{background:#FFF8E1;}
@@ -370,7 +375,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   <div class="flow-row">
     <div class="flow-step" style="border-top-color:var(--blue);"><div style="font-size:26px;">⌨️</div><h3 style="margin-top:6px;">Author in VS Code</h3><p style="font-size:12px;">Write your <code>.py</code> and save it with Git — clean diffs &amp; history</p></div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step" style="border-top-color:var(--orange);"><div style="font-size:26px;">🔌</div><h3 style="margin-top:6px;">Test on the hub</h3><p style="font-size:12px;">Upload over USB (or paste into the SPIKE App) and watch it run</p></div>
+    <div class="flow-step" style="border-top-color:var(--orange);"><div style="font-size:26px;">🔌</div><h3 style="margin-top:6px;">Test on the hub</h3><p style="font-size:12px;">Upload over USB or Bluetooth (or paste into the SPIKE App) and watch it run</p></div>
     <div class="flow-arrow">→</div>
     <div class="flow-step" style="border-top-color:var(--teal);"><div style="font-size:26px;">🏆</div><h3 style="margin-top:6px;">Download for competition</h3><p style="font-size:12px;">Paste into the <strong>official SPIKE App</strong> and download to the hub</p></div>
   </div>
@@ -414,7 +419,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
       <span class="z-lbl">⌨️ Write Python<br>in VS Code + Git</span>
     </div>
     <div class="wf-zone">
-      <span class="z-lbl">🔌 Send the <code>.py</code> over USB</span>
+      <span class="z-lbl">🔌 Send the <code>.py</code> over USB or Bluetooth</span>
       <div class="wf-track"><div class="packet">main.py</div></div>
     </div>
     <div class="wf-zone">
@@ -436,9 +441,9 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   <div class="checklist" style="margin-top:6px;">
     <div class="check-row" style="border-color:var(--blue);"><span class="num">1️⃣</span><div><h3>The official SPIKE App 3</h3><p style="font-size:12.5px;">Keeps the hub on normal LEGO firmware and is how we download code for competition. (Hub should already be on SPIKE 3.x — this is standard, not a special flash.)</p></div></div>
     <div class="check-row" style="border-color:var(--purple);"><span class="num">2️⃣</span><div><h3>VS Code + the Python extension</h3><p style="font-size:12.5px;">Exactly what you already use for lessons and assignments — nothing new to learn here.</p></div></div>
-    <div class="check-row" style="border-color:var(--teal);"><span class="num">3️⃣</span><div><h3>A SPIKE "upload &amp; run" extension <span style="font-weight:600;color:var(--muted);">(optional)</span></h3><p style="font-size:12.5px;">A community VS Code extension that sends your file to the hub over USB. Handy for fast testing — if it acts up, just use the SPIKE App instead.</p></div></div>
-    <div class="check-row" style="border-color:var(--orange);"><span class="num">4️⃣</span><div><h3><code>pyhub-stubs</code> for autocomplete <span style="font-weight:600;color:var(--muted);">(optional)</span></h3><p style="font-size:12.5px;">Teaches VS Code the names of the SPIKE commands so you get suggestions. It only helps you type — it's never sent to the hub, so it changes nothing about FLL.</p></div></div>
-    <div class="check-row" style="border-color:var(--lime);"><span class="num">5️⃣</span><div><h3>A USB cable</h3><p style="font-size:12.5px;">The most reliable way to connect the hub to your laptop — better than Bluetooth when a whole team is working.</p></div></div>
+    <div class="check-row" style="border-color:var(--teal);"><span class="num">3️⃣</span><div><h3>The SPIKE "upload &amp; run" extension</h3><p style="font-size:12.5px;">The <em>LEGO SPIKE Prime / MINDSTORMS</em> VS Code extension sends your file to the hub over USB or Bluetooth. On our hubs it needs one setting — <strong>compile to <code>.mpy</code></strong> — which this repo already turns on for you.</p></div></div>
+    <div class="check-row" style="border-color:var(--orange);"><span class="num">4️⃣</span><div><h3>SPIKE 3 autocomplete stubs</h3><p style="font-size:12.5px;">Custom stubs your coaches wrote for the SPIKE 3 commands, so VS Code suggests them as you type. They install automatically with the repo — nothing to set up, and they're never sent to the hub, so FLL is unaffected.</p></div></div>
+    <div class="check-row" style="border-color:var(--lime);"><span class="num">5️⃣</span><div><h3>USB cable (or Bluetooth)</h3><p style="font-size:12.5px;">USB is the most reliable way to connect the hub — best when a whole team is working. Bluetooth works too once the hub is paired.</p></div></div>
   </div>
 </div>
 
@@ -446,7 +451,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 <div class="slide" id="s5b">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Meet the Hardware</div>
-  <h2>The hub, your laptop, and one USB cable 🔌</h2>
+  <h2>Connect the hub: USB or Bluetooth 🔌</h2>
   <div class="hw-stage">
     <div class="laptop">
       <div class="screen">
@@ -461,7 +466,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
     </div>
     <div class="usb-link">
       <span class="cable">〰️〰️🔌</span>
-      <span class="lbl">USB CABLE</span>
+      <span class="lbl">USB / BLUETOOTH</span>
     </div>
     <div class="hub-wrap">
       <img src="images/spike-hub-smilely.jpg" alt="LEGO SPIKE Prime hub showing a smiley face on its 5x5 light matrix, with ports A through F, a Bluetooth button, and a round center button" class="hub-photo">
@@ -479,8 +484,8 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
     </div>
     <div class="card" style="border-left:4px solid var(--purple);">
       <h3>🔌 The connection</h3>
-      <p style="font-size:12.5px;margin-top:4px;">Plug the <strong>USB cable</strong> from the hub into your laptop. That one cable lets VS Code (or the SPIKE App) send your <code>.py</code> program to the hub — <strong>no cable, no upload</strong>.</p>
-      <p style="font-size:12px;color:var(--muted);margin-top:6px;">USB is steadier than Bluetooth when the whole team is connected at once.</p>
+      <p style="font-size:12.5px;margin-top:4px;">Connect the hub to your laptop with the <strong>USB cable</strong>, or pair it over <strong>Bluetooth</strong>. Either way, VS Code (or the SPIKE App) can then send your <code>.py</code> program to the hub.</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px;">USB is steadier when the whole team is connected at once; Bluetooth is handy when you want to skip the cable.</p>
     </div>
   </div>
 </div>
@@ -492,11 +497,11 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   <h2>From cold hub to running code 🚀</h2>
   <div class="grid2" style="align-items:start;gap:20px;margin-top:4px;">
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="step-row"><div class="step-badge">1</div><p style="font-size:12.5px;"><strong>Plug in the hub</strong> with USB and turn it on (round center button).</p></div>
+      <div class="step-row"><div class="step-badge">1</div><p style="font-size:12.5px;"><strong>Connect the hub</strong> over USB or Bluetooth and turn it on (round center button).</p></div>
       <div class="step-row"><div class="step-badge">2</div><p style="font-size:12.5px;"><strong>Open your repo in VS Code</strong> — <code>File → Open Folder</code> — same folder as assignments.</p></div>
       <div class="step-row"><div class="step-badge">3</div><p style="font-size:12.5px;"><strong>Make a project folder</strong>, e.g. <code>projects/spike-hello/</code>, and create <code>main.py</code>.</p></div>
       <div class="step-row"><div class="step-badge">4</div><p style="font-size:12.5px;"><strong>Write your Python</strong> using the SPIKE commands. Save with <span class="mono" style="background:#F0EBF8;padding:1px 5px;border-radius:5px;">Ctrl/Cmd+S</span>.</p></div>
-      <div class="step-row"><div class="step-badge">5</div><p style="font-size:12.5px;"><strong>Run it:</strong> press <em>Upload &amp; Run</em> (green button) over USB — or paste into the SPIKE App and press ▶.</p></div>
+      <div class="step-row"><div class="step-badge">5</div><p style="font-size:12.5px;"><strong>Run it:</strong> once the hub is connected, use the top-right editor icons — <em>↻ Upload, ▶ Run, ⊗ Stop</em> — or paste into the SPIKE App and press ▶.</p></div>
       <div class="step-row"><div class="step-badge">6</div><p style="font-size:12.5px;"><strong>Save your work</strong> with Git — stage, commit, push, like all your code.</p></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
@@ -510,7 +515,7 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
             <div class="f i2 active">📄 main.py</div>
             <div class="f i1">📁 turtle-art</div>
           </div>
-          <div class="vs-editor"><button class="vs-run">▶ Upload &amp; Run</button><span class="kw">import</span> <span class="mod">runloop</span>, <span class="mod">motor</span>
+          <div class="vs-editor"><span class="vs-icons">↻ ▶ ⊗</span><span class="kw">import</span> <span class="mod">runloop</span>, <span class="mod">motor</span>
 <span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port, light_matrix
 
 <span class="kw">async def</span> <span class="fn">main</span>():
@@ -521,11 +526,29 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
         </div>
       </div>
-      <p class="matrix-cap">VS Code — click ▶ Upload &amp; Run to send it to the hub</p>
+      <p class="matrix-cap">VS Code — use the ↻ Upload / ▶ Run / ⊗ Stop icons at the top-right</p>
     </div>
   </div>
-  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
-    <p style="font-size:13px;color:var(--dark);"><strong>📁 Where does it live?</strong> SPIKE programs go in <code>projects/</code> — never in <code>assignments/</code>. The auto-grader has no robot attached, so it won't (and shouldn't) test these.</p>
+  <div class="grid2" style="margin-top:12px;">
+    <div style="background:var(--yellow);border-radius:12px;padding:10px 16px;">
+      <p style="font-size:12.5px;color:var(--dark);"><strong>📁 Where does it live?</strong> SPIKE programs go in <code>projects/</code>, never <code>assignments/</code> — the auto-grader has no robot attached.</p>
+    </div>
+    <div style="background:#E8F5FF;border-radius:12px;padding:10px 16px;border-left:4px solid var(--blue);">
+      <p style="font-size:12.5px;color:var(--dark);"><strong>⚙️ One-time setting:</strong> our hubs (HubOS 3) only accept <strong>compiled</strong> uploads. The template already sets <code>compileBeforeUpload: true</code>, so Upload just works. If you ever see an <em>"Unknown message ID"</em> error, that's the setting to check.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6a — VS CODE SCREENSHOT ══════════════ -->
+<div class="slide" id="s6a">
+  <div class="blob b1"></div>
+  <div class="slide-label">Setup — What It Looks Like</div>
+  <h2>VS Code, connected to the hub 🔌</h2>
+  <img class="shot" src="images/SpikePrime_VsCodeScreenShort.png" alt="VS Code with the LEGO SPIKE extension: the hub connection status in the bottom-left status bar, and Run, Stop, Upload, and Hub Terminal icons at the top-right of the editor">
+  <div class="grid3" style="margin-top:12px;">
+    <div class="card" style="border-left:4px solid var(--teal);"><h3>🔌 Connection status</h3><p style="font-size:12px;">Bottom-left shows <code>LEGO Hub: Connected</code> with the hub's version numbers — your proof VS Code is talking to the hub.</p></div>
+    <div class="card" style="border-left:4px solid var(--green);"><h3>↻ Upload · ▶ Run · ⊗ Stop</h3><p style="font-size:12px;">Top-right of the editor: the <strong>↻ circular arrow</strong> uploads your file to the hub, <strong>▶</strong> runs it, and the <strong>⊗ circle-with-✕</strong> stops it.</p></div>
+    <div class="card" style="border-left:4px solid var(--purple);"><h3>🖥️ Hub Terminal</h3><p style="font-size:12px;">Opens a panel showing your program's <code>print()</code> output and any errors coming back from the hub.</p></div>
   </div>
 </div>
 
@@ -919,7 +942,7 @@ runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
 <div class="nav">
   <button onclick="nav(-1)">←</button>
   <div class="dots" id="dots"></div>
-  <span class="slide-counter" id="ctr">1 / 19</span>
+  <span class="slide-counter" id="ctr">1 / 20</span>
   <button onclick="nav(1)">→</button>
 </div>
 
