@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 – Programming SPIKE Prime with Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow:#FFD93D; --orange:#FF8C42; --pink:#FF6B9D; --purple:#845EC2;
+  --blue:#0081CF; --teal:#00C9A7; --green:#4CAF50; --red:#E84040;
+  --lime:#A8E063; --cyan:#38BDF8; --violet:#C77DFF;
+  --bg:#FFFBF0; --dark:#1A1333; --card:#FFFFFF;
+  --text:#1A1333; --muted:#6B6880;
+  --radius:16px; --shadow:0 6px 28px rgba(26,19,51,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ── SLIDE SYSTEM ── */
+.deck{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:32px 52px 88px;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(60px);overflow-y:auto;}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.out{opacity:0;transform:translateX(-60px);}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:999px;padding:9px 18px;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.28);}
+.nav button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:999px;transition:background .15s;font-family:'Nunito',sans-serif;}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav .slide-counter{color:rgba(255,255,255,0.6);font-size:12px;font-weight:800;min-width:56px;text-align:center;letter-spacing:.04em;}
+.nav .dots{display:flex;gap:5px;}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .2s,transform .2s;cursor:pointer;}
+.nav .dot.active{background:var(--yellow);transform:scale(1.35);}
+
+/* ── TYPOGRAPHY ── */
+.slide-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;opacity:.5;}
+h1{font-size:clamp(26px,4.2vw,52px);font-weight:900;line-height:1.1;}
+h2{font-size:clamp(18px,2.6vw,34px);font-weight:900;line-height:1.2;margin-bottom:12px;}
+h3{font-size:15px;font-weight:800;margin-bottom:4px;}
+p,li{font-size:clamp(13px,1.5vw,15px);line-height:1.6;color:var(--text);}
+
+/* ── UTILITIES ── */
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;}
+.tag-yellow{background:var(--yellow);color:var(--dark);}
+.tag-blue{background:var(--blue);color:#fff;}
+.tag-pink{background:var(--pink);color:#fff;}
+.tag-teal{background:var(--teal);color:var(--dark);}
+.tag-purple{background:var(--purple);color:#fff;}
+.tag-orange{background:var(--orange);color:#fff;}
+.tag-lime{background:var(--lime);color:var(--dark);}
+.tag-cyan{background:var(--cyan);color:var(--dark);}
+.tag-violet{background:var(--violet);color:#fff;}
+.tag-red{background:var(--red);color:#fff;}
+.card{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
+.pill-btn{display:inline-block;padding:8px 18px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+.pill-btn:active{transform:scale(0.97);}
+.pill-btn[disabled]{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6px;padding:1px 7px;font-size:.88em;color:var(--purple);}
+.code-block{font-family:'Fira Code',monospace;background:var(--dark);color:#e2dcff;border-radius:var(--radius);padding:14px 18px;font-size:clamp(11px,1.3vw,13px);line-height:1.85;white-space:pre;overflow-x:auto;}
+.code-block .kw{color:var(--yellow);font-weight:700;}
+.code-block .fn{color:var(--teal);}
+.code-block .st{color:var(--orange);}
+.code-block .cm{color:#6e65a0;font-style:italic;}
+.code-block .nu{color:var(--cyan);}
+.code-block .mod{color:var(--pink);}
+.blob{position:absolute;border-radius:50%;filter:blur(65px);opacity:.18;pointer-events:none;z-index:0;}
+.slide>*{position:relative;z-index:1;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.recap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;}
+.recap-chip{background:white;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);border-left:4px solid;display:flex;flex-direction:column;gap:6px;}
+.tri-row{display:flex;gap:14px;margin-top:10px;flex:1;}
+.tri-card{flex:1;background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:4px solid;display:flex;flex-direction:column;gap:8px;}
+.flow-row{display:flex;align-items:center;gap:10px;margin:14px 0 16px;}
+.flow-step{flex:1;background:white;border-radius:14px;padding:14px 12px;box-shadow:var(--shadow);text-align:center;border-top:4px solid var(--teal);}
+.flow-arrow{font-size:22px;color:var(--muted);}
+.world-card{background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:4px solid;display:flex;gap:10px;align-items:flex-start;}
+.world-card .icon{font-size:26px;}
+.link-card{background:white;border-radius:14px;padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid;display:flex;flex-direction:column;gap:3px;text-decoration:none;color:inherit;cursor:pointer;transition:transform .14s,box-shadow .14s;}
+.link-card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(26,19,51,0.16);}
+.link-card .url{font-family:'Fira Code',monospace;font-size:11.5px;color:var(--blue);word-break:break-all;text-decoration:underline;}
+.link-card .url::before{content:"🔗 ";text-decoration:none;}
+.api-table{width:100%;border-collapse:separate;border-spacing:0 7px;}
+.api-table th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 14px 4px;}
+.api-table td{padding:9px 14px;background:white;font-size:12.5px;vertical-align:top;}
+.api-table tr td:first-child{border-radius:10px 0 0 10px;}
+.api-table tr td:last-child{border-radius:0 10px 10px 0;}
+.api-table td .fn-name{font-family:'Fira Code',monospace;font-size:11.5px;color:var(--purple);font-weight:700;}
+.checklist{display:flex;flex-direction:column;gap:9px;}
+.check-row{background:white;border-radius:12px;padding:11px 15px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start;border-left:4px solid;}
+.check-row .num{font-weight:900;font-size:15px;min-width:20px;}
+.step-row{display:flex;gap:12px;align-items:flex-start;background:white;border-radius:12px;padding:11px 15px;box-shadow:var(--shadow);}
+.step-badge{min-width:26px;height:26px;border-radius:50%;background:var(--purple);color:white;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── HARDWARE ILLUSTRATIONS ── */
+.hw-stage{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;margin:6px 0 4px;}
+.hub-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.hub-photo{width:190px;height:auto;border-radius:16px;box-shadow:var(--shadow);display:block;}
+.matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.matrix.hub-m{width:132px;}
+.matrix.big{width:120px;}
+.matrix.sm{width:76px;gap:4px;}
+.matrix .px{aspect-ratio:1;border-radius:3px;background:#D9D3E0;}
+.matrix .px.on{background:var(--orange);box-shadow:0 0 7px rgba(255,140,66,0.85);}
+.usb-link{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);min-width:70px;}
+.usb-link .cable{font-size:26px;}
+.usb-link .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;}
+.laptop{display:flex;flex-direction:column;align-items:center;}
+.laptop .screen{width:200px;height:126px;background:#1A1333;border:5px solid #2a2540;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.laptop .base{width:238px;height:11px;background:#CFC9D8;border-radius:0 0 9px 9px;}
+.legend{display:flex;flex-direction:column;gap:8px;}
+.legend .row{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;}
+.legend .dotc{width:13px;height:13px;border-radius:4px;flex-shrink:0;margin-top:3px;}
+.matrix-cap{font-size:11px;font-weight:800;color:var(--muted);font-family:'Fira Code',monospace;text-align:center;}
+.matrix-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+
+/* ── VS CODE WINDOW MOCK ── */
+.vscode{background:#1e1b2e;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #322c48;}
+.vs-bar{background:#2a2540;padding:8px 12px;display:flex;align-items:center;gap:6px;}
+.vs-bar .d{width:11px;height:11px;border-radius:50%;}
+.vs-bar .d.r{background:#ff5f57;} .vs-bar .d.y{background:#febc2e;} .vs-bar .d.g{background:#28c840;}
+.vs-bar .t{margin-left:8px;color:#aaa4c0;font-size:11px;font-family:'Fira Code',monospace;}
+.vs-body{display:flex;min-height:158px;}
+.vs-side{width:132px;background:#181528;padding:9px 6px;font-size:10.5px;color:#9a94b4;display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.vs-side .f{padding:2px 4px;border-radius:4px;white-space:nowrap;}
+.vs-side .f.active{background:#322c48;color:#fff;}
+.vs-side .i1{padding-left:12px;} .vs-side .i2{padding-left:22px;}
+.vs-editor{flex:1;padding:12px 14px;font-family:'Fira Code',monospace;font-size:10.5px;line-height:1.75;color:#e2dcff;position:relative;white-space:pre;overflow-x:auto;}
+.vs-editor .kw{color:var(--yellow);font-weight:700;} .vs-editor .fn{color:var(--teal);}
+.vs-editor .st{color:var(--orange);} .vs-editor .cm{color:#6e65a0;font-style:italic;}
+.vs-editor .mod{color:var(--pink);} .vs-editor .nu{color:var(--cyan);}
+.vs-run{position:absolute;top:9px;right:12px;background:var(--green);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;box-shadow:0 3px 10px rgba(76,175,80,0.35);}
+
+/* ── SLIDE 4 — ANIMATED WORKFLOW ── */
+.wf-scene{position:relative;display:grid;grid-template-columns:1.1fr 1.35fr 1.05fr;align-items:center;gap:8px;height:206px;background:linear-gradient(120deg,#EAF3FF,#EAFBF4);border-radius:18px;padding:10px 20px;box-shadow:inset 0 2px 16px rgba(26,19,51,0.06);overflow:hidden;margin-top:6px;}
+.wf-zone{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;}
+.wf-zone .z-lbl{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.02em;text-align:center;line-height:1.35;}
+.wf-zone .z-lbl code{font-size:.92em;}
+.coder{width:154px;height:140px;overflow:visible;}
+.coder .stick{animation:wf-bob 2.6s ease-in-out infinite;transform-origin:center;}
+.coder .hand{animation:wf-tap .5s ease-in-out infinite;}
+.coder .caret{animation:wf-blink 1.05s steps(1) infinite;}
+@keyframes wf-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes wf-tap{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@keyframes wf-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.wf-track{position:relative;width:100%;height:4px;background:repeating-linear-gradient(90deg,#AEBCD2 0 8px,transparent 8px 16px);border-radius:2px;}
+.packet{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);background:var(--dark);color:var(--yellow);font-family:'Fira Code',monospace;font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 0 12px rgba(255,217,61,0.75);animation:wf-zip 4.6s ease-in-out infinite;}
+@keyframes wf-zip{
+  0%{left:0%;opacity:0;transform:translate(-50%,-50%) scale(.55);}
+  7%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  38%{left:100%;opacity:1;transform:translate(-50%,-50%) scale(1);}
+  45%,100%{left:100%;opacity:0;transform:translate(-50%,-50%) scale(.55);}
+}
+.wf-bot{display:flex;flex-direction:column;align-items:center;gap:4px;animation:wf-roll 4.6s ease-in-out infinite;}
+@keyframes wf-roll{0%,44%{transform:translateX(0);}64%{transform:translateX(16px);}82%{transform:translateX(30px);}88%,100%{transform:translateX(0);}}
+.bot-body{background:linear-gradient(150deg,#FAF7EE,#E6E1D2);border:2.5px solid #D6CFBE;border-radius:12px;padding:8px;box-shadow:var(--shadow);animation:wf-wake 4.6s ease-in-out infinite;}
+@keyframes wf-wake{0%,34%{box-shadow:var(--shadow);}42%{box-shadow:0 0 20px rgba(255,140,66,0.9);}70%,100%{box-shadow:var(--shadow);}}
+.matrix.wf-face{width:48px;gap:2px;}
+.matrix.wf-face .px{border-radius:2px;}
+.bot-wheels{display:flex;gap:22px;}
+.bot-wheels .wheel{width:17px;height:17px;border-radius:50%;background:#2a2540;border:3px solid #4a4466;position:relative;animation:wf-spin 4.6s ease-in-out infinite;}
+.bot-wheels .wheel::after{content:"";position:absolute;top:1px;left:50%;width:2px;height:6px;background:#8a83a8;border-radius:1px;transform:translateX(-50%);}
+@keyframes wf-spin{0%,44%{transform:rotate(0);}82%{transform:rotate(540deg);}88%,100%{transform:rotate(0);}}
+@media (prefers-reduced-motion: reduce){
+  .wf-scene *{animation:none!important;}
+  .packet{left:100%;opacity:1;}
+  .bot-body{box-shadow:0 0 20px rgba(255,140,66,0.9);}
+}
+/* bigger, dedicated-slide variant */
+.wf-scene.wf-big{height:min(52vh,380px);padding:24px 44px;gap:16px;}
+.wf-big .coder{width:min(30vw,270px);height:auto;}
+.wf-big .wf-zone .z-lbl{font-size:clamp(14px,1.7vw,18px);}
+.wf-big .wf-track{height:7px;}
+.wf-big .packet{font-size:14px;padding:5px 12px;border-radius:8px;}
+.wf-big .bot-body{padding:14px;border-radius:18px;}
+.wf-big .matrix.wf-face{width:clamp(64px,7vw,88px);gap:3px;}
+.wf-big .bot-wheels{gap:38px;}
+.wf-big .bot-wheels .wheel{width:28px;height:28px;border-width:4px;}
+.wf-big .bot-wheels .wheel::after{width:3px;height:10px;top:2px;}
+.wf-big .wf-bot{animation-name:wf-roll-big;}
+@keyframes wf-roll-big{0%,44%{transform:translateX(0);}64%{transform:translateX(28px);}82%{transform:translateX(54px);}88%,100%{transform:translateX(0);}}
+
+/* ══ S1 TITLE ══ */
+#s1{background:linear-gradient(135deg,#EEE8FF 0%,#E8F5FF 50%,#E8FFF5 100%);justify-content:center;}
+#s1 .b1{width:420px;height:420px;background:var(--purple);top:-110px;right:-90px;}
+#s1 .b2{width:300px;height:300px;background:var(--teal);bottom:-70px;left:-70px;}
+#s1 h1 em{color:var(--purple);font-style:normal;}
+
+/* ══ S2 BLOCKS → PYTHON ══ */
+#s2{background:linear-gradient(135deg,#FFFBF0 0%,#F0FFF8 100%);}
+#s2 .b1{width:280px;height:280px;background:var(--teal);top:-60px;right:-60px;}
+
+/* ══ S3 GOLDEN RULE ══ */
+#s3{background:#FFF0F0;}
+#s3 .b1{width:300px;height:300px;background:var(--red);top:-70px;right:-70px;}
+
+/* ══ S4 WORKFLOW ══ */
+#s4{background:linear-gradient(135deg,#F0F8FF 0%,#F0FFF8 100%);}
+#s4 .b1{width:300px;height:300px;background:var(--blue);top:-70px;left:-70px;}
+
+/* ══ S4b WORKFLOW ANIMATION ══ */
+#s4b{background:linear-gradient(135deg,#EAF3FF 0%,#EAFBF4 100%);justify-content:center;}
+#s4b .b1{width:320px;height:320px;background:var(--teal);top:-80px;right:-80px;}
+#s4b .b2{width:260px;height:260px;background:var(--blue);bottom:-70px;left:-70px;}
+
+/* ══ S5 SETUP CHECKLIST ══ */
+#s5{background:#FFF8E1;}
+#s5 .b1{width:280px;height:280px;background:var(--yellow);top:-60px;left:-60px;}
+
+/* ══ S5b HARDWARE ══ */
+#s5b{background:linear-gradient(135deg,#E8F5FF 0%,#FFFBF0 100%);}
+#s5b .b1{width:300px;height:300px;background:var(--cyan);top:-70px;right:-70px;}
+
+/* ══ S6 SETUP STEPS ══ */
+#s6{background:linear-gradient(135deg,#FFFBF0 0%,#FFF0E8 100%);}
+#s6 .b1{width:280px;height:280px;background:var(--orange);bottom:-60px;right:-60px;}
+
+/* ══ S6b PROGRAM SLOTS ══ */
+#s6b{background:#FFF8E1;}
+#s6b .b1{width:280px;height:280px;background:var(--yellow);top:-60px;right:-60px;}
+.slot-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:2px 0;}
+.slot{aspect-ratio:1;border-radius:8px;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;color:var(--muted);border:2px solid transparent;}
+.slot.filled{background:var(--dark);color:var(--yellow);border-color:var(--yellow);}
+
+/* ══ S7 RUNLOOP ══ */
+#s7{background:var(--dark);color:white;}
+#s7 h2{color:white;}#s7 .slide-label{opacity:.5;}
+#s7 .b1{width:280px;height:280px;background:var(--violet);top:-60px;right:-60px;}
+#s7 p{color:rgba(255,255,255,0.82);}
+
+/* ══ S8 DISPLAY + SOUND ══ */
+#s8{background:#F5F0FF;}
+#s8 .b1{width:280px;height:280px;background:var(--purple);top:-60px;right:-60px;}
+
+/* ══ S9 MOTORS ══ */
+#s9{background:linear-gradient(135deg,#F0FFF8 0%,#E8F5FF 100%);}
+#s9 .b1{width:280px;height:280px;background:var(--teal);bottom:-60px;left:-60px;}
+
+/* ══ S10 SENSORS ══ */
+#s10{background:#FFF0F5;}
+#s10 .b1{width:280px;height:280px;background:var(--pink);top:-60px;right:-60px;}
+
+/* ══ S10b GYRO ══ */
+#s10b{background:linear-gradient(135deg,#EAFBF4 0%,#FFF8E1 100%);}
+#s10b .b1{width:280px;height:280px;background:var(--green);top:-60px;left:-60px;}
+
+/* ══ S11 FULL FILE ══ */
+#s11{background:var(--dark);color:white;}
+#s11 h2{color:white;}#s11 .slide-label{opacity:.5;}
+#s11 .b1{width:300px;height:300px;background:var(--teal);bottom:-80px;right:-80px;}
+
+/* ══ S12 API TABLE ══ */
+#s12{background:#F5F0FF;}
+#s12 .b1{width:260px;height:260px;background:var(--violet);top:-60px;left:-60px;}
+
+/* ══ S13 LINKS ══ */
+#s13{background:linear-gradient(135deg,#E8F5FF 0%,#F0FFF8 100%);}
+#s13 .b1{width:280px;height:280px;background:var(--blue);top:-60px;right:-60px;}
+
+/* ══ S14 QUIZ ══ */
+#s14{background:#F5F0FF;}
+#s14 .b1{width:260px;height:260px;background:var(--purple);top:-60px;right:-60px;}
+.quiz-q{font-size:clamp(14px,2vw,19px);font-weight:800;margin-bottom:14px;line-height:1.4;}
+.quiz-q code{font-size:.85em;color:var(--purple);}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quiz-opt{padding:12px 16px;border-radius:14px;border:2.5px solid #ddd;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not([disabled]){border-color:var(--purple);transform:translateY(-2px);}
+.quiz-opt.correct{border-color:var(--teal);background:#E8FBF4;color:#0F6E56;}
+.quiz-opt.wrong{border-color:var(--red);background:#FFF0F0;color:#A32D2D;}
+.quiz-fb{min-height:50px;font-size:14px;font-weight:700;padding-top:10px;display:flex;align-items:center;gap:8px;line-height:1.4;}
+.quiz-nav{display:flex;align-items:center;gap:12px;margin-top:10px;}
+.q-ctr{font-size:12px;font-weight:700;color:var(--muted);}
+.prog-bar{height:6px;background:#e8e0ff;border-radius:3px;margin-bottom:12px;}
+.prog-fill{height:100%;background:var(--purple);border-radius:3px;transition:width .4s;}
+.diff-badge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.06em;}
+.diff-easy{background:#E8FBF4;color:#0F6E56;}
+.diff-medium{background:#FFF8E1;color:#8B5E00;}
+
+/* ══ S15 FINAL ══ */
+#s15{background:var(--dark);color:white;justify-content:center;align-items:center;text-align:center;}
+#s15 .b1{width:360px;height:360px;background:var(--purple);top:-100px;left:-100px;}
+#s15 .b2{width:300px;height:300px;background:var(--teal);bottom:-80px;right:-80px;}
+#s15 h2{color:white;font-size:clamp(22px,3.2vw,40px);}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;width:100%;max-width:860px;}
+.final-card{border-radius:var(--radius);padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
+.final-card h3{font-size:13px;color:white;}
+.final-card p{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════ SLIDE 1 — TITLE ══════════════ -->
+<div class="slide active" id="s1">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <span class="tag tag-purple">Lesson 11</span>
+    <span class="tag tag-teal">Python + Robotics</span>
+    <span class="tag tag-yellow">SPIKE Prime</span>
+  </div>
+  <h1>Programming <em>SPIKE Prime</em> with Python 🤖</h1>
+  <p style="font-size:clamp(14px,1.8vw,19px);color:var(--muted);margin-top:14px;font-weight:600;">Take everything you've learned about Python and use it to make a real robot move, beep, see, and think — all from VS Code.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+    <span class="tag tag-red">✦ The Golden Rule (FLL-safe)</span>
+    <span class="tag tag-blue">✦ The Workflow</span>
+    <span class="tag tag-lime">✦ Setup</span>
+    <span class="tag tag-orange">✦ Example Code</span>
+    <span class="tag tag-purple">✦ Quiz</span>
+  </div>
+  <div style="margin-top:26px;background:white;border-radius:14px;padding:13px 18px;box-shadow:var(--shadow);display:inline-flex;gap:12px;align-items:center;max-width:640px;">
+    <span style="font-size:22px;">🧩</span>
+    <p style="font-size:13px;"><strong>No assignment today!</strong> This is a demo &amp; reference lesson. Follow along, then keep these slides handy when you start building robot programs.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 2 — BLOCKS → PYTHON ══════════════ -->
+<div class="slide" id="s2">
+  <div class="blob b1"></div>
+  <div class="slide-label">The Big Idea</div>
+  <h2>From colorful blocks to real Python 🐍</h2>
+  <div class="grid2" style="flex:1;margin-top:8px;">
+    <div class="card" style="border-top:4px solid var(--orange);display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:26px;">🧱</div>
+      <h3>What you may have used before</h3>
+      <p style="font-size:13px;">The SPIKE App's drag-and-drop <strong>word blocks</strong> — great for getting started, but you snap pieces together instead of typing.</p>
+      <p style="font-size:12.5px;color:var(--muted);">Hard to reuse, hard to share, and no Git history.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal);display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:26px;">⌨️</div>
+      <h3>What we'll do now</h3>
+      <p style="font-size:13px;">Write <strong>real Python</strong> — the same language from every lesson so far — to control motors, sensors, lights, and sound.</p>
+      <p style="font-size:12.5px;color:var(--muted);">Lives as <code>.py</code> files in your repo → tracked with Git, just like your other code.</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>💡 The same brain, a new body:</strong> your <code>if</code> statements, <code>for</code> loops, and functions now make a physical robot do things in the real world.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 3 — GOLDEN RULE ══════════════ -->
+<div class="slide" id="s3">
+  <div class="blob b1"></div>
+  <div class="slide-label">The Most Important Rule</div>
+  <h2>Never change the hub's firmware 🚫🔧</h2>
+  <div class="grid2" style="margin-top:6px;">
+    <div class="card" style="border-top:4px solid var(--red);display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:26px;">⚠️</div>
+      <h3>Why this matters for FLL</h3>
+      <p style="font-size:13px;">Our hub runs the <strong>official LEGO firmware</strong>, which already includes Python built in. Some tools (like <strong>Pybricks</strong>) <strong>replace that firmware</strong> with their own.</p>
+      <p style="font-size:12.5px;">To stay safe and simple for competition, we <strong>never flash or change firmware</strong>. The hub stays exactly like a brand-new one out of the box.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal);display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:26px;">✅</div>
+      <h3>How we stay safe</h3>
+      <p style="font-size:13px;">Every tool we use just <strong>sends a <code>.py</code> file</strong> to the hub and presses "run." Nothing about the hub is modified.</p>
+      <p style="font-size:12.5px;">And for the actual competition, the final code is downloaded from the <strong>100% official SPIKE App</strong> — zero questions asked.</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:#FFE0E0;border-radius:12px;padding:10px 16px;border-left:4px solid var(--red);">
+    <p style="font-size:13px;color:#A32D2D;"><strong>🧠 Remember:</strong> Writing Python ≠ changing firmware. We write Python <em>on top of</em> the firmware LEGO already gave us.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 4 — WORKFLOW ══════════════ -->
+<div class="slide" id="s4">
+  <div class="blob b1"></div>
+  <div class="slide-label">How It All Fits Together</div>
+  <h2>Our two-tool workflow 🔁</h2>
+  <div class="flow-row">
+    <div class="flow-step" style="border-top-color:var(--blue);"><div style="font-size:26px;">⌨️</div><h3 style="margin-top:6px;">Author in VS Code</h3><p style="font-size:12px;">Write your <code>.py</code> and save it with Git — clean diffs &amp; history</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="border-top-color:var(--orange);"><div style="font-size:26px;">🔌</div><h3 style="margin-top:6px;">Test on the hub</h3><p style="font-size:12px;">Upload over USB (or paste into the SPIKE App) and watch it run</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="border-top-color:var(--teal);"><div style="font-size:26px;">🏆</div><h3 style="margin-top:6px;">Download for competition</h3><p style="font-size:12px;">Paste into the <strong>official SPIKE App</strong> and download to the hub</p></div>
+  </div>
+  <div class="grid2" style="margin-top:4px;">
+    <div class="card" style="border-left:4px solid var(--purple);">
+      <h3>🧪 Can I test before downloading?</h3>
+      <p style="font-size:12.5px;">There's no desktop robot simulator, but you can: <strong>1)</strong> let VS Code catch typos, <strong>2)</strong> <code>pytest</code> your plain-Python logic (like the math &amp; decisions), and <strong>3)</strong> run the real thing on the hub. Motors only truly move on the hub!</p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--teal);">
+      <h3>💡 Why VS Code AND the SPIKE App?</h3>
+      <p style="font-size:12.5px;">VS Code gives you real Git and a great editor. The SPIKE App gives you a rock-solid, official way to run the code in a match. Best of both worlds — and totally FLL-safe.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 4b — WORKFLOW ANIMATION ══════════════ -->
+<div class="slide" id="s4b">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="slide-label" style="text-align:center;">The Workflow — In Action</div>
+  <h2 style="text-align:center;">Code it → send it → watch it go! 🎬</h2>
+  <div class="wf-scene wf-big">
+    <div class="wf-zone">
+      <svg class="coder" viewBox="0 0 154 140" aria-label="A kid typing code on a laptop">
+        <!-- laptop -->
+        <rect x="76" y="70" width="52" height="32" rx="3" fill="#2a2540"/>
+        <rect class="cl" x="82" y="77" width="24" height="3" rx="1.5" fill="#00C9A7"/>
+        <rect class="cl" x="82" y="84" width="32" height="3" rx="1.5" fill="#FFD93D"/>
+        <rect class="cl" x="82" y="91" width="17" height="3" rx="1.5" fill="#FF6B9D"/>
+        <rect class="caret" x="101" y="91" width="2.4" height="4" fill="#fff"/>
+        <polygon points="72,102 132,102 126,109 78,109" fill="#4a4466"/>
+        <!-- stick kid -->
+        <g class="stick">
+          <circle cx="36" cy="54" r="11" fill="none" stroke="#1A1333" stroke-width="3"/>
+          <line x1="36" y1="65" x2="36" y2="98" stroke="#1A1333" stroke-width="3" stroke-linecap="round"/>
+          <line x1="36" y1="74" x2="72" y2="96" stroke="#1A1333" stroke-width="3" stroke-linecap="round"/>
+          <line x1="36" y1="98" x2="25" y2="122" stroke="#1A1333" stroke-width="3" stroke-linecap="round"/>
+          <line x1="36" y1="98" x2="48" y2="120" stroke="#1A1333" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <circle class="hand" cx="72" cy="96" r="4" fill="#1A1333"/>
+      </svg>
+      <span class="z-lbl">⌨️ Write Python<br>in VS Code + Git</span>
+    </div>
+    <div class="wf-zone">
+      <span class="z-lbl">🔌 Send the <code>.py</code> over USB</span>
+      <div class="wf-track"><div class="packet">main.py</div></div>
+    </div>
+    <div class="wf-zone">
+      <div class="wf-bot">
+        <div class="bot-body"><div class="matrix wf-face" data-pattern="01010 01010 00000 10001 01110"></div></div>
+        <div class="bot-wheels"><span class="wheel"></span><span class="wheel"></span></div>
+      </div>
+      <span class="z-lbl">🏆 Hub lights up<br>&amp; the robot moves!</span>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:14px;">Same three steps as the last slide — now you can watch the code travel from your laptop to the robot. 🤖</p>
+</div>
+
+<!-- ══════════════ SLIDE 5 — SETUP CHECKLIST ══════════════ -->
+<div class="slide" id="s5">
+  <div class="blob b1"></div>
+  <div class="slide-label">Setup — What You Need</div>
+  <h2>Your SPIKE + Python toolkit 🧰</h2>
+  <div class="checklist" style="margin-top:6px;">
+    <div class="check-row" style="border-color:var(--blue);"><span class="num">1️⃣</span><div><h3>The official SPIKE App 3</h3><p style="font-size:12.5px;">Keeps the hub on normal LEGO firmware and is how we download code for competition. (Hub should already be on SPIKE 3.x — this is standard, not a special flash.)</p></div></div>
+    <div class="check-row" style="border-color:var(--purple);"><span class="num">2️⃣</span><div><h3>VS Code + the Python extension</h3><p style="font-size:12.5px;">Exactly what you already use for lessons and assignments — nothing new to learn here.</p></div></div>
+    <div class="check-row" style="border-color:var(--teal);"><span class="num">3️⃣</span><div><h3>A SPIKE "upload &amp; run" extension <span style="font-weight:600;color:var(--muted);">(optional)</span></h3><p style="font-size:12.5px;">A community VS Code extension that sends your file to the hub over USB. Handy for fast testing — if it acts up, just use the SPIKE App instead.</p></div></div>
+    <div class="check-row" style="border-color:var(--orange);"><span class="num">4️⃣</span><div><h3><code>pyhub-stubs</code> for autocomplete <span style="font-weight:600;color:var(--muted);">(optional)</span></h3><p style="font-size:12.5px;">Teaches VS Code the names of the SPIKE commands so you get suggestions. It only helps you type — it's never sent to the hub, so it changes nothing about FLL.</p></div></div>
+    <div class="check-row" style="border-color:var(--lime);"><span class="num">5️⃣</span><div><h3>A USB cable</h3><p style="font-size:12.5px;">The most reliable way to connect the hub to your laptop — better than Bluetooth when a whole team is working.</p></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 5b — MEET THE HARDWARE ══════════════ -->
+<div class="slide" id="s5b">
+  <div class="blob b1"></div>
+  <div class="slide-label">Setup — Meet the Hardware</div>
+  <h2>The hub, your laptop, and one USB cable 🔌</h2>
+  <div class="hw-stage">
+    <div class="laptop">
+      <div class="screen">
+        <div class="vscode" style="width:170px;box-shadow:none;border:none;">
+          <div class="vs-bar" style="padding:5px 8px;"><span class="d r"></span><span class="d y"></span><span class="d g"></span></div>
+          <div class="vs-editor" style="padding:8px 9px;font-size:8.5px;line-height:1.7;min-height:0;"><span class="kw">import</span> <span class="mod">motor</span>
+<span class="kw">await</span> motor.<span class="fn">run</span>(...)</div>
+        </div>
+      </div>
+      <div class="base"></div>
+      <div class="matrix-cap" style="margin-top:8px;">Your laptop + VS Code</div>
+    </div>
+    <div class="usb-link">
+      <span class="cable">〰️〰️🔌</span>
+      <span class="lbl">USB CABLE</span>
+    </div>
+    <div class="hub-wrap">
+      <img src="images/spike-hub-smilely.jpg" alt="LEGO SPIKE Prime hub showing a smiley face on its 5x5 light matrix, with ports A through F, a Bluetooth button, and a round center button" class="hub-photo">
+      <div class="matrix-cap">SPIKE Prime Hub</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="card" style="border-left:4px solid var(--cyan);">
+      <h3>🟡 On the hub</h3>
+      <div class="legend" style="margin-top:6px;">
+        <div class="row"><span class="dotc" style="background:var(--orange);"></span><span><strong>5×5 light matrix</strong> — 25 little lights for pictures &amp; text</span></div>
+        <div class="row"><span class="dotc" style="background:#C9C2B2;"></span><span><strong>Center button</strong> — power on, and start/stop a program</span></div>
+        <div class="row"><span class="dotc" style="background:#3a3550;"></span><span><strong>Ports A–F</strong> — plug in motors &amp; sensors here</span></div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--purple);">
+      <h3>🔌 The connection</h3>
+      <p style="font-size:12.5px;margin-top:4px;">Plug the <strong>USB cable</strong> from the hub into your laptop. That one cable lets VS Code (or the SPIKE App) send your <code>.py</code> program to the hub — <strong>no cable, no upload</strong>.</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px;">USB is steadier than Bluetooth when the whole team is connected at once.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6 — SETUP STEPS ══════════════ -->
+<div class="slide" id="s6">
+  <div class="blob b1"></div>
+  <div class="slide-label">Setup — Getting Going</div>
+  <h2>From cold hub to running code 🚀</h2>
+  <div class="grid2" style="align-items:start;gap:20px;margin-top:4px;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="step-row"><div class="step-badge">1</div><p style="font-size:12.5px;"><strong>Plug in the hub</strong> with USB and turn it on (round center button).</p></div>
+      <div class="step-row"><div class="step-badge">2</div><p style="font-size:12.5px;"><strong>Open your repo in VS Code</strong> — <code>File → Open Folder</code> — same folder as assignments.</p></div>
+      <div class="step-row"><div class="step-badge">3</div><p style="font-size:12.5px;"><strong>Make a project folder</strong>, e.g. <code>projects/spike-hello/</code>, and create <code>main.py</code>.</p></div>
+      <div class="step-row"><div class="step-badge">4</div><p style="font-size:12.5px;"><strong>Write your Python</strong> using the SPIKE commands. Save with <span class="mono" style="background:#F0EBF8;padding:1px 5px;border-radius:5px;">Ctrl/Cmd+S</span>.</p></div>
+      <div class="step-row"><div class="step-badge">5</div><p style="font-size:12.5px;"><strong>Run it:</strong> press <em>Upload &amp; Run</em> (green button) over USB — or paste into the SPIKE App and press ▶.</p></div>
+      <div class="step-row"><div class="step-badge">6</div><p style="font-size:12.5px;"><strong>Save your work</strong> with Git — stage, commit, push, like all your code.</p></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="vscode">
+        <div class="vs-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="t">main.py — spike-hello</span></div>
+        <div class="vs-body">
+          <div class="vs-side">
+            <div class="f">📁 assignments</div>
+            <div class="f">📁 projects</div>
+            <div class="f i1">📂 spike-hello</div>
+            <div class="f i2 active">📄 main.py</div>
+            <div class="f i1">📁 turtle-art</div>
+          </div>
+          <div class="vs-editor"><button class="vs-run">▶ Upload &amp; Run</button><span class="kw">import</span> <span class="mod">runloop</span>, <span class="mod">motor</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port, light_matrix
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="kw">await</span> light_matrix.<span class="fn">write</span>(<span class="st">"Hi!"</span>)
+    <span class="kw">await</span> motor.<span class="fn">run_for_degrees</span>(
+        port.C, <span class="nu">360</span>, <span class="nu">720</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+        </div>
+      </div>
+      <p class="matrix-cap">VS Code — click ▶ Upload &amp; Run to send it to the hub</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>📁 Where does it live?</strong> SPIKE programs go in <code>projects/</code> — never in <code>assignments/</code>. The auto-grader has no robot attached, so it won't (and shouldn't) test these.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6b — PROGRAM SLOTS ══════════════ -->
+<div class="slide" id="s6b">
+  <div class="blob b1"></div>
+  <div class="slide-label">Setup — Program Slots</div>
+  <h2>Loading code into the hub's slots 🎰</h2>
+  <div class="grid2" style="align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card" style="border-left:4px solid var(--orange);">
+        <h3>🎰 What are slots?</h3>
+        <p style="font-size:12.5px;">The hub can hold up to <strong>20 programs</strong> at once — <strong>slots 0–19</strong>. It's the very same grid of squares you see in the SPIKE App.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);">
+        <h3>📌 Pick a slot right from VS Code</h3>
+        <p style="font-size:12.5px;">Add <strong>one special comment</strong> at the very top of your file. The extension reads it and uploads to that slot:</p>
+      </div>
+      <div class="code-block" style="font-size:12px;"><span class="kw"># LEGO slot:5 autostart</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> light_matrix
+<span class="kw">import</span> <span class="mod">runloop</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="kw">await</span> light_matrix.<span class="fn">write</span>(<span class="st">"5"</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card">
+        <h3 style="margin-bottom:8px;">The hub's 20 slots (0–19):</h3>
+        <div class="slot-grid" data-slots="20" data-filled="5"></div>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:8px;">Slot 5 now holds your program ✨</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <h3>▶ How it runs</h3>
+        <p style="font-size:12.5px;"><code>slot:5</code> chooses the slot; <code>autostart</code> runs it the moment the upload finishes. Without <code>autostart</code>, press the extension's ▶ button — or on the hub, tap <strong>◀ ▶</strong> to slot 5 and press the center button.</p>
+      </div>
+      <div style="background:var(--yellow);border-radius:12px;padding:10px 14px;">
+        <p style="font-size:12.5px;color:var(--dark);"><strong>🏆 FLL tip:</strong> give each mission its own slot — Mission 1 → slot 1, Mission 2 → slot 2… then just tap through them at the table.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 7 — RUNLOOP PATTERN ══════════════ -->
+<div class="slide" id="s7">
+  <div class="blob b1"></div>
+  <div class="slide-label">The One New Idea — <code style="color:var(--yellow)">runloop</code></div>
+  <h2>The pattern every SPIKE program uses ⏳</h2>
+  <p style="font-size:13.5px;margin-bottom:10px;">SPIKE 3 programs wrap your instructions in a special <strong>main function</strong> and start it with <code style="background:#2a2350;color:#e2dcff;">runloop.run()</code>. The magic word is <code style="background:#2a2350;color:#e2dcff;">await</code> — it means <em>"wait for this action to finish before doing the next line."</em></p>
+  <div class="code-block"><span class="kw">import</span> <span class="mod">runloop</span>
+<span class="kw">import</span> <span class="mod">motor</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># await = "finish spinning BEFORE moving on"</span>
+    <span class="kw">await</span> motor.<span class="fn">run_for_degrees</span>(port.A, <span class="nu">360</span>, <span class="nu">720</span>)
+    <span class="kw">await</span> runloop.<span class="fn">sleep_ms</span>(<span class="nu">1000</span>)   <span class="cm"># pause 1 second</span>
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())      <span class="cm"># <-- this line starts the program</span></div>
+  <div style="margin-top:12px;background:rgba(255,217,61,0.14);border-radius:12px;padding:10px 16px;border-left:4px solid var(--yellow);">
+    <p style="font-size:13px;color:#fff;"><strong>🔑 Two rules to remember:</strong> put your steps inside <code style="background:#2a2350;color:#e2dcff;">async def main():</code>, and start it with <code style="background:#2a2350;color:#e2dcff;">runloop.run(main())</code> at the very bottom.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 8 — DISPLAY + SOUND ══════════════ -->
+<div class="slide" id="s8">
+  <div class="blob b1"></div>
+  <div class="slide-label">Example — Part 1 of 3</div>
+  <h2>Light matrix display + sound 💡🔊</h2>
+  <div class="grid2" style="align-items:start;">
+    <div class="code-block"><span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> light_matrix, sound
+<span class="kw">import</span> <span class="mod">runloop</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># scroll a message across the 5x5</span>
+    <span class="kw">await</span> light_matrix.<span class="fn">write</span>(<span class="st">"Hi!"</span>)
+
+    <span class="cm"># show a built-in picture</span>
+    light_matrix.<span class="fn">show_image</span>(
+        light_matrix.IMAGE_HAPPY)
+
+    <span class="cm"># beep: freq, milliseconds, volume</span>
+    <span class="kw">await</span> sound.<span class="fn">beep</span>(<span class="nu">440</span>, <span class="nu">400</span>, <span class="nu">100</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card" style="border-left:4px solid var(--purple);">
+        <h3>🟨 The 5×5 light matrix</h3>
+        <p style="font-size:12.5px;"><code>write()</code> scrolls text. <code>show_image()</code> shows a built-in picture like <code>IMAGE_HAPPY</code>, <code>IMAGE_HEART</code>, or <code>IMAGE_SAD</code>.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);">
+        <h3>🔊 Sound</h3>
+        <p style="font-size:12.5px;"><code>beep(frequency, duration_ms, volume)</code>. Higher frequency = higher pitch. Great for telling you the program actually started!</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <p style="font-size:12.5px;"><strong>Notice:</strong> <code>write</code> and <code>beep</code> use <code>await</code> (they take time). <code>show_image</code> is instant, so it doesn't need it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px;">
+    <h3 style="margin-bottom:10px;">🖼️ What <code>show_image()</code> actually lights up on the 5×5:</h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+      <div class="matrix-item"><div class="matrix sm" data-pattern="01010 01010 00000 10001 01110"></div><span class="matrix-cap">IMAGE_HAPPY</span></div>
+      <div class="matrix-item"><div class="matrix sm" data-pattern="00000 00000 00000 10001 01110"></div><span class="matrix-cap">IMAGE_SMILE</span></div>
+      <div class="matrix-item"><div class="matrix sm" data-pattern="01010 01010 00000 01110 10001"></div><span class="matrix-cap">IMAGE_SAD</span></div>
+      <div class="matrix-item"><div class="matrix sm" data-pattern="01010 11111 11111 01110 00100"></div><span class="matrix-cap">IMAGE_HEART</span></div>
+      <div class="matrix-item"><div class="matrix sm" data-pattern="10001 10001 11111 10001 10001"></div><span class="matrix-cap">write("H")</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 9 — MOTORS ══════════════ -->
+<div class="slide" id="s9">
+  <div class="blob b1"></div>
+  <div class="slide-label">Example — Part 2 of 3</div>
+  <h2>Motors &amp; driving 🚗</h2>
+  <div class="grid2" style="align-items:start;">
+    <div class="code-block"><span class="kw">import</span> <span class="mod">motor</span>, <span class="mod">motor_pair</span>, <span class="mod">runloop</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># spin ONE motor: port, degrees, speed</span>
+    <span class="kw">await</span> motor.<span class="fn">run_for_degrees</span>(port.C, <span class="nu">360</span>, <span class="nu">720</span>)
+
+    <span class="cm"># pair two wheel motors to drive</span>
+    motor_pair.<span class="fn">pair</span>(motor_pair.PAIR_1,
+                    port.A, port.B)
+
+    <span class="cm"># drive straight: pair, degrees, steering</span>
+    <span class="kw">await</span> motor_pair.<span class="fn">move_for_degrees</span>(
+        motor_pair.PAIR_1, <span class="nu">720</span>, <span class="nu">0</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <h3>⚙️ One motor</h3>
+        <p style="font-size:12.5px;"><code>run_for_degrees(port, degrees, velocity)</code>. Velocity is in degrees per second — bigger = faster.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue);">
+        <h3>🚗 Two motors together</h3>
+        <p style="font-size:12.5px;">First <code>pair()</code> your left &amp; right wheel motors into <code>PAIR_1</code>. Then drive them as one. <strong>Steering 0 = straight</strong>; negative turns one way, positive the other.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);">
+        <p style="font-size:12.5px;"><strong>Tip:</strong> plug your two drive motors into <strong>A</strong> and <strong>B</strong>, and an arm/tool motor into <strong>C</strong> — then this code just works.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 10 — SENSORS ══════════════ -->
+<div class="slide" id="s10">
+  <div class="blob b1"></div>
+  <div class="slide-label">Example — Part 3 of 3</div>
+  <h2>Reading a sensor &amp; reacting 👀</h2>
+  <div class="grid2" style="align-items:start;">
+    <div class="code-block"><span class="kw">import</span> <span class="mod">distance_sensor</span>, <span class="mod">runloop</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port, light_matrix, sound
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># distance in millimeters (-1 = nothing)</span>
+    mm = distance_sensor.<span class="fn">distance</span>(port.D)
+
+    <span class="kw">if</span> mm != -<span class="nu">1</span> <span class="kw">and</span> mm &lt; <span class="nu">100</span>:
+        <span class="cm"># something is close!</span>
+        light_matrix.<span class="fn">show_image</span>(
+            light_matrix.IMAGE_SAD)
+        <span class="kw">await</span> sound.<span class="fn">beep</span>(<span class="nu">880</span>, <span class="nu">300</span>, <span class="nu">100</span>)
+    <span class="kw">else</span>:
+        light_matrix.<span class="fn">show_image</span>(
+            light_matrix.IMAGE_SMILE)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card" style="border-left:4px solid var(--pink);">
+        <h3>📏 Distance sensor</h3>
+        <p style="font-size:12.5px;"><code>distance(port)</code> returns how far the nearest object is, in <strong>millimeters</strong>. It returns <code>-1</code> when it can't see anything.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);">
+        <h3>🧠 Your Python brain</h3>
+        <p style="font-size:12.5px;">This is just an <code>if</code>/<code>else</code> from Lesson 3 — but now the robot <em>acts</em> on what it senses. Sensing + deciding = a smart robot.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <p style="font-size:12.5px;"><strong>Other sensors work the same way:</strong> <code>color_sensor.color(port)</code> and <code>force_sensor.pressed(port)</code>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:10px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center;">
+    <span style="font-size:13px;font-weight:800;">The hub reacts:</span>
+    <div class="matrix-item"><div class="matrix sm" data-pattern="01010 01010 00000 01110 10001"></div><span class="matrix-cap">closer than 100mm → SAD + beep</span></div>
+    <div style="font-size:20px;color:var(--muted);font-weight:800;">vs</div>
+    <div class="matrix-item"><div class="matrix sm" data-pattern="00000 00000 00000 10001 01110"></div><span class="matrix-cap">all clear → SMILE</span></div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 10b — GYRO / MOTION SENSOR ══════════════ -->
+<div class="slide" id="s10b">
+  <div class="blob b1"></div>
+  <div class="slide-label">Bonus Sensor — The Gyro</div>
+  <h2>The hidden superpower: the built-in gyro 🧭</h2>
+  <div class="grid2" style="align-items:start;">
+    <div class="code-block"><span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> motion_sensor
+<span class="kw">import</span> <span class="mod">runloop</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># call the way we face now "zero"</span>
+    motion_sensor.<span class="fn">reset_yaw</span>(<span class="nu">0</span>)
+    <span class="kw">await</span> runloop.<span class="fn">sleep_ms</span>(<span class="nu">500</span>)
+
+    <span class="cm"># angles are in DECIdegrees (1/10 deg)</span>
+    yaw, pitch, roll = motion_sensor.<span class="fn">tilt_angles</span>()
+    <span class="fn">print</span>(<span class="st">"yaw ="</span>, yaw)   <span class="cm"># 900 means 90.0 deg</span>
+
+    <span class="kw">if</span> yaw &gt; <span class="nu">900</span>:
+        <span class="fn">print</span>(<span class="st">"Turned past 90 degrees!"</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card" style="border-left:4px solid var(--green);">
+        <h3>🧭 What is the gyro?</h3>
+        <p style="font-size:12.5px;">A sensor <strong>built inside the hub</strong> — no port needed! It measures how the hub is turned and tilted: <strong>yaw</strong> (spin left/right), <strong>pitch</strong>, and <strong>roll</strong>.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);">
+        <h3>🔢 Decidegrees &amp; zeroing</h3>
+        <p style="font-size:12.5px;">Values come in <strong>tenths of a degree</strong> — divide by 10. So <code>900</code> = 90.0°. <code>reset_yaw(0)</code> sets your current direction as "straight ahead."</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);">
+        <h3>🏆 Why FLL teams love it</h3>
+        <p style="font-size:12.5px;">It's the secret to driving <strong>dead straight</strong> and making <strong>exact turns</strong> every run — far more reliable than guessing with time or wheel degrees alone.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 11 — FULL FILE ══════════════ -->
+<div class="slide" id="s11">
+  <div class="blob b1"></div>
+  <div class="slide-label">Putting It All Together</div>
+  <h2>The complete <code style="color:var(--teal)">main.py</code> 📄</h2>
+  <div class="code-block" style="font-size:clamp(10px,1.15vw,12px);line-height:1.7;"><span class="kw">import</span> <span class="mod">runloop</span>, <span class="mod">motor</span>, <span class="mod">motor_pair</span>, <span class="mod">distance_sensor</span>
+<span class="kw">from</span> <span class="mod">hub</span> <span class="kw">import</span> port, light_matrix, sound
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># 1. DISPLAY — say hello on the 5x5</span>
+    <span class="kw">await</span> light_matrix.<span class="fn">write</span>(<span class="st">"Hi!"</span>)
+    light_matrix.<span class="fn">show_image</span>(light_matrix.IMAGE_HAPPY)
+
+    <span class="cm"># 2. SOUND — a beep so we know it started</span>
+    <span class="kw">await</span> sound.<span class="fn">beep</span>(<span class="nu">440</span>, <span class="nu">400</span>, <span class="nu">100</span>)
+
+    <span class="cm"># 3. MOTOR — spin the arm motor on port C once</span>
+    <span class="kw">await</span> motor.<span class="fn">run_for_degrees</span>(port.C, <span class="nu">360</span>, <span class="nu">720</span>)
+
+    <span class="cm"># 4. SENSOR — look with the distance sensor, then react</span>
+    mm = distance_sensor.<span class="fn">distance</span>(port.D)
+    <span class="kw">if</span> mm != -<span class="nu">1</span> <span class="kw">and</span> mm &lt; <span class="nu">100</span>:
+        light_matrix.<span class="fn">show_image</span>(light_matrix.IMAGE_SAD)
+        <span class="kw">await</span> sound.<span class="fn">beep</span>(<span class="nu">880</span>, <span class="nu">300</span>, <span class="nu">100</span>)
+    <span class="kw">else</span>:
+        light_matrix.<span class="fn">show_image</span>(light_matrix.IMAGE_SMILE)
+
+    <span class="cm"># 5. DRIVE — pair the wheels (A & B) and go forward</span>
+    motor_pair.<span class="fn">pair</span>(motor_pair.PAIR_1, port.A, port.B)
+    <span class="kw">await</span> motor_pair.<span class="fn">move_for_degrees</span>(motor_pair.PAIR_1, <span class="nu">720</span>, <span class="nu">0</span>)
+
+runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+  <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:10px;">💾 Save this as <code style="background:#2a2350;color:#e2dcff;">projects/spike-hello/main.py</code> — display, sound, a motor, a sensor, and driving, all in one program.</p>
+</div>
+
+<!-- ══════════════ SLIDE 12 — API TABLE ══════════════ -->
+<div class="slide" id="s12">
+  <div class="blob b1"></div>
+  <div class="slide-label">Quick Reference</div>
+  <h2>A few commands you'll use all the time 📚</h2>
+  <table class="api-table">
+    <tr><th>What you want</th><th>Command</th></tr>
+    <tr><td>Start the program</td><td><span class="fn-name">runloop.run(main())</span></td></tr>
+    <tr><td>Wait / pause</td><td><span class="fn-name">await runloop.sleep_ms(ms)</span></td></tr>
+    <tr><td>Show a picture</td><td><span class="fn-name">light_matrix.show_image(light_matrix.IMAGE_HAPPY)</span></td></tr>
+    <tr><td>Scroll text</td><td><span class="fn-name">await light_matrix.write("Go!")</span></td></tr>
+    <tr><td>Beep</td><td><span class="fn-name">await sound.beep(440, 500, 100)</span></td></tr>
+    <tr><td>Spin one motor</td><td><span class="fn-name">await motor.run_for_degrees(port.A, 360, 720)</span></td></tr>
+    <tr><td>Stop a motor</td><td><span class="fn-name">motor.stop(port.A)</span></td></tr>
+    <tr><td>Drive two motors</td><td><span class="fn-name">motor_pair.move_for_degrees(motor_pair.PAIR_1, 720, 0)</span></td></tr>
+    <tr><td>Read distance (mm)</td><td><span class="fn-name">distance_sensor.distance(port.D)</span></td></tr>
+    <tr><td>Read a color</td><td><span class="fn-name">color_sensor.color(port.E)</span></td></tr>
+    <tr><td>Read the gyro (yaw, pitch, roll)</td><td><span class="fn-name">motion_sensor.tilt_angles()</span></td></tr>
+    <tr><td>Zero the gyro heading</td><td><span class="fn-name">motion_sensor.reset_yaw(0)</span></td></tr>
+    <tr><td>Is the force sensor pressed?</td><td><span class="fn-name">force_sensor.pressed(port.B)</span></td></tr>
+  </table>
+</div>
+
+<!-- ══════════════ SLIDE 13 — LINKS ══════════════ -->
+<div class="slide" id="s13">
+  <div class="blob b1"></div>
+  <div class="slide-label">Where To Look Things Up</div>
+  <h2>Your Functions cheat-sheets 🔗</h2>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+    <a class="link-card" href="https://spike.legoeducation.com/prime/help/lls-help-python" target="_blank" rel="noopener" style="border-color:var(--red);">
+      <h3>🧱 Official LEGO SPIKE 3 Python help</h3>
+      <p style="font-size:12px;color:var(--muted);">The source of truth — every module and function, straight from LEGO.</p>
+      <span class="url">spike.legoeducation.com/prime/help/lls-help-python</span>
+    </a>
+    <a class="link-card" href="https://jvolkening.github.io/lego-spike-python-v3-docs/" target="_blank" rel="noopener" style="border-color:var(--blue);">
+      <h3>📘 Auto-generated v3 API reference (jvolkening)</h3>
+      <p style="font-size:12px;color:var(--muted);">A clean, easy-to-browse version of the official docs.</p>
+      <span class="url">jvolkening.github.io/lego-spike-python-v3-docs/</span>
+    </a>
+    <a class="link-card" href="https://tuftsceeo.github.io/SPIKEPythonDocs/SPIKE3.html" target="_blank" rel="noopener" style="border-color:var(--teal);">
+      <h3>🎓 Tufts CEEO SPIKE 3 docs + examples</h3>
+      <p style="font-size:12px;color:var(--muted);">Tutorial-style, with lots of small worked examples.</p>
+      <span class="url">tuftsceeo.github.io/SPIKEPythonDocs/SPIKE3.html</span>
+    </a>
+  </div>
+  <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
+    <p style="font-size:13px;color:var(--dark);"><strong>🔎 Habit of a good coder:</strong> nobody memorizes every command. Learn the pattern, then look up the exact spelling when you need it.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 14 — QUIZ ══════════════ -->
+<div class="slide" id="s14">
+  <div class="blob b1"></div>
+  <div class="slide-label">Knowledge Check</div>
+  <h2>Quiz Time! 🧠</h2>
+  <div class="prog-bar"><div class="prog-fill" id="qprog" style="width:0%"></div></div>
+  <div id="quiz-area">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span class="q-ctr" id="q-ctr">Question 1 of 7</span>
+      <span id="q-diff-badge" class="diff-badge diff-easy">🟢 Warm-Up</span>
+    </div>
+    <div class="quiz-q" id="q-text"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <div class="quiz-nav">
+      <button class="pill-btn" style="background:var(--purple);color:white;display:none;" id="q-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-done" style="display:none;text-align:center;padding:20px;">
+    <div style="font-size:52px;margin-bottom:10px;">🎉</div>
+    <h2 style="color:var(--purple);">Quiz Complete!</h2>
+    <p style="font-size:18px;font-weight:800;margin:12px 0;" id="quiz-score"></p>
+    <button class="pill-btn" style="background:var(--purple);color:white;margin-top:10px;" onclick="resetQuiz()">Try Again 🔄</button>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 15 — FINAL RECAP ══════════════ -->
+<div class="slide" id="s15">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <h2>You can make a robot think in Python! 🌟</h2>
+  <div class="final-grid">
+    <div class="final-card" style="background:rgba(232,64,64,0.14);border:2px solid var(--red);">
+      <div style="font-size:34px;">🚫🔧</div>
+      <h3>No Firmware Changes</h3>
+      <p>We only send <code>.py</code> files. The hub stays 100% official — safe for FLL.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,129,207,0.12);border:2px solid var(--blue);">
+      <div style="font-size:34px;">🔁</div>
+      <h3>Two-Tool Workflow</h3>
+      <p>Author + Git in VS Code; run &amp; download from the official SPIKE App.</p>
+    </div>
+    <div class="final-card" style="background:rgba(132,94,194,0.15);border:2px solid var(--purple);">
+      <div style="font-size:34px;">⏳</div>
+      <h3>The runloop Pattern</h3>
+      <p>Steps go in <code>async def main()</code>; start with <code>runloop.run(main())</code>.</p>
+    </div>
+    <div class="final-card" style="background:rgba(0,201,167,0.12);border:2px solid var(--teal);">
+      <div style="font-size:34px;">⚙️</div>
+      <h3>Motors</h3>
+      <p><code>motor</code> for one, <code>motor_pair</code> to drive two wheels together.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,107,157,0.14);border:2px solid var(--pink);">
+      <div style="font-size:34px;">👀</div>
+      <h3>Sensors + if/else</h3>
+      <p>Read distance, color, or force — then let your Python decide what to do.</p>
+    </div>
+    <div class="final-card" style="background:rgba(255,217,61,0.14);border:2px solid var(--yellow);">
+      <div style="font-size:34px;">💡🔊</div>
+      <h3>Display &amp; Sound</h3>
+      <p><code>light_matrix</code> and <code>sound</code> make the robot show and tell.</p>
+    </div>
+  </div>
+  <div style="margin-top:16px;background:rgba(255,255,255,0.07);border-radius:14px;padding:12px 20px;max-width:760px;">
+    <p style="font-size:13px;color:rgba(255,255,255,0.75);"><strong style="color:white;">Try it yourself:</strong> make a <code>projects/spike-hello/main.py</code>, upload it, and change the numbers — spin farther, beep higher, react sooner. That's how you learn a robot! 🤖</p>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);margin-top:14px;font-size:12px;">Arrow keys to navigate · Press F for fullscreen</p>
+</div>
+
+</div><!-- end .deck -->
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button onclick="nav(-1)">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="ctr">1 / 19</span>
+  <button onclick="nav(1)">→</button>
+</div>
+
+<script>
+// ═══════════════ SLIDE ENGINE ═══════════════
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+let cur = 0;
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out');
+  setTimeout(()=>slides[cur].classList.remove('out'),400);
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent = (cur+1)+' / '+slides.length;
+}
+function nav(d){ goTo(cur+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+
+// ═══════════════ LIGHT MATRIX RENDERER ═══════════════
+document.querySelectorAll('.matrix[data-pattern]').forEach(m=>{
+  const rows = m.getAttribute('data-pattern').trim().split(/\s+/);
+  m.innerHTML = '';
+  rows.forEach(r=>{
+    for(const c of r){
+      const px = document.createElement('div');
+      px.className = 'px' + (c==='1' ? ' on' : '');
+      m.appendChild(px);
+    }
+  });
+});
+
+// ═══════════════ SLOT GRID RENDERER ═══════════════
+document.querySelectorAll('.slot-grid[data-slots]').forEach(g=>{
+  const n = +g.getAttribute('data-slots');
+  const filled = (g.getAttribute('data-filled')||'').split(',').map(s=>s.trim()).filter(Boolean);
+  g.innerHTML = '';
+  for(let i=0;i<n;i++){
+    const d = document.createElement('div');
+    d.className = 'slot' + (filled.includes(String(i)) ? ' filled' : '');
+    d.textContent = i;
+    g.appendChild(d);
+  }
+});
+
+// ═══════════════ QUIZ ENGINE ═══════════════
+const questions = [
+  // EASY
+  { q:'Why do we avoid tools like Pybricks for FLL?',
+    opts:['They are too slow','They replace (flash) the hub\'s firmware','They only work on Windows','They cost money'], ans:1,
+    diff:'easy', exp:'Pybricks installs its own firmware onto the hub. We keep the official LEGO firmware untouched, so the hub stays competition-safe.' },
+  { q:'Writing Python for the hub means we are changing its firmware. True or false?',
+    opts:['True','False'], ans:1,
+    diff:'easy', exp:'False! We write Python on top of the firmware LEGO already installed. Sending a .py file does not change the firmware.' },
+  { q:'Every SPIKE 3 program starts by calling…',
+    opts:['start_robot()','runloop.run(main())','print("go")','import spike'], ans:1,
+    diff:'easy', exp:'runloop.run(main()) is the line at the bottom that actually starts your async main() function.' },
+  // MEDIUM
+  { q:'In <code>await motor.run_for_degrees(port.A, 360, 720)</code>, what does <code>await</code> do?',
+    opts:['Skips the line if the motor is busy','Waits for the motor to finish before the next line runs','Makes the motor go backwards','Prints the motor\'s speed'], ans:1,
+    diff:'medium', exp:'await means "finish this action before moving on." Without it, the next line would run immediately, before the motor was done.' },
+  { q:'For an actual competition match, where should the final code be downloaded from?',
+    opts:['The VS Code extension','A USB stick','The official SPIKE App','Email'], ans:2,
+    diff:'medium', exp:'We paste the finished .py into the official SPIKE App and download from there — a 100% official, FLL-safe path.' },
+  { q:'What does <code>distance_sensor.distance(port.D)</code> give you?',
+    opts:['The color it sees','The distance to the nearest object, in millimeters','How hard it is pressed','The battery level'], ans:1,
+    diff:'medium', exp:'It returns the distance in millimeters (and -1 when it can\'t see anything to measure).' },
+  { q:'You want to drive two wheel motors straight forward together. What do you use?',
+    opts:['Two separate motor.run() calls','light_matrix.write()','motor_pair — pair() then move_for_degrees() with steering 0','sound.beep()'], ans:2,
+    diff:'medium', exp:'motor_pair lets you control both wheels as one. Pair them into PAIR_1, then move with steering 0 to go straight.' },
+];
+
+let qIdx=0, score=0, answered=false;
+function renderQ(){
+  const q = questions[qIdx];
+  document.getElementById('q-text').innerHTML = q.q.replace(/\n/g,'<br>');
+  document.getElementById('q-ctr').textContent = 'Question '+(qIdx+1)+' of '+questions.length;
+  document.getElementById('qprog').style.width = (qIdx/questions.length*100)+'%';
+  document.getElementById('q-fb').textContent = '';
+  document.getElementById('q-next').style.display = 'none';
+  answered = false;
+  const badge = document.getElementById('q-diff-badge');
+  badge.className = 'diff-badge diff-'+q.diff;
+  badge.textContent = q.diff==='easy' ? '🟢 Warm-Up' : '🟡 Getting Harder';
+  const opts = document.getElementById('q-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answer(i, btn);
+    opts.appendChild(btn);
+  });
+}
+function answer(i, btn){
+  if(answered) return;
+  answered = true;
+  const correct = questions[qIdx].ans;
+  document.querySelectorAll('.quiz-opt').forEach((b,idx)=>{
+    if(idx===correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled = true;
+  });
+  const fb = document.getElementById('q-fb');
+  if(i===correct){
+    score++;
+    fb.innerHTML = '🎉 Correct! <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  } else {
+    fb.innerHTML = '❌ Not quite. <span style="font-weight:600;font-size:13px;">'+questions[qIdx].exp+'</span>';
+  }
+  document.getElementById('q-next').style.display = 'inline-block';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx >= questions.length){
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('quiz-done').style.display = 'block';
+    document.getElementById('qprog').style.width = '100%';
+    const pct = Math.round(score/questions.length*100);
+    document.getElementById('quiz-score').textContent =
+      `You got ${score} out of ${questions.length} (${pct}%) ${pct>=86?'🌟 Outstanding!':pct>=65?'👍 Well done!':pct>=45?'💪 Keep practicing!':'📖 Review the slides and try again!'}`;
+  } else renderQ();
+}
+function resetQuiz(){
+  qIdx=0; score=0;
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-done').style.display='none';
+  renderQ();
+}
+renderQ();
+</script>
+</body>
+</html>
