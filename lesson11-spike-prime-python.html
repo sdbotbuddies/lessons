@@ -191,6 +191,13 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 #s2{background:linear-gradient(135deg,#FFFBF0 0%,#F0FFF8 100%);}
 #s2 .b1{width:280px;height:280px;background:var(--teal);top:-60px;right:-60px;}
 
+/* ══ S2b WORD BANK ══ */
+#s2b{background:linear-gradient(135deg,#F5F0FF 0%,#E8F5FF 100%);}
+#s2b .b1{width:300px;height:300px;background:var(--violet);top:-70px;right:-70px;}
+.word-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+.hero-word{background:white;border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);border-left:5px solid var(--purple);display:flex;gap:14px;align-items:flex-start;}
+.hero-word .big-icon{font-size:34px;line-height:1;}
+
 /* ══ S3 GOLDEN RULE ══ */
 #s3{background:#FFF0F0;}
 #s3 .b1{width:300px;height:300px;background:var(--red);top:-70px;right:-70px;}
@@ -340,6 +347,42 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   </div>
   <div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;">
     <p style="font-size:13px;color:var(--dark);"><strong>💡 The same brain, a new body:</strong> your <code>if</code> statements, <code>for</code> loops, and functions now make a physical robot do things in the real world.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 2b — WORD BANK ══════════════ -->
+<div class="slide" id="s2b">
+  <div class="blob b1"></div>
+  <div class="slide-label">Before We Start — Tech Words</div>
+  <h2>A few new words that give you superpowers 💥</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:4px;">You'll hear these words all lesson. Learn them once here and the rest is easy.</p>
+
+  <div class="hero-word" style="margin-top:10px;">
+    <span class="big-icon">🧠</span>
+    <div>
+      <h3 style="font-size:16px;">Firmware <span class="tag tag-purple" style="margin-left:6px;">the big one</span></h3>
+      <p style="font-size:13px;margin-top:4px;"><strong>Firmware is the hub's operating system</strong> — just like <strong>Windows</strong> or <strong>macOS</strong> runs your laptop, and <strong>iOS/Android</strong> runs a phone, LEGO's firmware runs the SPIKE hub. It's built in, it came with the hub, and it's what lets the hub understand your programs at all.</p>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:5px;">👉 We <em>never</em> replace it. That's the whole next slide!</p>
+    </div>
+  </div>
+
+  <div class="word-grid">
+    <div class="world-card" style="border-color:var(--red);">
+      <span class="icon">🔥</span>
+      <div><h3>Flash</h3><p style="font-size:12.5px;">To <strong>erase and replace</strong> the firmware with a different one. This is the one thing we do <strong>not</strong> do — it would change the hub's "operating system."</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--teal);">
+      <span class="icon">📤</span>
+      <div><h3>Upload</h3><p style="font-size:12.5px;">To <strong>send your <code>.py</code> program</strong> to the hub so it can run. This is totally safe — it does <em>not</em> touch the firmware.</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--orange);">
+      <span class="icon">⚙️</span>
+      <div><h3>Compile</h3><p style="font-size:12.5px;">To <strong>translate</strong> your Python into a tidy form the hub reads fast (a <code>.mpy</code> file). VS Code does this for you automatically.</p></div>
+    </div>
+    <div class="world-card" style="border-color:var(--blue);">
+      <span class="icon">💡</span>
+      <div><h3>Stubs</h3><p style="font-size:12.5px;">Tiny <strong>hint files</strong> that teach VS Code the SPIKE commands, so it <strong>autocompletes</strong> them as you type. They install with the repo.</p></div>
+    </div>
   </div>
 </div>
 
@@ -942,7 +985,7 @@ runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
 <div class="nav">
   <button onclick="nav(-1)">←</button>
   <div class="dots" id="dots"></div>
-  <span class="slide-counter" id="ctr">1 / 20</span>
+  <span class="slide-counter" id="ctr">1 / 21</span>
   <button onclick="nav(1)">→</button>
 </div>
 
