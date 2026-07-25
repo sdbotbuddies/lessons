@@ -298,6 +298,169 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 .final-card{border-radius:var(--radius);padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
 .final-card h3{font-size:13px;color:white;}
 .final-card p{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;}
+
+/* ══ ASYNC/AWAIT — BREAKFAST CARTOON ══ */
+.bk-scene{--cyc:9s;position:relative;display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,4.5vw,60px);height:292px;margin-top:8px;padding:0 26px 46px;border-radius:20px;overflow:hidden;background:linear-gradient(165deg,#FFF6DE 0%,#FFE9F2 52%,#E9F6FF 100%);box-shadow:inset 0 2px 18px rgba(26,19,51,.07);}
+.bk-scene::before{content:"";position:absolute;left:0;right:0;bottom:34px;height:12px;background:linear-gradient(#E7D3B8,#D3BC9C);border-top:3px solid #2A2540;opacity:.85;}
+.bk-zone{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2;}
+.bk-zone.appl-zone{flex-direction:row;align-items:flex-end;gap:16px;}
+.bk-cap{font-size:12.5px;font-weight:800;color:#6B6880;letter-spacing:.04em;text-align:center;}
+.appl{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bk-say{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 140px));height:52px;z-index:5;}
+.bk-say .say{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 20px;border-radius:999px;background:rgba(255,255,255,.95);border:3px solid #2A2540;box-shadow:0 5px 0 rgba(26,19,51,.10);font-size:15.5px;font-weight:800;line-height:1.25;color:#1A1333;opacity:0;transform:translateY(7px);}
+.bk-clock{position:absolute;top:14px;right:18px;width:46px;height:46px;border-radius:50%;background:#fff;border:3px solid #2A2540;box-shadow:0 4px 12px rgba(26,19,51,.14);z-index:1;}
+.bk-clock .hand{position:absolute;left:50%;bottom:50%;width:3px;height:15px;border-radius:2px;background:#2A2540;transform-origin:bottom center;transform:translateX(-50%);animation:bk-tick var(--cyc) linear infinite;}
+@keyframes bk-tick{to{transform:translateX(-50%) rotate(360deg);}}
+
+.mw-body{position:relative;display:flex;gap:6px;width:136px;height:94px;padding:8px;border-radius:13px;background:linear-gradient(160deg,#FFFFFF,#E9E3F5);border:3px solid #2A2540;box-shadow:0 5px 0 rgba(26,19,51,.10),0 9px 20px rgba(26,19,51,.16);}
+.mw-door{position:relative;flex:1;border-radius:8px;background:#2A2540;border:2.5px solid #4A4468;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.mw-glow{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 50% 58%,rgba(255,214,80,.95),rgba(255,140,66,.35) 58%,transparent 76%);animation:bk-mw-heat var(--cyc) linear infinite;}
+.mw-bowl{position:relative;z-index:1;font-size:27px;line-height:1;animation:bk-bowl var(--cyc) ease-in-out infinite;}
+.mw-steam{position:absolute;top:2px;left:50%;font-size:14px;opacity:0;z-index:2;transform:translate(-50%,2px);animation:bk-steam var(--cyc) ease-out infinite;}
+.mw-panel{display:flex;flex-direction:column;align-items:center;gap:5px;width:27px;padding-top:2px;}
+.mw-led{width:22px;height:11px;border-radius:3px;background:#2A2540;}
+.mw-btn{width:10px;height:10px;border-radius:50%;background:#C9C2DE;}
+@keyframes bk-mw-heat{0%,4%{opacity:0}7%,37%{opacity:1}41%,100%{opacity:0}}
+@keyframes bk-bowl{0%,5%{transform:scale(1) translateY(0)}11%{transform:scale(1.08) translateY(-2px)}17%{transform:scale(1) translateY(0)}23%{transform:scale(1.08) translateY(-2px)}29%{transform:scale(1) translateY(0)}34%{transform:scale(1.07) translateY(-2px)}38%,100%{transform:scale(1) translateY(0)}}
+@keyframes bk-steam{0%,7%{opacity:0;transform:translate(-50%,2px)}18%{opacity:.9;transform:translate(-50%,-6px)}30%{opacity:.55;transform:translate(-50%,-11px)}38%,100%{opacity:0;transform:translate(-50%,-15px)}}
+
+.tst-wrap{position:relative;display:flex;justify-content:center;}
+.tst-body{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-start;width:92px;height:66px;padding-top:8px;border-radius:12px 12px 9px 9px;background:linear-gradient(160deg,#FFE0EA,#FF9EC0);border:3px solid #2A2540;box-shadow:0 5px 0 rgba(26,19,51,.10),0 9px 20px rgba(26,19,51,.16);overflow:hidden;}
+.tst-slot{width:58px;height:10px;border-radius:5px;background:#2A2540;}
+.tst-glow{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 50% 22%,rgba(255,120,60,.92),transparent 70%);}
+.toast{position:absolute;top:2px;left:50%;font-size:27px;opacity:0;z-index:1;transform:translate(-50%,14px);}
+
+.kid{position:relative;display:flex;flex-direction:column;align-items:center;}
+.kid-head{position:relative;z-index:2;width:54px;height:52px;border-radius:50% 50% 46% 46%;background:linear-gradient(160deg,#FFE4C7,#FFC9A0);border:3px solid #2A2540;box-shadow:0 4px 0 rgba(26,19,51,.07);}
+.kid-head::before{content:"";position:absolute;top:-11px;left:-4px;right:-4px;height:27px;border-radius:60% 60% 34% 34%/86% 86% 24% 24%;background:#5A3E2B;border:3px solid #2A2540;border-bottom:none;}
+.eye{position:absolute;top:22px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid #2A2540;z-index:2;}
+.eye::after{content:"";position:absolute;left:2px;top:2px;width:4px;height:4px;border-radius:50%;background:#2A2540;}
+.eye.l{left:8px;} .eye.r{right:8px;}
+.blush{position:absolute;top:34px;width:10px;height:6px;border-radius:50%;background:#FF8FB4;opacity:.8;z-index:2;}
+.blush.l{left:3px;} .blush.r{right:3px;}
+.mouth-flat,.mouth-smile{position:absolute;bottom:7px;left:50%;z-index:2;}
+.mouth-flat{width:16px;height:0;border-bottom:2.5px solid #2A2540;transform:translateX(-50%);}
+.mouth-smile{width:18px;height:9px;border:2.5px solid #2A2540;border-top:none;border-radius:0 0 16px 16px;transform:translateX(-50%);opacity:0;}
+.kid-body{position:relative;z-index:1;width:60px;height:52px;margin-top:-4px;border-radius:15px 15px 11px 11px;background:linear-gradient(160deg,#8ADAFF,#38BDF8);border:3px solid #2A2540;box-shadow:0 5px 0 rgba(26,19,51,.10);}
+.arm{position:absolute;top:8px;width:11px;height:30px;border-radius:6px;background:#38BDF8;border:3px solid #2A2540;transform-origin:top center;}
+.arm.l{left:-12px;} .arm.r{right:-12px;}
+.think{position:absolute;top:-18px;right:-24px;font-size:24px;opacity:0;z-index:3;}
+
+.tbl{position:relative;width:118px;height:78px;}
+.tbl-top{position:absolute;top:24px;left:0;right:0;height:13px;border-radius:6px;background:linear-gradient(#C98C5A,#A9713F);border:3px solid #2A2540;}
+.lg{position:absolute;top:37px;width:11px;height:41px;background:#A9713F;border:3px solid #2A2540;border-top:none;border-radius:0 0 5px 5px;}
+.lg.l{left:10px;} .lg.r{right:10px;}
+.set{position:absolute;top:0;font-size:21px;opacity:0;transform:translateY(6px) scale(.5);}
+.set.s1{left:8px;} .set.s2{left:48px;} .set.s3{right:8px;}
+
+.fx{position:absolute;top:-18px;left:50%;z-index:4;padding:4px 13px;border-radius:999px;font-family:'Fira Code',monospace;font-weight:700;font-size:13px;color:#2A2540;white-space:nowrap;opacity:0;transform:translate(-50%,0) scale(.4);box-shadow:0 4px 12px rgba(26,19,51,.2);}
+.fx.ding{background:var(--yellow);}
+.fx.pop{background:var(--lime);}
+.bk-timer{position:absolute;left:26px;right:26px;bottom:12px;height:11px;border-radius:999px;background:rgba(26,19,51,.12);z-index:3;}
+.bk-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--yellow),var(--orange));animation:bk-clockfill var(--cyc) linear infinite;}
+@keyframes bk-clockfill{0%{width:0}100%{width:100%}}
+.bk-flag{position:absolute;top:-30px;padding:4px 13px;border-radius:999px;background:var(--dark);color:#fff;font-size:12.5px;font-weight:800;white-space:nowrap;opacity:0;}
+.bk-flag::after{content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--dark);border-bottom:none;}
+@keyframes bk-ding{0%,38%{opacity:0;transform:translate(-50%,0) scale(.4)}43%{opacity:1;transform:translate(-50%,-10px) scale(1.18)}47%{transform:translate(-50%,-12px) scale(1)}52%{opacity:1}58%,100%{opacity:0;transform:translate(-50%,-18px) scale(.9)}}
+
+/* — the SLOW way — */
+.sync .tst{animation:sy-tst-dim var(--cyc) linear infinite;}
+.sync .tst-glow{animation:sy-tst-heat var(--cyc) linear infinite;}
+.sync .toast{animation:sy-toast var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .fx.ding{animation:bk-ding var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .fx.pop{animation:sy-pop var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .think{animation:sy-think var(--cyc) ease-in-out infinite;}
+.sync .kid{animation:sy-kid var(--cyc) ease-in-out infinite;}
+.sync .arm.l{animation:sy-arm-l var(--cyc) ease-in-out infinite;}
+.sync .arm.r{animation:sy-arm-r var(--cyc) ease-in-out infinite;}
+.sync .mouth-flat{animation:sy-flat var(--cyc) linear infinite;}
+.sync .mouth-smile{animation:sy-smile var(--cyc) linear infinite;}
+.sync .set.s1{animation:sy-set1 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .set.s2{animation:sy-set2 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .set.s3{animation:sy-set3 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.sync .say.n1{animation:sy-say1 var(--cyc) ease-in-out infinite;}
+.sync .say.n2{animation:sy-say2 var(--cyc) ease-in-out infinite;}
+.sync .say.n3{animation:sy-say3 var(--cyc) ease-in-out infinite;}
+.sync .say.n4{animation:sy-say4 var(--cyc) ease-in-out infinite;}
+.sync .say.n5{animation:sy-say5 var(--cyc) ease-in-out infinite;}
+@keyframes sy-say1{0%,3%{opacity:0;transform:translateY(7px)}6%,36%{opacity:1;transform:translateY(0)}39%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes sy-say2{0%,38%{opacity:0;transform:translateY(7px)}41%,49%{opacity:1;transform:translateY(0)}52%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes sy-say3{0%,51%{opacity:0;transform:translateY(7px)}54%,78%{opacity:1;transform:translateY(0)}81%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes sy-say4{0%,80%{opacity:0;transform:translateY(7px)}83%,88%{opacity:1;transform:translateY(0)}91%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes sy-say5{0%,90%{opacity:0;transform:translateY(7px)}93%,100%{opacity:1;transform:translateY(0)}}
+.sync .bk-flag{right:-2px;transform:scale(.4);animation:sy-flag var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+@keyframes sy-tst-dim{0%,48%{filter:grayscale(.9) opacity(.5)}53%,100%{filter:none}}
+@keyframes sy-tst-heat{0%,50%{opacity:0}54%,79%{opacity:1}83%,100%{opacity:0}}
+@keyframes sy-toast{0%,81%{opacity:0;transform:translate(-50%,14px)}84%{opacity:1}87%{transform:translate(-50%,-32px)}91%,100%{opacity:1;transform:translate(-50%,-26px)}}
+@keyframes sy-pop{0%,81%{opacity:0;transform:translate(-50%,0) scale(.4)}86%{opacity:1;transform:translate(-50%,-10px) scale(1.18)}90%{transform:translate(-50%,-12px) scale(1)}96%{opacity:1}100%{opacity:0;transform:translate(-50%,-18px) scale(.9)}}
+@keyframes sy-think{0%,5%{opacity:0;transform:translateY(4px)}10%,82%{opacity:1;transform:translateY(0)}86%,100%{opacity:0;transform:translateY(-6px)}}
+@keyframes sy-kid{0%,84%{transform:translateY(0)}88%{transform:translateY(-14px)}92%{transform:translateY(0)}95%{transform:translateY(-7px)}98%,100%{transform:translateY(0)}}
+@keyframes sy-arm-l{0%,84%{transform:rotate(0)}90%,100%{transform:rotate(-140deg)}}
+@keyframes sy-arm-r{0%,84%{transform:rotate(0)}90%,100%{transform:rotate(140deg)}}
+@keyframes sy-flat{0%,84%{opacity:1}86%,100%{opacity:0}}
+@keyframes sy-smile{0%,84%{opacity:0}86%,100%{opacity:1}}
+@keyframes sy-set1{0%,86%{opacity:0;transform:translateY(6px) scale(.5)}90%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sy-set2{0%,89%{opacity:0;transform:translateY(6px) scale(.5)}93%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sy-set3{0%,92%{opacity:0;transform:translateY(6px) scale(.5)}96%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sy-flag{0%,95%{opacity:0;transform:scale(.4)}99%,100%{opacity:1;transform:scale(1)}}
+
+/* — the SMART way — */
+.async .tst-glow{animation:as-tst-heat var(--cyc) linear infinite;}
+.async .toast{animation:as-toast var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .fx.ding{animation:bk-ding var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .fx.pop{animation:as-pop var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .think{animation:as-think var(--cyc) ease-in-out infinite;}
+.async .kid{animation:as-kid var(--cyc) ease-in-out infinite;}
+.async .arm.l{animation:as-arm-l var(--cyc) ease-in-out infinite;}
+.async .arm.r{animation:as-arm-r var(--cyc) ease-in-out infinite;}
+.async .mouth-flat{display:none;}
+.async .mouth-smile{opacity:1;}
+.async .set.s1{animation:as-set1 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .set.s2{animation:as-set2 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .set.s3{animation:as-set3 var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+.async .say.n1{animation:as-say1 var(--cyc) ease-in-out infinite;}
+.async .say.n2{animation:as-say2 var(--cyc) ease-in-out infinite;}
+.async .say.n3{animation:as-say3 var(--cyc) ease-in-out infinite;}
+.async .say.n4{animation:as-say4 var(--cyc) ease-in-out infinite;}
+@keyframes as-say1{0%,3%{opacity:0;transform:translateY(7px)}6%,15%{opacity:1;transform:translateY(0)}18%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes as-say2{0%,17%{opacity:0;transform:translateY(7px)}20%,31%{opacity:1;transform:translateY(0)}34%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes as-say3{0%,33%{opacity:0;transform:translateY(7px)}36%,44%{opacity:1;transform:translateY(0)}47%,100%{opacity:0;transform:translateY(-7px)}}
+@keyframes as-say4{0%,46%{opacity:0;transform:translateY(7px)}49%,100%{opacity:1;transform:translateY(0)}}
+.async .bk-flag{left:47%;transform:translateX(-50%) scale(.4);animation:as-flag var(--cyc) cubic-bezier(.34,1.56,.64,1) infinite;}
+@keyframes as-tst-heat{0%,6%{opacity:0}10%,31%{opacity:1}35%,100%{opacity:0}}
+@keyframes as-toast{0%,33%{opacity:0;transform:translate(-50%,14px)}36%{opacity:1}39%{transform:translate(-50%,-32px)}43%,100%{opacity:1;transform:translate(-50%,-26px)}}
+@keyframes as-pop{0%,33%{opacity:0;transform:translate(-50%,0) scale(.4)}38%{opacity:1;transform:translate(-50%,-10px) scale(1.18)}42%{transform:translate(-50%,-12px) scale(1)}48%{opacity:1}54%,100%{opacity:0;transform:translate(-50%,-18px) scale(.9)}}
+@keyframes as-think{0%,8%{opacity:0;transform:translateY(4px)}13%,40%{opacity:1;transform:translateY(0)}45%,100%{opacity:0;transform:translateY(-6px)}}
+@keyframes as-kid{0%,7%{transform:translate(0,0)}11%{transform:translate(34px,-7px)}16%,32%{transform:translate(74px,0)}37%{transform:translate(34px,-7px)}42%,44%{transform:translate(0,0)}48%{transform:translate(0,-14px)}52%{transform:translate(0,0)}55%{transform:translate(0,-7px)}58%,100%{transform:translate(0,0)}}
+@keyframes as-arm-l{0%,6%{transform:rotate(0)}12%,40%{transform:rotate(-28deg)}46%,100%{transform:rotate(-140deg)}}
+@keyframes as-arm-r{0%,6%{transform:rotate(0)}12%,40%{transform:rotate(28deg)}46%,100%{transform:rotate(140deg)}}
+@keyframes as-set1{0%,17%{opacity:0;transform:translateY(6px) scale(.5)}21%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes as-set2{0%,22%{opacity:0;transform:translateY(6px) scale(.5)}26%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes as-set3{0%,27%{opacity:0;transform:translateY(6px) scale(.5)}31%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes as-flag{0%,45%{opacity:0;transform:translateX(-50%) scale(.4)}50%,100%{opacity:1;transform:translateX(-50%) scale(1)}}
+
+@media (prefers-reduced-motion:reduce){
+  .bk-scene *{animation:none!important;}
+  .bk-scene .set,.bk-scene .mw-glow,.bk-scene .tst-glow{opacity:1;transform:none;}
+  .bk-scene .say.n1{opacity:1;transform:none;}
+  .bk-scene .bk-flag{opacity:1;transform:translateX(-50%);}
+  .bk-scene .bk-fill{width:100%;}
+}
+
+/* ── BREAKFAST → CODE MAPPING ── */
+.map-row{display:grid;grid-template-columns:1fr 24px 1.05fr;align-items:center;gap:8px;margin-bottom:7px;}
+.map-a{display:flex;gap:9px;align-items:center;background:#fff;border-radius:11px;padding:9px 14px;box-shadow:var(--shadow);border-left:4px solid var(--orange);font-size:13.5px;font-weight:700;}
+.map-a .n{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:12px;font-weight:900;}
+.map-arrow{text-align:center;font-size:15px;color:var(--muted);}
+.map-b{font-family:'Fira Code',monospace;font-size:12.5px;background:var(--dark);color:#e2dcff;border-radius:11px;padding:9px 13px;white-space:pre;overflow-x:auto;}
+.map-b .kw{color:var(--yellow);font-weight:700;} .map-b .fn{color:var(--teal);}
+.map-b .mod{color:var(--pink);} .map-b .nu{color:var(--cyan);} .map-b .cm{color:#6e65a0;font-style:italic;}
+.hl-async{border-radius:4px;padding:1px 4px;background:rgba(199,125,255,.26);box-shadow:0 0 0 1.5px rgba(199,125,255,.6);}
+.hl-await{border-radius:4px;padding:1px 4px;background:rgba(255,217,61,.22);box-shadow:0 0 0 1.5px rgba(255,217,61,.65);}
+.kw-card{display:flex;flex-direction:column;gap:7px;background:#fff;border-radius:var(--radius);padding:15px 18px;box-shadow:var(--shadow);border-top:4px solid;}
+.kw-card .kw-name{font-family:'Fira Code',monospace;font-size:16.5px;font-weight:700;}
+.kw-card .kw-line{font-size:13.5px;line-height:1.5;}
+.kw-card .kw-brk{font-size:13px;font-style:italic;color:var(--muted);border-left:3px solid #E6E0F0;padding-left:9px;}
 </style>
 </head>
 <body>
@@ -314,9 +477,9 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   <h1>Programming <em>SPIKE Prime</em> with Python 🤖</h1>
   <p style="font-size:clamp(14px,1.8vw,19px);color:var(--muted);margin-top:14px;font-weight:600;">Take everything you've learned about Python and use it to make a real robot move, beep, see, and think — all from VS Code.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
-    <span class="tag tag-red">✦ The Golden Rule (FLL-safe)</span>
     <span class="tag tag-blue">✦ The Workflow</span>
     <span class="tag tag-lime">✦ Setup</span>
+    <span class="tag tag-violet">✦ Async &amp; Await</span>
     <span class="tag tag-orange">✦ Example Code</span>
     <span class="tag tag-purple">✦ Quiz</span>
   </div>
@@ -351,65 +514,6 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 </div>
 
 <!-- ══════════════ SLIDE 2b — WORD BANK ══════════════ -->
-<div class="slide" id="s2b">
-  <div class="blob b1"></div>
-  <div class="slide-label">Before We Start — Tech Words</div>
-  <h2>A few new words that give you superpowers 💥</h2>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:4px;">You'll hear these words all lesson. Learn them once here and the rest is easy.</p>
-
-  <div class="hero-word" style="margin-top:10px;">
-    <span class="big-icon">🧠</span>
-    <div>
-      <h3 style="font-size:16px;">Firmware <span class="tag tag-purple" style="margin-left:6px;">the big one</span></h3>
-      <p style="font-size:13px;margin-top:4px;"><strong>Firmware is the hub's operating system</strong> — just like <strong>Windows</strong> or <strong>macOS</strong> runs your laptop, and <strong>iOS/Android</strong> runs a phone, LEGO's firmware runs the SPIKE hub. It's built in, it came with the hub, and it's what lets the hub understand your programs at all.</p>
-      <p style="font-size:12.5px;color:var(--muted);margin-top:5px;">👉 We <em>never</em> replace it. That's the whole next slide!</p>
-    </div>
-  </div>
-
-  <div class="word-grid">
-    <div class="world-card" style="border-color:var(--red);">
-      <span class="icon">🔥</span>
-      <div><h3>Flash</h3><p style="font-size:12.5px;">To <strong>erase and replace</strong> the firmware with a different one. This is the one thing we do <strong>not</strong> do — it would change the hub's "operating system."</p></div>
-    </div>
-    <div class="world-card" style="border-color:var(--teal);">
-      <span class="icon">📤</span>
-      <div><h3>Upload</h3><p style="font-size:12.5px;">To <strong>send your <code>.py</code> program</strong> to the hub so it can run. This is totally safe — it does <em>not</em> touch the firmware.</p></div>
-    </div>
-    <div class="world-card" style="border-color:var(--orange);">
-      <span class="icon">⚙️</span>
-      <div><h3>Compile</h3><p style="font-size:12.5px;">To <strong>translate</strong> your Python into a tidy form the hub reads fast (a <code>.mpy</code> file). VS Code does this for you automatically.</p></div>
-    </div>
-    <div class="world-card" style="border-color:var(--blue);">
-      <span class="icon">💡</span>
-      <div><h3>Stubs</h3><p style="font-size:12.5px;">Tiny <strong>hint files</strong> that teach VS Code the SPIKE commands, so it <strong>autocompletes</strong> them as you type. They install with the repo.</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ SLIDE 3 — GOLDEN RULE ══════════════ -->
-<div class="slide" id="s3">
-  <div class="blob b1"></div>
-  <div class="slide-label">The Most Important Rule</div>
-  <h2>Never change the hub's firmware 🚫🔧</h2>
-  <div class="grid2" style="margin-top:6px;">
-    <div class="card" style="border-top:4px solid var(--red);display:flex;flex-direction:column;gap:8px;">
-      <div style="font-size:26px;">⚠️</div>
-      <h3>Why this matters for FLL</h3>
-      <p style="font-size:13px;">Our hub runs the <strong>official LEGO firmware</strong>, which already includes Python built in. Some tools (like <strong>Pybricks</strong>) <strong>replace that firmware</strong> with their own.</p>
-      <p style="font-size:12.5px;">To stay safe and simple for competition, we <strong>never flash or change firmware</strong>. The hub stays exactly like a brand-new one out of the box.</p>
-    </div>
-    <div class="card" style="border-top:4px solid var(--teal);display:flex;flex-direction:column;gap:8px;">
-      <div style="font-size:26px;">✅</div>
-      <h3>How we stay safe</h3>
-      <p style="font-size:13px;">Every tool we use just <strong>sends a <code>.py</code> file</strong> to the hub and presses "run." Nothing about the hub is modified.</p>
-      <p style="font-size:12.5px;">And for the actual competition, the final code is downloaded from the <strong>100% official SPIKE App</strong> — zero questions asked.</p>
-    </div>
-  </div>
-  <div style="margin-top:12px;background:#FFE0E0;border-radius:12px;padding:10px 16px;border-left:4px solid var(--red);">
-    <p style="font-size:13px;color:#A32D2D;"><strong>🧠 Remember:</strong> Writing Python ≠ changing firmware. We write Python <em>on top of</em> the firmware LEGO already gave us.</p>
-  </div>
-</div>
-
 <!-- ══════════════ SLIDE 4 — WORKFLOW ══════════════ -->
 <div class="slide" id="s4">
   <div class="blob b1"></div>
@@ -474,20 +578,6 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
     </div>
   </div>
   <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:14px;">Same three steps as the last slide — now you can watch the code travel from your laptop to the robot. 🤖</p>
-</div>
-
-<!-- ══════════════ SLIDE 5 — SETUP CHECKLIST ══════════════ -->
-<div class="slide" id="s5">
-  <div class="blob b1"></div>
-  <div class="slide-label">Setup — What You Need</div>
-  <h2>Your SPIKE + Python toolkit 🧰</h2>
-  <div class="checklist" style="margin-top:6px;">
-    <div class="check-row" style="border-color:var(--blue);"><span class="num">1️⃣</span><div><h3>The official SPIKE App 3</h3><p style="font-size:12.5px;">Keeps the hub on normal LEGO firmware and is how we download code for competition. (Hub should already be on SPIKE 3.x — this is standard, not a special flash.)</p></div></div>
-    <div class="check-row" style="border-color:var(--purple);"><span class="num">2️⃣</span><div><h3>VS Code + the Python extension</h3><p style="font-size:12.5px;">Exactly what you already use for lessons and assignments — nothing new to learn here.</p></div></div>
-    <div class="check-row" style="border-color:var(--teal);"><span class="num">3️⃣</span><div><h3>The SPIKE "upload &amp; run" extension</h3><p style="font-size:12.5px;">The <em>LEGO SPIKE Prime / MINDSTORMS</em> VS Code extension sends your file to the hub over USB or Bluetooth. On our hubs it needs one setting — <strong>compile to <code>.mpy</code></strong> — which this repo already turns on for you.</p></div></div>
-    <div class="check-row" style="border-color:var(--orange);"><span class="num">4️⃣</span><div><h3>SPIKE 3 autocomplete stubs</h3><p style="font-size:12.5px;">Custom stubs your coaches wrote for the SPIKE 3 commands, so VS Code suggests them as you type. They install automatically with the repo — nothing to set up, and they're never sent to the hub, so FLL is unaffected.</p></div></div>
-    <div class="check-row" style="border-color:var(--lime);"><span class="num">5️⃣</span><div><h3>USB cable (or Bluetooth)</h3><p style="font-size:12.5px;">USB is the most reliable way to connect the hub — best when a whole team is working. Bluetooth works too once the hub is paired.</p></div></div>
-  </div>
 </div>
 
 <!-- ══════════════ SLIDE 5b — MEET THE HARDWARE ══════════════ -->
@@ -637,6 +727,223 @@ runloop.<span class="fn">run</span>(<span class="fn">main</span>())</div>
 </div>
 
 <!-- ══════════════ SLIDE 7 — RUNLOOP PATTERN ══════════════ -->
+<!-- ══════════════ SLIDE 6c — SYNC: THE SLOW WAY ══════════════ -->
+<div class="slide" id="s6c">
+  <div class="blob b1"></div>
+  <div class="slide-label">Async &amp; Await — Part 1 of 4</div>
+  <h2>The slow way: do one thing, then just… wait 🐢</h2>
+  <p style="font-size:14.5px;color:var(--muted);">You're making breakfast: oatmeal in the microwave 🥣 and toast in the toaster 🍞. Here's the <strong>slow</strong> way — start the microwave, then <em>stand there staring at it</em> until it dings. Only then start the toaster.</p>
+
+  <div class="bk-scene sync">
+    <div class="bk-clock"><span class="hand"></span></div>
+    <div class="bk-say">
+      <div class="say n1">1&#65039;&#8419; The microwave is heating&hellip; and you just stand there watching it &#128528;</div>
+      <div class="say n2">&#128276; DING! The oatmeal is done &mdash; only NOW can you start the toaster</div>
+      <div class="say n3">2&#65039;&#8419; The toaster is toasting&hellip; and you&rsquo;re <em>still</em> just standing there &#128528;</div>
+      <div class="say n4">&#127838; POP! The toast is finally ready</div>
+      <div class="say n5">3&#65039;&#8419; Only now do you set the table &mdash; breakfast at the very last second &#128034;</div>
+    </div>
+    <div class="bk-zone appl-zone">
+      <div class="appl mw">
+        <div class="fx ding">DING! 🔔</div>
+        <div class="mw-body">
+          <div class="mw-door">
+            <div class="mw-glow"></div>
+            <div class="mw-steam">♨️</div>
+            <div class="mw-bowl">🥣</div>
+          </div>
+          <div class="mw-panel"><span class="mw-led"></span><span class="mw-btn"></span><span class="mw-btn"></span></div>
+        </div>
+        <div class="bk-cap">Microwave</div>
+      </div>
+      <div class="appl tst">
+        <div class="fx pop">POP! 🍞</div>
+        <div class="tst-wrap">
+          <div class="toast">🍞</div>
+          <div class="tst-body"><div class="tst-glow"></div><span class="tst-slot"></span></div>
+        </div>
+        <div class="bk-cap">Toaster <span style="opacity:.7;">(waiting its turn)</span></div>
+      </div>
+    </div>
+    <div class="bk-zone">
+      <div class="kid">
+        <div class="think">😴</div>
+        <div class="kid-head">
+          <span class="eye l"></span><span class="eye r"></span>
+          <span class="blush l"></span><span class="blush r"></span>
+          <span class="mouth-flat"></span><span class="mouth-smile"></span>
+        </div>
+        <div class="kid-body"><span class="arm l"></span><span class="arm r"></span></div>
+      </div>
+      <div class="bk-cap">You — doing nothing 😐</div>
+    </div>
+    <div class="bk-zone">
+      <div class="tbl">
+        <span class="set s1">🍽️</span><span class="set s2">🥄</span><span class="set s3">🥛</span>
+        <div class="tbl-top"></div><span class="lg l"></span><span class="lg r"></span>
+      </div>
+      <div class="bk-cap">Set the table</div>
+    </div>
+    <div class="bk-timer"><div class="bk-fill"></div><div class="bk-flag">🎉 Breakfast ready!</div></div>
+  </div>
+
+  <div class="grid2" style="margin-top:11px;">
+    <div class="card" style="border-top:4px solid var(--red);">
+      <h3>🐢 What went wrong?</h3>
+      <p style="font-size:13.5px;margin-top:4px;">Nothing else could happen while you waited. The toaster sat cold, the table stayed empty — even though <em>you</em> weren't busy at all. Watch the timer bar: breakfast is ready at the very last second.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--purple);">
+      <h3>🤖 Why robots care</h3>
+      <p style="font-size:13.5px;margin-top:4px;">Motors, sounds, and sensors all take <strong>real time</strong>. If the hub froze completely every time it waited, your robot could never drive and watch a color sensor at the same time.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6d — ASYNC: THE SMART WAY ══════════════ -->
+<div class="slide" id="s6d">
+  <div class="blob b1"></div>
+  <div class="slide-label">Async &amp; Await — Part 2 of 4</div>
+  <h2>The smart way: start it, then go be useful ⚡</h2>
+  <p style="font-size:14.5px;color:var(--muted);">Same breakfast, same clock. But this time you start the microwave <strong>and</strong> the toaster, then set the table while both are working. You only come back when something's actually ready.</p>
+
+  <div class="bk-scene async">
+    <div class="bk-clock"><span class="hand"></span></div>
+    <div class="bk-say">
+      <div class="say n1">1&#65039;&#8419; Start the microwave AND the toaster &mdash; both at the same time &#9889;</div>
+      <div class="say n2">2&#65039;&#8419; While they both work away, you go set the table &#127869;&#65039;</div>
+      <div class="say n3">&#127838; POP! &hellip; &#128276; DING! &mdash; you come back only when they&rsquo;re ready</div>
+      <div class="say n4">&#127881; Breakfast done in HALF the time &mdash; same clock, same microwave!</div>
+    </div>
+    <div class="bk-zone appl-zone">
+      <div class="appl mw">
+        <div class="fx ding">DING! 🔔</div>
+        <div class="mw-body">
+          <div class="mw-door">
+            <div class="mw-glow"></div>
+            <div class="mw-steam">♨️</div>
+            <div class="mw-bowl">🥣</div>
+          </div>
+          <div class="mw-panel"><span class="mw-led"></span><span class="mw-btn"></span><span class="mw-btn"></span></div>
+        </div>
+        <div class="bk-cap">Microwave</div>
+      </div>
+      <div class="appl tst">
+        <div class="fx pop">POP! 🍞</div>
+        <div class="tst-wrap">
+          <div class="toast">🍞</div>
+          <div class="tst-body"><div class="tst-glow"></div><span class="tst-slot"></span></div>
+        </div>
+        <div class="bk-cap">Toaster <span style="opacity:.7;">(running too!)</span></div>
+      </div>
+    </div>
+    <div class="bk-zone">
+      <div class="kid">
+        <div class="think">⚡</div>
+        <div class="kid-head">
+          <span class="eye l"></span><span class="eye r"></span>
+          <span class="blush l"></span><span class="blush r"></span>
+          <span class="mouth-flat"></span><span class="mouth-smile"></span>
+        </div>
+        <div class="kid-body"><span class="arm l"></span><span class="arm r"></span></div>
+      </div>
+      <div class="bk-cap">You — busy &amp; happy 😄</div>
+    </div>
+    <div class="bk-zone">
+      <div class="tbl">
+        <span class="set s1">🍽️</span><span class="set s2">🥄</span><span class="set s3">🥛</span>
+        <div class="tbl-top"></div><span class="lg l"></span><span class="lg r"></span>
+      </div>
+      <div class="bk-cap">Set the table</div>
+    </div>
+    <div class="bk-timer"><div class="bk-fill"></div><div class="bk-flag">🎉 Breakfast ready!</div></div>
+  </div>
+
+  <div class="grid2" style="margin-top:11px;">
+    <div class="card" style="border-top:4px solid var(--teal);">
+      <h3>⚡ Same clock, half the time</h3>
+      <p style="font-size:13.5px;margin-top:4px;">The microwave still takes exactly as long as before — but the toaster and the table-setting happened <em>during</em> the wait instead of after it. Breakfast lands halfway through the bar.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--yellow);">
+      <h3>🔑 The one-sentence version</h3>
+      <p style="font-size:13.5px;margin-top:4px;"><strong>Async means:</strong> start something, and while it's working, go do something else. Come back and check on it when it's done. That's the whole idea!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6e — BREAKFAST → CODE ══════════════ -->
+<div class="slide" id="s6e">
+  <div class="blob b1"></div>
+  <div class="slide-label">Async &amp; Await — Part 3 of 4</div>
+  <h2>From breakfast to Python 🍞➡️🐍</h2>
+  <p style="font-size:14.5px;color:var(--muted);margin-bottom:10px;">Every breakfast step has a matching line of SPIKE code. Same idea, different words.</p>
+
+  <div class="map-row">
+    <div class="map-a"><span class="n">1</span><span>Grab the recipe card that says <em>"this one has waiting steps"</em></span></div>
+    <div class="map-arrow">➜</div>
+    <div class="map-b"><span class="hl-async"><span class="kw">async def</span> <span class="fn">main</span>():</span></div>
+  </div>
+  <div class="map-row">
+    <div class="map-a"><span class="n">2</span><span>Start the microwave — and <strong>wait right here</strong> for the DING 🔔</span></div>
+    <div class="map-arrow">➜</div>
+    <div class="map-b">    <span class="hl-await"><span class="kw">await</span></span> <span class="mod">motor</span>.<span class="fn">run_for_degrees</span>(port.A, <span class="nu">360</span>, <span class="nu">720</span>)</div>
+  </div>
+  <div class="map-row">
+    <div class="map-a"><span class="n">3</span><span>Flip the toaster lever and <strong>walk away</strong> — no waiting needed</span></div>
+    <div class="map-arrow">➜</div>
+    <div class="map-b">    <span class="mod">light_matrix</span>.<span class="fn">show_image</span>(...)  <span class="cm"># no await!</span></div>
+  </div>
+  <div class="map-row">
+    <div class="map-a"><span class="n">4</span><span>Come back and <strong>wait right here</strong> for the POP 🍞</span></div>
+    <div class="map-arrow">➜</div>
+    <div class="map-b">    <span class="hl-await"><span class="kw">await</span></span> <span class="mod">sound</span>.<span class="fn">beep</span>(<span class="nu">440</span>, <span class="nu">400</span>, <span class="nu">100</span>)</div>
+  </div>
+  <div class="map-row">
+    <div class="map-a"><span class="n">5</span><span>Actually <strong>start</strong> making breakfast (nothing happens until you do!)</span></div>
+    <div class="map-arrow">➜</div>
+    <div class="map-b"><span class="mod">runloop</span>.<span class="fn">run</span>(<span class="fn">main</span>())</div>
+  </div>
+
+  <div style="margin-top:10px;background:#FFF8E1;border-radius:12px;padding:10px 16px;border-left:4px solid var(--yellow);">
+    <p style="font-size:14.5px;"><strong>👀 Spot the pattern:</strong> the steps you have to <em>wait</em> for get <code>await</code>. The instant steps don't. Writing the recipe card down isn't the same as cooking — that's why <code>runloop.run()</code> is needed at the bottom.</p>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6f — WHY BOTH KEYWORDS ══════════════ -->
+<div class="slide" id="s6f">
+  <div class="blob b1"></div>
+  <div class="slide-label">Async &amp; Await — Part 4 of 4</div>
+  <h2>Why <code style="color:var(--purple)">async</code> on the <em>def</em>, and <code style="color:var(--orange)">await</code> on the <em>call</em>? 🤔</h2>
+  <p style="font-size:14.5px;color:var(--muted);margin-bottom:10px;">They're two different jobs — one labels the whole recipe, the other marks one single step.</p>
+
+  <div class="grid2">
+    <div class="kw-card" style="border-top-color:var(--purple);">
+      <div style="font-size:24px;">📋</div>
+      <div class="kw-name" style="color:var(--purple);">async def main():</div>
+      <p class="kw-line"><strong>Goes on the whole function.</strong> It's a heads-up label: <em>"the steps inside here include some waiting."</em></p>
+      <p class="kw-line"><strong>Why it's needed:</strong> Python has to know <em>before</em> it starts running that this function might pause. Without <code>async</code>, you're not even allowed to write <code>await</code> inside.</p>
+      <p class="kw-brk">🍳 Breakfast version: writing "⏳ has waiting steps" at the top of the recipe card.</p>
+    </div>
+    <div class="kw-card" style="border-top-color:var(--orange);">
+      <div style="font-size:24px;">✋</div>
+      <div class="kw-name" style="color:var(--orange);">await motor.run_for_degrees(…)</div>
+      <p class="kw-line"><strong>Goes on one single step</strong>, at the moment you call it. It means: <em>"stop right here until this finishes, then keep going."</em></p>
+      <p class="kw-line"><strong>Why it's needed:</strong> a motor takes real seconds to turn. Without <code>await</code>, Python fires off the command and races to the next line — so the motor barely moves before it's interrupted.</p>
+      <p class="kw-brk">🍳 Breakfast version: "don't touch the oatmeal until the DING."</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:11px;">
+    <div class="card" style="border-top:4px solid var(--teal);">
+      <h3>🤝 They're a package deal</h3>
+      <p style="font-size:13.5px;margin-top:4px;"><code>await</code> only ever lives <strong>inside</strong> an <code>async def</code>. You'll never see one without the other — if a function needs to wait, it must be <code>async</code>.</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--red);">
+      <h3>🚨 Two classic mistakes</h3>
+      <p style="font-size:13.5px;margin-top:4px;"><strong>❌ Forgot <code>await</code></strong> → the motor twitches and stops.<br><strong>❌ Forgot <code>async</code></strong> → Python throws a <code>SyntaxError</code> on the <code>await</code> line.</p>
+    </div>
+  </div>
+</div>
+
 <div class="slide" id="s7">
   <div class="blob b1"></div>
   <div class="slide-label">The One New Idea — <code style="color:var(--yellow)">runloop</code></div>
@@ -1000,6 +1307,7 @@ slides.forEach((_,i)=>{
   d.onclick = () => goTo(i);
   dotsEl.appendChild(d);
 });
+document.getElementById('ctr').textContent = '1 / ' + slides.length;
 function goTo(n){
   slides[cur].classList.remove('active');
   slides[cur].classList.add('out');
