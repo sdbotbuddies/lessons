@@ -94,18 +94,17 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
 #s2 .b1{width:300px;height:300px;background:var(--teal);top:-70px;right:-70px;}
 #s3 .b1{width:300px;height:300px;background:var(--blue);top:-70px;left:-70px;}
 #s4 .b1{width:300px;height:300px;background:var(--lime);top:-70px;right:-70px;}
-#s5 .b1{width:340px;height:340px;background:var(--red);top:-80px;right:-80px;}
-#s6 .b1{width:280px;height:280px;background:var(--violet);top:-60px;left:-60px;}
-#s7 .b1{width:280px;height:280px;background:var(--orange);top:-60px;right:-60px;}
-#s8 .b1{width:280px;height:280px;background:var(--cyan);top:-60px;left:-60px;}
-#s9 .b1{width:280px;height:280px;background:var(--pink);top:-60px;right:-60px;}
-#s10 .b1{width:280px;height:280px;background:var(--green);top:-60px;left:-60px;}
-#s11 .b1{width:300px;height:300px;background:var(--red);top:-70px;right:-70px;}
-#s12 .b1{width:300px;height:300px;background:var(--violet);top:-70px;left:-70px;}
-#s13 .b1{width:300px;height:300px;background:var(--purple);top:-70px;right:-70px;}
-#s14 .b1{width:300px;height:300px;background:var(--blue);top:-70px;left:-70px;}
-#s15 .b1{width:300px;height:300px;background:var(--teal);top:-70px;right:-70px;}
-#s16 .b1{width:420px;height:420px;background:var(--purple);top:-110px;right:-90px;}
+#s5 .b1{width:280px;height:280px;background:var(--violet);top:-60px;left:-60px;}
+#s6 .b1{width:280px;height:280px;background:var(--orange);top:-60px;right:-60px;}
+#s7 .b1{width:280px;height:280px;background:var(--cyan);top:-60px;left:-60px;}
+#s8 .b1{width:280px;height:280px;background:var(--pink);top:-60px;right:-60px;}
+#s9 .b1{width:280px;height:280px;background:var(--green);top:-60px;left:-60px;}
+#s10 .b1{width:300px;height:300px;background:var(--red);top:-70px;right:-70px;}
+#s11 .b1{width:300px;height:300px;background:var(--violet);top:-70px;left:-70px;}
+#s12 .b1{width:300px;height:300px;background:var(--purple);top:-70px;right:-70px;}
+#s13 .b1{width:300px;height:300px;background:var(--blue);top:-70px;left:-70px;}
+#s14 .b1{width:300px;height:300px;background:var(--teal);top:-70px;right:-70px;}
+#s15 .b1{width:420px;height:420px;background:var(--purple);top:-110px;right:-90px;}
 </style>
 </head>
 <body>
@@ -123,7 +122,6 @@ code,.mono{font-family:'Fira Code',monospace;background:#F0EBF8;border-radius:6p
   <p style="font-size:clamp(14px,1.8vw,19px);color:var(--muted);margin-top:14px;font-weight:600;max-width:820px;">A different way to program the same SPIKE Prime hub — with gyro turns, true multitasking, and instant uploads straight from VS Code.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
     <span class="tag tag-blue">✦ What Pybricks Is</span>
-    <span class="tag tag-red">✦ The Firmware Warning</span>
     <span class="tag tag-lime">✦ Setup</span>
     <span class="tag tag-violet">✦ Multitasking</span>
     <span class="tag tag-cyan">✦ API Reference</span>
@@ -225,32 +223,8 @@ robot.<span class="fn">straight</span>(<span class="nu">300</span>)</div>
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 5 — THE FIRMWARE WARNING ══════════════ -->
+<!-- ══════════════ SLIDE 5 — SETUP 1 ══════════════ -->
 <div class="slide" id="s5">
-  <div class="blob b1"></div>
-  <div class="slide-label">Read This Before You Touch Anything</div>
-  <h2>⚠️ The firmware warning</h2>
-  <div class="warn-box" style="margin-top:6px;">
-    <h3>Installing Pybricks replaces the LEGO firmware on your hub.</h3>
-    <p style="font-size:14px;">While Pybricks is installed, your hub <strong>cannot run programs from the LEGO SPIKE App</strong>. Your old programs are still safe on your computer — the hub just can't run them until you switch back.</p>
-  </div>
-  <div class="grid2" style="margin-top:16px;">
-    <div class="card" style="border-left:4px solid var(--red);">
-      <h3>🏆 Before an FLL event</h3>
-      <p style="font-size:13px;margin-top:4px;"><strong>Put the LEGO firmware back</strong>, unless your coach tells you otherwise. Lesson 11's SPIKE App workflow is our competition path — that hasn't changed.</p>
-    </div>
-    <div class="card" style="border-left:4px solid var(--green);">
-      <h3>😌 You can't break it</h3>
-      <p style="font-size:13px;margin-top:4px;">Switching is reversible and takes about two minutes each way. Nothing here is permanent, and you cannot brick your hub by following these steps.</p>
-    </div>
-  </div>
-  <div style="margin-top:16px;background:var(--yellow);border-radius:12px;padding:12px 18px;">
-    <p style="font-size:13px;"><strong>Ask a coach first.</strong> Don't flash a team hub without checking — someone else may be mid-way through a mission run on it.</p>
-  </div>
-</div>
-
-<!-- ══════════════ SLIDE 6 — SETUP 1 ══════════════ -->
-<div class="slide" id="s6">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Step 1 of 5</div>
   <h2>Install the tools</h2>
@@ -269,8 +243,8 @@ uv sync</div>
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 7 — SETUP 2: FIRMWARE ══════════════ -->
-<div class="slide" id="s7">
+<!-- ══════════════ SLIDE 6 — SETUP 2: FIRMWARE ══════════════ -->
+<div class="slide" id="s6">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Step 2 of 5</div>
   <h2>Put Pybricks on the hub</h2>
@@ -286,8 +260,8 @@ uv sync</div>
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 8 — SETUP 3: FIRST PROGRAM ══════════════ -->
-<div class="slide" id="s8">
+<!-- ══════════════ SLIDE 7 — SETUP 3: FIRST PROGRAM ══════════════ -->
+<div class="slide" id="s7">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Step 3 of 5</div>
   <h2>Run your first program</h2>
@@ -310,8 +284,8 @@ hub.display.<span class="fn">text</span>(<span class="st">"BOT BUDDIES"</span>)<
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 9 — SETUP 4: VS CODE ══════════════ -->
-<div class="slide" id="s9">
+<!-- ══════════════ SLIDE 8 — SETUP 4: VS CODE ══════════════ -->
+<div class="slide" id="s8">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Step 4 of 5</div>
   <h2>Running from VS Code</h2>
@@ -332,12 +306,12 @@ hub.display.<span class="fn">text</span>(<span class="st">"BOT BUDDIES"</span>)<
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 10 — SETUP 5: RESTORE ══════════════ -->
-<div class="slide" id="s10">
+<!-- ══════════════ SLIDE 9 — SETUP 5: RESTORE ══════════════ -->
+<div class="slide" id="s9">
   <div class="blob b1"></div>
   <div class="slide-label">Setup — Step 5 of 5</div>
   <h2>Putting the LEGO firmware back</h2>
-  <p>Do this before an FLL event, or any time you want the SPIKE App again.</p>
+  <p>The hub runs one firmware at a time, so while Pybricks is installed it <strong>won't run programs from the LEGO SPIKE App</strong>. Your old programs are safe on your computer — the hub just needs LEGO's firmware back to run them. Here's how, any time you want it:</p>
   <div class="steps" style="margin-top:12px;">
     <div class="step-row"><div class="step-badge">1</div><div><p style="font-size:13.5px;">Open the <strong>LEGO Education SPIKE App</strong> (<span class="mono" style="font-size:11.5px;">education.lego.com/en-us/downloads/spike-app/software/</span>).</p></div></div>
     <div class="step-row"><div class="step-badge">2</div><div><p style="font-size:13.5px;">Connect your hub with the <strong>USB cable</strong>.</p></div></div>
@@ -350,8 +324,8 @@ hub.display.<span class="fn">text</span>(<span class="st">"BOT BUDDIES"</span>)<
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 11 — VIDEOS ══════════════ -->
-<div class="slide" id="s11">
+<!-- ══════════════ SLIDE 10 — VIDEOS ══════════════ -->
+<div class="slide" id="s10">
   <div class="blob b1"></div>
   <div class="slide-label">Watch These</div>
   <h2>📺 Pybricks on video</h2>
@@ -380,8 +354,8 @@ hub.display.<span class="fn">text</span>(<span class="st">"BOT BUDDIES"</span>)<
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 12 — MULTITASKING IDEA ══════════════ -->
-<div class="slide" id="s12">
+<!-- ══════════════ SLIDE 11 — MULTITASKING IDEA ══════════════ -->
+<div class="slide" id="s11">
   <div class="blob b1"></div>
   <div class="slide-label">The Big One for FLL — Part 1 of 2</div>
   <h2>🔀 Doing two things at once</h2>
@@ -410,8 +384,8 @@ arm.<span class="fn">run_angle</span>(<span class="nu">500</span>, <span class="
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 13 — MULTITASKING CODE ══════════════ -->
-<div class="slide" id="s13">
+<!-- ══════════════ SLIDE 12 — MULTITASKING CODE ══════════════ -->
+<div class="slide" id="s12">
   <div class="blob b1"></div>
   <div class="slide-label">The Big One for FLL — Part 2 of 2</div>
   <h2>How multitasking looks in code</h2>
@@ -445,8 +419,8 @@ arm.<span class="fn">run_angle</span>(<span class="nu">500</span>, <span class="
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 14 — API REFERENCE ══════════════ -->
-<div class="slide" id="s14">
+<!-- ══════════════ SLIDE 13 — API REFERENCE ══════════════ -->
+<div class="slide" id="s13">
   <div class="blob b1"></div>
   <div class="slide-label">Keep This Slide Open</div>
   <h2>📖 API reference</h2>
@@ -480,8 +454,8 @@ arm.<span class="fn">run_angle</span>(<span class="nu">500</span>, <span class="
   </table>
 </div>
 
-<!-- ══════════════ SLIDE 15 — TRY IT ══════════════ -->
-<div class="slide" id="s15">
+<!-- ══════════════ SLIDE 14 — TRY IT ══════════════ -->
+<div class="slide" id="s14">
   <div class="blob b1"></div>
   <div class="slide-label">Now Go Play</div>
   <h2>🎮 Ten programs to try</h2>
@@ -513,15 +487,15 @@ arm.<span class="fn">run_angle</span>(<span class="nu">500</span>, <span class="
   </div>
 </div>
 
-<!-- ══════════════ SLIDE 16 — WRAP UP ══════════════ -->
-<div class="slide" id="s16">
+<!-- ══════════════ SLIDE 15 — WRAP UP ══════════════ -->
+<div class="slide" id="s15">
   <div class="blob b1"></div>
   <div style="margin:auto;text-align:center;max-width:760px;">
     <div style="font-size:56px;margin-bottom:10px;">⚡🤖</div>
     <h1 style="font-size:clamp(24px,3.6vw,44px);">That's Pybricks!</h1>
     <p style="font-size:clamp(14px,1.7vw,17px);color:var(--muted);margin-top:14px;font-weight:600;">Same hub, same robot, a different way of talking to it. Flash it, run <code>hello.py</code>, and go break something interesting.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px;">
-      <span class="tag tag-red">⚠️ Restore firmware before FLL</span>
+      <span class="tag tag-lime">🔁 Switch firmware back any time</span>
       <span class="tag tag-teal">📖 Docs: docs.pybricks.com</span>
       <span class="tag tag-purple">💬 Stuck? Ask a coach</span>
     </div>
@@ -538,7 +512,7 @@ arm.<span class="fn">run_angle</span>(<span class="nu">500</span>, <span class="
 <div class="nav">
   <button onclick="nav(-1)">←</button>
   <div class="dots" id="dots"></div>
-  <span class="slide-counter" id="ctr">1 / 16</span>
+  <span class="slide-counter" id="ctr">1 / 15</span>
   <button onclick="nav(1)">→</button>
 </div>
 
