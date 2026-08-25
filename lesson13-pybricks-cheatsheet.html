@@ -253,6 +253,37 @@ strong.hl{color:var(--orange);}
 </section>
 
 <section>
+  <h2>Seeing what your robot is doing</h2>
+  <p class="lead">You can't fix what you can't see. How you look depends on whether the laptop is
+  still connected.</p>
+  <table>
+    <tr><td class="c"><code>print("distance", robot.distance())</code></td><td class="d"><strong>While connected:</strong> shows up in the VS Code terminal as the program runs. <em>Always print a label, never a bare number</em></td></tr>
+    <tr><td class="c"><code>hub.display.number(7)</code></td><td class="d"><strong>Not connected:</strong> put a number on the hub and watch it while the robot drives</td></tr>
+    <tr><td class="c"><code>hub.light.on(Color.RED)</code></td><td class="d">Colour-code where you are: green = driving, orange = arm, red = something's wrong</td></tr>
+    <tr><td class="c"><code>hub.speaker.beep()</code></td><td class="d">A checkpoint you can <em>hear</em> — you don't have to look away from the robot</td></tr>
+    <tr><td class="c"><code>timer = StopWatch()</code> … <code>timer.time()</code></td><td class="d">How many <span class="unit">ms</span> did that part take? Find your slow mission</td></tr>
+  </table>
+  <p class="note">📋 <strong>To collect a lot of numbers:</strong> put them in a list while the robot
+  runs, then print the whole list at the end. Printing inside a fast loop <strong>slows the loop
+  down</strong> — which changes the very thing you were trying to measure.</p>
+  <p class="note">⚠️ <strong><code>DataLog</code> does not work on SPIKE Prime.</strong> Python will let
+  you import it, so it looks like it should — but it only saves files on the older EV3 brick. Use
+  <code>print()</code> instead.</p>
+</section>
+
+<section>
+  <h2>Tips for tuning a mission</h2>
+  <table>
+    <tr><td class="c"><strong>Change one thing</strong></td><td class="d">Change two and you won't know which one helped</td></tr>
+    <tr><td class="c"><strong>Run it three times</strong></td><td class="d">Same code, same start. If the results differ, your problem is <em>repeatability</em> — not the number you were adjusting</td></tr>
+    <tr><td class="c"><strong>Write down the battery</strong></td><td class="d">Note <code>hub.battery.voltage()</code> next to your results. Numbers tuned on a full battery won't hold on an empty one</td></tr>
+    <tr><td class="c"><strong>Mark your start</strong></td><td class="d">Tape the mat so the robot begins in exactly the same spot. Otherwise you're tuning the placement, not the code</td></tr>
+    <tr><td class="c"><strong>Test the piece, not the run</strong></td><td class="d">Write a tiny program that only does the bit you're fixing. Don't drive the whole mission to test the last 10 cm</td></tr>
+    <tr><td class="c"><strong>Guess first</strong></td><td class="d">Say what you think will happen <em>before</em> you run it. When you're wrong, you've learned something — that's the whole point</td></tr>
+  </table>
+</section>
+
+<section>
   <h2>Animations — these keep going by themselves</h2>
   <p class="lead">Start one and <strong>your program carries straight on</strong>. It repeats until you
   change it. Handy for showing "I'm working" during a mission.</p>
