@@ -263,12 +263,33 @@ strong.hl{color:var(--orange);}
     <tr><td class="c"><code>hub.speaker.beep()</code></td><td class="d">A checkpoint you can <em>hear</em> — you don't have to look away from the robot</td></tr>
     <tr><td class="c"><code>timer = StopWatch()</code> … <code>timer.time()</code></td><td class="d">How many <span class="unit">ms</span> did that part take? Find your slow mission</td></tr>
   </table>
+  <p class="note">🔌 <strong>Yes, this works while the robot is driving.</strong> Bluetooth stays
+  connected for the whole run, so lines appear in the terminal live. Just don't walk out of range.</p>
   <p class="note">📋 <strong>To collect a lot of numbers:</strong> put them in a list while the robot
   runs, then print the whole list at the end. Printing inside a fast loop <strong>slows the loop
   down</strong> — which changes the very thing you were trying to measure.</p>
   <p class="note">⚠️ <strong><code>DataLog</code> does not work on SPIKE Prime.</strong> Python will let
-  you import it, so it looks like it should — but it only saves files on the older EV3 brick. Use
-  <code>print()</code> instead.</p>
+  you import it, so it looks like it should — but it only saves files on the older EV3 brick. Use the
+  trick below instead.</p>
+</section>
+
+<section>
+  <h2>Saving numbers to a spreadsheet 📊</h2>
+  <p class="lead">There's a hidden feature: print a line starting <code>PB_OF:</code> and everything
+  after it gets <strong>saved to a file on your laptop</strong> instead of the terminal — until you
+  print <code>PB_EOF</code>. The file lands next to the program you ran.</p>
+  <table>
+    <tr><td class="c"><code>print("PB_OF:tuning.csv")</code></td><td class="d"><strong>Start saving.</strong> Creates <code>tuning.csv</code> beside your program</td></tr>
+    <tr><td class="c"><code>print("time,distance")</code></td><td class="d">Your column titles — commas between them</td></tr>
+    <tr><td class="c"><code>print(t, ",", d)</code></td><td class="d">One row of numbers. Repeat as the robot runs</td></tr>
+    <tr><td class="c"><code>print("PB_EOF")</code></td><td class="d"><strong>Stop saving.</strong> Prints go back to the terminal</td></tr>
+  </table>
+  <p class="note">Then double-click the <code>.csv</code> — it opens in Excel or Google Sheets, and you
+  can draw a graph of what your robot actually did. This is the best way to tune a line follower:
+  log the reflection reading and the correction, then look at the shape of the wobble.</p>
+  <p class="note">⚠️ <strong>This isn't in the official documentation.</strong> We found it by reading
+  the source code of the upload tool. It works today — but if it ever stops, that's why, and plain
+  <code>print()</code> will still be fine.</p>
 </section>
 
 <section>
