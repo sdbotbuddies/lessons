@@ -60,14 +60,15 @@ section.warnbox h2{color:var(--red);}
 section.later{border:2px dashed var(--blue);}
 section.later h2{color:var(--blue);}
 
-table{width:100%;border-collapse:collapse;}
-td{padding:5px 0;vertical-align:top;border-bottom:1px solid var(--line);}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+td{padding:5px 0;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere;}
 tr:last-child td{border-bottom:none;}
 td.c{width:47%;padding-right:10px;}
 code,.m{
   font-family:ui-monospace,Menlo,Consolas,monospace;
   font-size:12.5px;color:var(--code);background:var(--codebg);
   border-radius:4px;padding:1px 5px;
+  overflow-wrap:anywhere;word-break:break-word;
 }
 td.d{font-size:13.5px;color:var(--ink);}
 td.d em{color:var(--muted);font-style:normal;font-size:12.5px;}
