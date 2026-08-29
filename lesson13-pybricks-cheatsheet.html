@@ -154,8 +154,19 @@ strong.hl{color:var(--orange);}
     <tr><td class="c"><code>robot.stop()</code></td><td class="d">Stop driving</td></tr>
     <tr><td class="c"><code>robot.use_gyro(True)</code></td><td class="d">Measure real angles instead of counting wheel turns</td></tr>
     <tr><td class="c"><code>robot.distance()</code> <code>robot.angle()</code></td><td class="d">How far / how much you've turned since <code>reset()</code></td></tr>
-    <tr><td class="c"><code>robot.settings(200, 400, 150, 300)</code></td><td class="d">Speed, then how quickly it speeds up — driving, then turning</td></tr>
+    <tr><td class="c"><code>robot.settings(200, 400, 150, 300)</code></td><td class="d">Speed, then how quickly it speeds up and slows down — driving, then turning</td></tr>
   </table>
+  <p class="note"><strong>robot.settings() takes four numbers, always in this order:</strong><br>
+  <strong>1st</strong> — <code>straight_speed</code> <span class="unit">mm/s</span>: how fast you drive forward<br>
+  <strong>2nd</strong> — <code>straight_acceleration</code> <span class="unit">mm/s²</span>: how quickly that
+  speed ramps up and down<br>
+  <strong>3rd</strong> — <code>turn_rate</code> <span class="unit">deg/s</span>: how fast you turn<br>
+  <strong>4th</strong> — <code>turn_acceleration</code> <span class="unit">deg/s²</span>: how quickly turning
+  ramps up and down<br>
+  So <code>robot.settings(200, 400, 150, 300)</code> means: drive at 200 <span class="unit">mm/s</span>,
+  ramping at 400 <span class="unit">mm/s²</span>; turn at 150 <span class="unit">deg/s</span>, ramping at
+  300 <span class="unit">deg/s²</span>. Each acceleration number sets the <strong>same</strong> ramp rate
+  for both speeding up and slowing down.</p>
 </section>
 
 <section>
@@ -170,6 +181,7 @@ strong.hl{color:var(--orange);}
     <tr><td class="c"><code>arm.stop()</code></td><td class="d">Let it go loose</td></tr>
     <tr><td class="c"><code>arm.brake()</code></td><td class="d">Slow it down gently</td></tr>
     <tr><td class="c"><code>arm.hold()</code></td><td class="d">Freeze it exactly here, actively</td></tr>
+    <tr><td class="c"><code>arm.control.limits(500, 1000, 200)</code></td><td class="d">Cap <em>this motor's</em> max speed 500 <span class="unit">deg/s</span>, accel/decel rate 1000 <span class="unit">deg/s²</span>, max torque 200 <span class="unit">mNm</span></td></tr>
   </table>
   <p class="note"><strong>run_angle vs run_target:</strong> <em>angle</em> means "from wherever you are"
   — <em>target</em> means "to this exact spot". Target is the one you want for an arm with real positions.</p>
